@@ -1,5 +1,5 @@
 import React from 'react'
-import DropDown, { ButtonType, OpenDirection } from '../../DropDown'
+import DropDown, { OpenDirection } from '../../DropDown'
 import { DropDownEntryProps } from '../../DropDownEntry'
 import { IconTheme } from '../../DynamicIcon'
 
@@ -51,7 +51,6 @@ const FieldLabel: React.FC<React.PropsWithChildren<FieldLabelProps>> = (
         </div>
         <div className="py-0.5">
           <DropDown
-            menuButtonType={ButtonType.verticalEllipsis}
             menuEntries={dropDownEntries}
             openDirection={OpenDirection.bottomRight}
           />

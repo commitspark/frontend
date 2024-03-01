@@ -2,7 +2,7 @@ import React from 'react'
 import { GraphQLUnionType } from 'graphql/type/definition'
 import { GraphQLObjectType } from 'graphql/type'
 import LineCenteredElement from '../../LineCenteredElement'
-import DropDown, { ButtonType } from '../../DropDown'
+import DropDown from '../../DropDown'
 import { Actions } from '../../StyledButtonEnums'
 import IconButton, { IconPosition } from '../../IconButton'
 import { DropDownEntryProps } from '../../DropDownEntry'
@@ -38,11 +38,7 @@ const AddUnionTypeListEntryDropdown: React.FC<
 
   return (
     <LineCenteredElement>
-      <DropDown
-        menuButtonType={ButtonType.custom}
-        button={menuButton}
-        menuEntries={dropDownEntries}
-      />
+      <DropDown customButton={menuButton} menuEntries={dropDownEntries} />
     </LineCenteredElement>
   )
 }
