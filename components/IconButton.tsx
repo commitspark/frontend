@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { forwardRef, ForwardRefRenderFunction } from 'react'
 import StyledButton, { StyledButtonProps } from './StyledButton'
 import DynamicIcon, { IconTheme } from './DynamicIcon'
 import { classNames } from './lib/styling'
@@ -13,12 +13,10 @@ export enum IconPosition {
   succeeding,
 }
 
-const IconButton: React.FC<React.PropsWithChildren<IconButtonProps>> = ({
-  iconName,
-  iconPosition,
-  children,
-  ...buttonProps
-}) => {
+const IconButton: ForwardRefRenderFunction<
+  HTMLButtonElement,
+  React.PropsWithChildren<IconButtonProps>
+> = ({ iconName, iconPosition, children, ...buttonProps }, ref) => {
   const icon = (
     <DynamicIcon
       iconTheme={IconTheme.SolidIcons20}
@@ -27,7 +25,7 @@ const IconButton: React.FC<React.PropsWithChildren<IconButtonProps>> = ({
     />
   )
   return (
-    <StyledButton {...buttonProps}>
+    <StyledButton ref={ref} {...buttonProps}>
       <div
         className={classNames(
           'flex flex-row items-center',
@@ -41,4 +39,4 @@ const IconButton: React.FC<React.PropsWithChildren<IconButtonProps>> = ({
   )
 }
 
-export default IconButton
+export default forwardRef(IconButton)

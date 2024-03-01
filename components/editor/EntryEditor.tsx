@@ -14,7 +14,7 @@ import PageHeading from '../PageHeading'
 import { routes } from '../lib/route-generator'
 import { Actions, Size } from '../StyledButtonEnums'
 import CommitEntryModal from './CommitEntryModal'
-import DropDown, { ButtonType } from '../DropDown'
+import DropDown from '../DropDown'
 import { DropDownEntryProps } from '../DropDownEntry'
 import StyledButton from '../StyledButton'
 import DeleteEntryModal from './DeleteEntryModal'
@@ -396,10 +396,7 @@ export default function EntryEditor(props: EntryEditorProps) {
                     Commit
                   </StyledButton>
 
-                  <DropDown
-                    menuButtonType={ButtonType.verticalEllipsis}
-                    menuEntries={dropDownMenuEntries}
-                  />
+                  <DropDown menuEntries={dropDownMenuEntries} />
                 </div>
               </PageHeading>
             </div>

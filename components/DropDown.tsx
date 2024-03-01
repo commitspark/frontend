@@ -4,45 +4,33 @@ import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 import { classNames } from './lib/styling'
 import DropDownEntry, { DropDownEntryProps } from './DropDownEntry'
 
-export enum ButtonType {
-  verticalEllipsis,
-  custom,
-}
-
 export enum OpenDirection {
   bottomLeft,
   bottomRight,
 }
 
 interface DropDownProps {
-  menuButtonType: ButtonType
   menuEntries: DropDownEntryProps[]
   openDirection?: OpenDirection
-  button?: React.ReactElement
+  customButton?: React.ReactElement
+  customElement?: React.ReactElement
 }
 
 const DropDown: React.FC<DropDownProps> = (props: DropDownProps) => {
-  let buttonClassName: string = ''
-  let buttonElement: React.ReactElement = <></>
-
-  switch (props.menuButtonType) {
-    case ButtonType.verticalEllipsis: {
-      buttonClassName =
-        'flex items-center rounded-full menu-item-colors text-gray-600'
-      buttonElement = <EllipsisVerticalIcon className="h-5 w-5" />
-      break
-    }
-    case ButtonType.custom: {
-      if (!props.button) {
-        throw new Error('Expected button element')
-      }
-      buttonElement = props.button
-      break
-    }
-  }
-
   if (props.menuEntries.length === 0) {
     return <></>
+  }
+
+  let buttonClassName =
+    'flex items-center rounded-full menu-item-colors text-gray-600'
+  let buttonElement = <EllipsisVerticalIcon className="h-5 w-5" />
+
+  if (props.customButton) {
+    buttonClassName = ''
+    buttonElement = props.customButton
+  } else if (props.customElement) {
+    buttonClassName = ''
+    buttonElement = props.customElement
   }
 
   return (
@@ -51,7 +39,12 @@ const DropDown: React.FC<DropDownProps> = (props: DropDownProps) => {
       className="inline-block relative align-middle text-gray-700 text-sm"
     >
       <div>
-        <Menu.Button className={buttonClassName}>{buttonElement}</Menu.Button>
+        {props.customButton === undefined && (
+          <Menu.Button className={buttonClassName}>{buttonElement}</Menu.Button>
+        )}
+        {props.customButton !== undefined && (
+          <Menu.Button as={React.Fragment}>{buttonElement}</Menu.Button>
+        )}
       </div>
 
       <Transition

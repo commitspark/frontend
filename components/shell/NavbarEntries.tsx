@@ -5,7 +5,7 @@ import {
 } from '../context/RepositoryInfoProvider'
 import { routes } from '../lib/route-generator'
 import BackButton from './BackButton'
-import DropDown, { ButtonType } from '../DropDown'
+import DropDown from '../DropDown'
 import Avatar from './Avatar'
 import { DropDownEntryProps } from '../DropDownEntry'
 
@@ -35,8 +35,7 @@ const NavbarEntries: React.FC<NavbarEntries> = (props: NavbarEntries) => {
       <div className={'flex-grow'} />
       <div className="flex items-center">
         <DropDown
-          menuButtonType={ButtonType.custom}
-          button={<Avatar />}
+          customElement={<Avatar />}
           menuEntries={props.userNavigation}
         />
       </div>
