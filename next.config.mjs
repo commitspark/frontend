@@ -1,11 +1,12 @@
-const path = require('path')
+// @ts-check
+import path from 'node:path'
 
-module.exports = {
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
   trailingSlash: true,
   optimizeFonts: true,
-  sassOptions: {
-    includePaths: [path.join(__dirname, 'styles')],
-  },
   async redirects() {
     return [
       {
@@ -18,13 +19,12 @@ module.exports = {
   output: 'standalone',
   webpack: (
     config,
-    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack },
   ) => {
     config.resolve.alias.graphql$ = path.resolve(
-      __dirname,
       './node_modules/graphql/index.js',
     )
-    config.resolve.preferRelative = true
     return config
   },
 }
+
+export default nextConfig
