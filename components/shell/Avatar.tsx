@@ -7,8 +7,8 @@ import {
 } from '../context/RepositoryInfoProvider'
 import { getCookie } from 'cookies-next'
 import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../lib/cookies'
-import { GitHubProvider } from '../../lib/provider/github/github-provider'
 import { User } from '../../lib/provider/provider'
+import { commitsparkConfig } from '../../commitspark.config'
 
 interface AvatarProps {}
 
@@ -23,7 +23,7 @@ const Avatar: React.FC<React.PropsWithChildren<AvatarProps>> = (
   useEffect(() => {
     async function fetchUserInfo() {
       setUserInfo(null)
-      const provider = new GitHubProvider()
+      const provider = commitsparkConfig.createProvider()
       const user = await provider.getUser(token)
       if (!ignore) {
         setUserInfo(user)

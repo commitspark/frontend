@@ -6,7 +6,7 @@ import Link from 'next/link'
 import StyledButton from './StyledButton'
 import { Actions, Size } from './StyledButtonEnums'
 import { unstable_noStore as noStore } from 'next/cache'
-import { GithubAuthenticator } from '../lib/provider/github/github-authenticator'
+import { commitsparkConfig } from '../commitspark.config'
 
 interface SignInProps {}
 
@@ -14,7 +14,7 @@ const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
   // ensure environment variables are set to server-side values at runtime
   noStore()
 
-  const authenticator = new GithubAuthenticator()
+  const authenticator = commitsparkConfig.createAuthenticator()
 
   return (
     <div className="max-w-md flex flex-col gap-y-8 items-center">

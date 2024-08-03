@@ -1,7 +1,7 @@
 import { Branch, Provider, Repository, User } from '../provider'
 import { Octokit } from 'octokit'
 
-export class GitHubProvider implements Provider {
+export class GithubProvider implements Provider {
   async getBranches(
     authToken: string,
     repository: Repository,

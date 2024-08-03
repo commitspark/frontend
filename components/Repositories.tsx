@@ -7,8 +7,8 @@ import Loading from './Loading'
 import List from './List'
 import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
-import { GitHubProvider } from '../lib/provider/github/github-provider'
 import { Repository } from '../lib/provider/provider'
+import { commitsparkConfig } from '../commitspark.config'
 
 export interface RepositoriesProps {
   provider: string
@@ -24,7 +24,7 @@ const Repositories: React.FC<RepositoriesProps> = (
   useEffect(() => {
     async function fetchRepositories() {
       setRepositories([])
-      const provider = new GitHubProvider()
+      const provider = commitsparkConfig.createProvider()
       const repositories = await provider.getRepositories(token)
       if (!ignore) {
         setRepositories(repositories)
@@ -40,7 +40,7 @@ const Repositories: React.FC<RepositoriesProps> = (
   }, [token])
 
   const repoListEntries = repositories.map((repository) => {
-    const provider = new GitHubProvider()
+    const provider = commitsparkConfig.createProvider()
     return {
       linkTarget: routes.editingStartScreen(
         props.provider,

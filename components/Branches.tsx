@@ -8,7 +8,7 @@ import Loading from './Loading'
 import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
 import { Branch } from '../lib/provider/provider'
-import { GitHubProvider } from '../lib/provider/github/github-provider'
+import { commitsparkConfig } from '../commitspark.config'
 
 export interface BranchesProps {
   provider: string
@@ -26,7 +26,7 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
   useEffect(() => {
     async function fetchBranches() {
       setBranches([])
-      const provider = new GitHubProvider()
+      const provider = commitsparkConfig.createProvider()
       const branches = await provider.getBranches(token, {
         owner: props.owner,
         name: props.repository,

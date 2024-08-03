@@ -1,6 +1,5 @@
-import { GithubAuthenticator } from '../../../../lib/provider/github/github-authenticator'
+import { commitsparkConfig } from '../../../../commitspark.config'
 
 export async function GET(request: Request) {
-  const gitHubAuthenticator = new GithubAuthenticator()
-  return gitHubAuthenticator.authenticate(request)
+  return commitsparkConfig.createAuthenticator().authenticate(request)
 }
