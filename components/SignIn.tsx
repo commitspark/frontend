@@ -6,6 +6,7 @@ import Link from 'next/link'
 import StyledButton from './StyledButton'
 import { Actions, Size } from './StyledButtonEnums'
 import { unstable_noStore as noStore } from 'next/cache'
+import { GithubAuthenticator } from '../lib/provider/github/github-authenticator'
 
 interface SignInProps {}
 
@@ -13,14 +14,7 @@ const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
   // ensure environment variables are set to server-side values at runtime
   noStore()
 
-  const authorizeParams = new URLSearchParams({
-    scope: ['repo'].join(','),
-    client_id: process.env.GITHUB_OAUTH_CLIENT_ID ?? '',
-    redirect_uri: `${process.env.HOSTING_URL}/api/oauth/authorize-github-app/`,
-    state: new URLSearchParams({
-      // optional additional parameters
-    }).toString(),
-  })
+  const authenticator = new GithubAuthenticator()
 
   return (
     <div className="max-w-md flex flex-col gap-y-8 items-center">
@@ -28,10 +22,7 @@ const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
       <h2 className="text-2xl font-bold">Sign in to Commitspark</h2>
       <div className="flex flex-col bg-white shadow p-8 rounded items-center gap-y-6">
         <div className="text-sm text-gray-500">Sign in with</div>
-        <Link
-          href={`https://github.com/login/oauth/authorize?${authorizeParams.toString()}`}
-          className={'w-full'}
-        >
+        <Link href={authenticator.getAuthenticationUrl()} className={'w-full'}>
           <StyledButton
             actionType={Actions.neutral}
             size={Size.xl}
