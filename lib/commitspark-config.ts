@@ -1,9 +1,12 @@
 import { Provider } from './provider/provider'
 import { Authenticator } from './provider/authenticator'
 import { GitAdapter } from '@commitspark/git-adapter'
+import { ReactElement } from 'react'
 
 export interface CommitsparkConfig {
-  getProviderName: () => string
+  getProviderId: () => string
+  getProviderLabel: () => string
+  getProviderIcon: <P>(props: P) => ReactElement<P> | null
   createProvider: () => Provider
   createAuthenticator: () => Authenticator
   createGitAdapter: (

@@ -1,7 +1,6 @@
 import React from 'react'
 import logo from '../app/icon.png'
 import Image from 'next/image'
-import GitHubIcon from './elements/icons/GitHubIcon'
 import Link from 'next/link'
 import StyledButton from './StyledButton'
 import { Actions, Size } from './StyledButtonEnums'
@@ -15,6 +14,9 @@ const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
   noStore()
 
   const authenticator = commitsparkConfig.createAuthenticator()
+  const providerIcon = commitsparkConfig.getProviderIcon({
+    className: 'avatar-size',
+  })
 
   return (
     <div className="max-w-md flex flex-col gap-y-8 items-center">
@@ -30,8 +32,8 @@ const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
           >
             <div className="flex justify-center">
               <div className="flex flex-row gap-x-3 items-center px-12">
-                GitHub
-                <GitHubIcon className="avatar-size" />
+                {commitsparkConfig.getProviderLabel()}
+                {providerIcon}
               </div>
             </div>
           </StyledButton>

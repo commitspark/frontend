@@ -9,6 +9,7 @@ import { default as NextLink } from 'next/link'
 import { deleteCookie } from 'cookies-next'
 import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../lib/cookies'
 import { DropDownEntryProps } from '../DropDownEntry'
+import { commitsparkConfig } from '../../commitspark.config'
 
 interface NavbarProps {}
 
@@ -27,13 +28,14 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
       },
     },
   ]
+  const providerId = commitsparkConfig.getProviderId()
 
   return (
     <header className="menu-bar-height flex">
       {/* Logo area */}
       <div className="flex-none">
         <NextLink
-          href={`/p/github/`} // TODO generalize provider
+          href={`/p/${providerId}/`}
           className={
             'vertical-nav-width menu-bar-height vertical-nav-background flex aspect-square items-center justify-center'
           }

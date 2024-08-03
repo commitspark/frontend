@@ -8,7 +8,7 @@ export async function getAdapter(
   owner: string,
   name: string,
 ): Promise<GitAdapter> {
-  if (provider !== commitsparkConfig.getProviderName()) {
+  if (provider !== commitsparkConfig.getProviderId()) {
     throw new Error(`Unsupported provider "${provider}"`)
   }
 
