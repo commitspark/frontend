@@ -1,8 +1,5 @@
 import { GitAdapter } from '@commitspark/git-adapter'
-import {
-  createAdapter,
-  GitHubRepositoryOptions,
-} from '@commitspark/git-adapter-github'
+import { commitsparkConfig } from '../../commitspark.config'
 
 let adapter: GitAdapter
 export async function getAdapter(
@@ -11,17 +8,16 @@ export async function getAdapter(
   owner: string,
   name: string,
 ): Promise<GitAdapter> {
-  if (provider !== 'github') {
-    throw new Error('Unsupported provider')
+  if (provider !== commitsparkConfig.getProviderName()) {
+    throw new Error(`Unsupported provider "${provider}"`)
   }
 
   if (!adapter) {
-    const gitAdapter = createAdapter()
-    await gitAdapter.setRepositoryOptions({
+    const gitAdapter = await commitsparkConfig.createGitAdapter({
       repositoryOwner: owner,
       repositoryName: name,
-      personalAccessToken: token,
-    } as GitHubRepositoryOptions)
+      accessToken: token,
+    })
 
     // const cacheAdapter = createCacheAdapter()
     // await cacheAdapter.setRepositoryOptions({
