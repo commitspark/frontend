@@ -9,7 +9,6 @@ import { Branch } from '../lib/provider/provider'
 import { commitsparkConfig } from '../commitspark.config'
 
 export interface BranchesProps {
-  provider: string
   owner: string
   repository: string
   currentBranchName: string | null
@@ -46,7 +45,6 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
     (branch) =>
       ({
         linkTarget: routes.contentTypesList(
-          props.provider,
           props.owner,
           props.repository,
           branch.name,

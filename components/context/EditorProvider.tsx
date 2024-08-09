@@ -48,7 +48,6 @@ interface EditorProviderProps {
 }
 
 interface EntryProps {
-  provider: string
   owner: string
   repository: string
   gitRef: string

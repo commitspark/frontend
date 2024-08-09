@@ -9,7 +9,6 @@ import { GitAdapter } from '@commitspark/git-adapter'
 import GitHubIcon from './lib/provider/github/GitHubIcon'
 
 export const commitsparkConfig: CommitsparkConfig = {
-  getProviderId: () => 'github',
   getProviderLabel: () => 'GitHub',
   getProviderIcon: <P>(props: P) => GitHubIcon(props),
   createProvider: () => {

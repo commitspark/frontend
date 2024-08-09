@@ -13,7 +13,6 @@ import { routes } from './lib/route-generator'
 import { commitsparkConfig } from '../commitspark.config'
 
 export interface ContentTypesProps {
-  provider: string
   owner: string
   repository: string
   gitRef: string
@@ -30,12 +29,7 @@ const ContentTypes: React.FC<ContentTypesProps> = (
       setEntryTypes([])
       const token = await commitsparkConfig.createAuthenticator().getToken()
       const apiService = await getApiService()
-      const adapter = await getAdapter(
-        props.provider,
-        token,
-        props.owner,
-        props.repository,
-      )
+      const adapter = await getAdapter(token, props.owner, props.repository)
       const response = await apiService.getSchema(adapter, props.gitRef)
 
       const schema = makeExecutableSchema({
@@ -53,13 +47,12 @@ const ContentTypes: React.FC<ContentTypesProps> = (
     return () => {
       ignore = true
     }
-  }, [props.provider, props.owner, props.repository, props.gitRef])
+  }, [props.owner, props.repository, props.gitRef])
 
   const contentTypesListEntries = entryTypes.map(
     (entryType: string) =>
       ({
         linkTarget: routes.contentEntriesOfTypeList(
-          props.provider,
           props.owner,
           props.repository,
           props.gitRef,

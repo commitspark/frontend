@@ -7,15 +7,6 @@ import path from 'node:path'
 const nextConfig = {
   trailingSlash: true,
   optimizeFonts: true,
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/sign-in/',
-        permanent: true,
-      },
-    ]
-  },
   output: 'standalone',
   webpack: (
     config,

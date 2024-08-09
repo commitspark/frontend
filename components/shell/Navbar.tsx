@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { default as NextLink } from 'next/link'
 import { DropDownEntryProps } from '../DropDownEntry'
 import { commitsparkConfig } from '../../commitspark.config'
+import { routes } from '../lib/route-generator'
 
 interface NavbarProps {}
 
@@ -16,24 +17,23 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
   const userMenuEntries: DropDownEntryProps[] = [
     {
       label: 'Settings',
-      target: `/settings/`,
+      target: routes.settings(),
     },
     {
       label: 'Sign out',
       onClickHandler: async (event) => {
         await commitsparkConfig.createAuthenticator().removeAuthentication()
-        router.push(`/`)
+        router.push(routes.signIn())
       },
     },
   ]
-  const providerId = commitsparkConfig.getProviderId()
 
   return (
     <header className="menu-bar-height flex">
       {/* Logo area */}
       <div className="flex-none">
         <NextLink
-          href={`/p/${providerId}/`}
+          href={routes.repositoryList()}
           className={
             'vertical-nav-width menu-bar-height vertical-nav-background flex aspect-square items-center justify-center'
           }

@@ -2,13 +2,12 @@ import React from 'react'
 import Application, {
   Activity,
   Layout,
-} from '../../../../../../../../../../../components/shell/Application'
-import BranchSelectorColumn from '../../../../../../../../../../../components/shell/BranchSelectorColumn'
-import { EditorProvider } from '../../../../../../../../../../../components/context/EditorProvider'
-import EntryEditor from '../../../../../../../../../../../components/editor/EntryEditor'
+} from '../../../../../../../../../components/shell/Application'
+import BranchSelectorColumn from '../../../../../../../../../components/shell/BranchSelectorColumn'
+import { EditorProvider } from '../../../../../../../../../components/context/EditorProvider'
+import EntryEditor from '../../../../../../../../../components/editor/EntryEditor'
 
 interface PageParams {
-  provider: string
   owner: string
   name: string
   ref: string
@@ -19,7 +18,6 @@ export default async function Page({ params }: { params: PageParams }) {
   const decodedRef = decodeURIComponent(params.ref)
 
   const repositoryInfo = {
-    provider: params.provider,
     owner: params.owner,
     repository: params.name,
     gitRef: decodedRef,
@@ -30,7 +28,6 @@ export default async function Page({ params }: { params: PageParams }) {
       entryProps={{ ...repositoryInfo, typeName: params.typeName }}
     >
       <EntryEditor
-        provider={params.provider}
         owner={params.owner}
         repository={params.name}
         gitRef={decodedRef}

@@ -1,16 +1,14 @@
-import Application, { Layout } from '../../../components/shell/Application'
-import PageHeading from '../../../components/PageHeading'
-import Repositories from '../../../components/Repositories'
+import Application, { Layout } from '../components/shell/Application'
+import PageHeading from '../components/PageHeading'
+import Repositories from '../components/Repositories'
 import React from 'react'
 
-export interface ProviderPageParams {
-  provider: string
-}
+export interface RepositoriesListPageParams {}
 
-export default function ProviderPage({
+export default function RepositoriesListPage({
   params,
 }: {
-  params: ProviderPageParams
+  params: RepositoriesListPageParams
 }) {
   const primaryColumn = (
     <main className={'overflow-auto min-w-0 flex-1'}>
@@ -19,7 +17,7 @@ export default function ProviderPage({
           <div className={'border-b app-border-color'}>
             <PageHeading title={'Repositories'} />
           </div>
-          <Repositories provider={params.provider} />
+          <Repositories />
         </div>
       </div>
     </main>
@@ -30,7 +28,6 @@ export default function ProviderPage({
       layout={Layout.SingleArea}
       activity={null}
       repositoryInfo={{
-        provider: params.provider,
         owner: null,
         repository: null,
         gitRef: null,

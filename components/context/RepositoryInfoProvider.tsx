@@ -11,7 +11,6 @@ import React, {
 // see https://github.com/vercel/next.js/tree/canary/examples/with-context-api for help
 
 export interface RepositoryInfoState {
-  provider: string
   owner: string | null
   repository: string | null
   gitRef: string | null

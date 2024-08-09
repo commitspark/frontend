@@ -71,11 +71,7 @@ const Application: React.FC<React.PropsWithChildren<ApplicationProps>> = (
           key: Activity.editing,
           name: 'Edit',
           iconName: 'PencilSquareIcon',
-          link: routes.editingStartScreen(
-            props.repositoryInfo.provider,
-            owner,
-            repository,
-          ),
+          link: routes.editingStartScreen(owner, repository),
         },
       ],
     }
