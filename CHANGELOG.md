@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improve Next.js configuration
+- Refactor code to be Git provider-agnostic
+- Refactor code to allow Git provider configuration
 
 ## [0.9.0] - 2024-03-01
 
