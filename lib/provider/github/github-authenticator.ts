@@ -1,6 +1,7 @@
 import { Authenticator } from '../authenticator'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { deleteCookie, getCookie } from 'cookies-next'
+import { routes } from '../../../components/lib/route-generator'
 
 export class GithubAuthenticator implements Authenticator {
   private static COOKIE_NAME_TOKEN = 'provider_token_github'
@@ -18,7 +19,7 @@ export class GithubAuthenticator implements Authenticator {
     return `https://github.com/login/oauth/authorize?${authorizeParams.toString()}`
   }
 
-  async authenticate(request: Request): Promise<NextResponse> {
+  async authenticate(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url)
 
     const code = searchParams.get('code')
@@ -61,7 +62,7 @@ export class GithubAuthenticator implements Authenticator {
         }
 
         const response = NextResponse.redirect(
-          new URL(`/p/github`, hostingUrl),
+          new URL(routes.repositoryList(), hostingUrl),
           307,
         )
         response.cookies.set(
@@ -80,6 +81,15 @@ export class GithubAuthenticator implements Authenticator {
           status: 400,
         })
       })
+  }
+
+  isAuthenticated(request: NextRequest): Promise<boolean> {
+    return new Promise((resolve) =>
+      resolve(
+        request.cookies.get(GithubAuthenticator.COOKIE_NAME_TOKEN)?.value !==
+          undefined,
+      ),
+    )
   }
 
   getToken(): Promise<string> {
