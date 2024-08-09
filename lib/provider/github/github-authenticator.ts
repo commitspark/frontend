@@ -1,8 +1,10 @@
 import { Authenticator } from '../authenticator'
 import { NextResponse } from 'next/server'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../cookies'
+import { deleteCookie, getCookie } from 'cookies-next'
 
 export class GithubAuthenticator implements Authenticator {
+  private static COOKIE_NAME_TOKEN = 'provider_token_github'
+
   getAuthenticationUrl(): string {
     const authorizeParams = new URLSearchParams({
       scope: ['repo'].join(','),
@@ -62,11 +64,15 @@ export class GithubAuthenticator implements Authenticator {
           new URL(`/p/github`, hostingUrl),
           307,
         )
-        response.cookies.set(COOKIE_PROVIDER_TOKEN_GITHUB, accessToken, {
-          path: '/',
-          maxAge: 3600 * 24 * 30,
-          secure: true,
-        })
+        response.cookies.set(
+          GithubAuthenticator.COOKIE_NAME_TOKEN,
+          accessToken,
+          {
+            path: '/',
+            maxAge: 3600 * 24 * 30,
+            secure: true,
+          },
+        )
         return response
       })
       .catch((error) => {
@@ -74,5 +80,16 @@ export class GithubAuthenticator implements Authenticator {
           status: 400,
         })
       })
+  }
+
+  getToken(): Promise<string> {
+    return new Promise((resolve) =>
+      resolve(`${getCookie(GithubAuthenticator.COOKIE_NAME_TOKEN)}`),
+    )
+  }
+
+  removeAuthentication(): Promise<void> {
+    deleteCookie(GithubAuthenticator.COOKIE_NAME_TOKEN)
+    return new Promise((resolve) => resolve())
   }
 }

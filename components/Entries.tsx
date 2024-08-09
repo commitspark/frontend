@@ -1,7 +1,5 @@
 'use client'
 
-import { getCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../lib/cookies'
 import { useEffect, useState } from 'react'
 import { fetchAllByType, fetchSchema } from './lib/fetch'
 import List from './List'
@@ -11,6 +9,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { getListVisibleFieldNames } from './lib/schema-utils'
 import { routes } from './lib/route-generator'
 import { isObjectType } from 'graphql/type'
+import { commitsparkConfig } from '../commitspark.config'
 
 export interface EntriesOverviewProps {
   provider: string
@@ -21,7 +20,6 @@ export interface EntriesOverviewProps {
 }
 
 export default function Entries(props: EntriesOverviewProps) {
-  const token = `${getCookie(COOKIE_PROVIDER_TOKEN_GITHUB)}`
   const [entries, setEntries] = useState<Record<string, any>[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [visibleFieldNames, setVisibleFieldNames] = useState<string[]>()
@@ -29,6 +27,7 @@ export default function Entries(props: EntriesOverviewProps) {
   useEffect(() => {
     async function fetchEntries() {
       setEntries([])
+      const token = await commitsparkConfig.createAuthenticator().getToken()
       const schemaString = await fetchSchema(
         props.provider,
         token,
@@ -70,7 +69,13 @@ export default function Entries(props: EntriesOverviewProps) {
     return () => {
       ignore = true
     }
-  }, [token])
+  }, [
+    props.provider,
+    props.owner,
+    props.repository,
+    props.gitRef,
+    props.typeName,
+  ])
 
   const entryListEntries = entries.map((entry: any) => {
     let labelData: Record<string, any> = {}

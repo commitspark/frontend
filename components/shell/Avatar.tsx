@@ -5,8 +5,6 @@ import {
   RepositoryInfoState,
   useRepositoryInfo,
 } from '../context/RepositoryInfoProvider'
-import { getCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../lib/cookies'
 import { User } from '../../lib/provider/provider'
 import { commitsparkConfig } from '../../commitspark.config'
 
@@ -16,13 +14,13 @@ const Avatar: React.FC<React.PropsWithChildren<AvatarProps>> = (
   props: React.PropsWithChildren<AvatarProps>,
 ) => {
   const repositoryInfoState = useRepositoryInfo() as RepositoryInfoState
-  const token = `${getCookie(COOKIE_PROVIDER_TOKEN_GITHUB)}`
 
   const [userInfo, setUserInfo] = useState<User | null>(null)
 
   useEffect(() => {
     async function fetchUserInfo() {
       setUserInfo(null)
+      const token = await commitsparkConfig.createAuthenticator().getToken()
       const provider = commitsparkConfig.createProvider()
       const user = await provider.getUser(token)
       if (!ignore) {
@@ -35,7 +33,7 @@ const Avatar: React.FC<React.PropsWithChildren<AvatarProps>> = (
     return () => {
       ignore = true
     }
-  }, [token, repositoryInfoState])
+  }, [repositoryInfoState])
 
   return (
     <>

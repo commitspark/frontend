@@ -1,7 +1,5 @@
 'use client'
 
-import { getCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../lib/cookies'
 import React, { useEffect, useState } from 'react'
 import List from './List'
 import Loading from './Loading'
@@ -18,7 +16,6 @@ export interface BranchesProps {
 }
 
 const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
-  const token = `${getCookie(COOKIE_PROVIDER_TOKEN_GITHUB)}`
   const [branches, setBranches] = useState([] as Branch[])
   const [loading, setLoading] = useState<boolean>(true)
 
@@ -26,6 +23,7 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
   useEffect(() => {
     async function fetchBranches() {
       setBranches([])
+      const token = await commitsparkConfig.createAuthenticator().getToken()
       const provider = commitsparkConfig.createProvider()
       const branches = await provider.getBranches(token, {
         owner: props.owner,
@@ -42,7 +40,7 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
     return () => {
       ignore = true
     }
-  }, [token])
+  }, [props.owner, props.repository])
 
   const branchListEntries = branches.map(
     (branch) =>

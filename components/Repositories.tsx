@@ -1,7 +1,5 @@
 'use client'
 
-import { getCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../lib/cookies'
 import React, { useEffect, useState } from 'react'
 import Loading from './Loading'
 import List from './List'
@@ -17,13 +15,13 @@ export interface RepositoriesProps {
 const Repositories: React.FC<RepositoriesProps> = (
   props: RepositoriesProps,
 ) => {
-  const token = `${getCookie(COOKIE_PROVIDER_TOKEN_GITHUB)}`
   const [repositories, setRepositories] = useState<Repository[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     async function fetchRepositories() {
       setRepositories([])
+      const token = await commitsparkConfig.createAuthenticator().getToken()
       const provider = commitsparkConfig.createProvider()
       const repositories = await provider.getRepositories(token)
       if (!ignore) {
@@ -37,7 +35,7 @@ const Repositories: React.FC<RepositoriesProps> = (
     return () => {
       ignore = true
     }
-  }, [token])
+  }, [])
 
   const repoListEntries = repositories.map((repository) => {
     const provider = commitsparkConfig.createProvider()

@@ -6,8 +6,6 @@ import logo from '../../app/icon.png'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { default as NextLink } from 'next/link'
-import { deleteCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../lib/cookies'
 import { DropDownEntryProps } from '../DropDownEntry'
 import { commitsparkConfig } from '../../commitspark.config'
 
@@ -22,8 +20,8 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
     },
     {
       label: 'Sign out',
-      onClickHandler: (event) => {
-        deleteCookie(COOKIE_PROVIDER_TOKEN_GITHUB)
+      onClickHandler: async (event) => {
+        await commitsparkConfig.createAuthenticator().removeAuthentication()
         router.push(`/`)
       },
     },
