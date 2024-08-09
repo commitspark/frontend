@@ -1,33 +1,31 @@
-# Commitspark Content Editing Frontend
+# Commitspark Data Editing Frontend
 
-This repository holds the content editing frontend of CMS [Commitspark](https://commitspark.com).
-
-In Commitspark, by design, all data is stored in a Git repository on a hosted Git provider (e.g. GitHub), from
-content model (schema) and configuration all the way to actual content entries.
-
-As all data is stored in a Git repository hosted by a Git provider, the editing frontend is light-weight and does not
-require any additional persistence such as a database. Please see
-the [Commitspark documentation](https://commitspark.com/en-us/documentation) for further information.
+This repository holds the data editing frontend of [Commitspark](https://commitspark.com). It enables users with limited technical
+knowledge to create, read, update, and delete structured data stored through
+[Commitspark's GraphQL API](https://github.com/commitspark/graphql-api) in a Git repository hosted on a Git provider
+(e.g. GitHub, GitLab).
 
 ## User authentication
 
-Authentication of frontend users (i.e. content editors) is performed against the Git provider where a content repository
-is hosted. The underlying idea is that content editors can then use the same collaboration features that software
-developers use on these platforms (e.g. commenting, approval).
+As data is read from and written directly to hosted Git repositories, frontend users (i.e. data editors)
+must authenticate for repository access against a configurable authentication provider. Typically, this is the
+same provider where a Git repository is hosted. The underlying idea is that data editors can then use
+the all collaboration features offered on these providers (e.g. commenting, approval).
 
-### Supported Git providers
+## Supported Git providers
 
 * GitHub
+* User-defined custom Git provider
 
-Support for GitLab is planned for a future release.
+Official support for GitLab is planned for a future release.
 
 ### GitHub
 
-On GitHub, user authentication can be performed via a GitHub App.
+On GitHub, user authentication can be performed via GitHub App.
 
-To create a GitHub App that can authenticate your content editors, go
+To create a GitHub App that can authenticate your data editors, go
 to `Settings -> Developers settings -> (GitHub Apps) -> New GitHub App` under the user or organization that owns your
-designated content repository.
+designated data repository.
 
 The following settings are relevant, all other settings can be left to their defaults:
 
@@ -48,29 +46,34 @@ Once the App is created:
 * On the App's settings page, note the `Client ID` under `General -> About`, e.g.  `Iv1.abcef12345678901`
 * Generate a client secret with `Generate a new client secret` and copy the 40 character long hex key shown on screen
 * Install the App into your GitHub account or organization under `Install App -> Install` and select one or more
-  of your designated content repositories that content editors authenticating via the App may access
+  of your designated data repositories that should be available to data editors
 
-## Running the Commitspark editing frontend
-
-### Preparation
-
-The frontend application is configured through environment variables or a `.env` file (`.env.dist` can be used as
-a template).
-
-The following variables must be configured:
+Environment variables needed by the GitHub integration:
 
 | Variable                     | Description                                                                                                            |
 |------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | `GITHUB_OAUTH_CLIENT_ID`     | Client ID of GitHub App to be used for user authentication (see above),<br/>e.g. `Iv1.abcef12345678901`                |
 | `GITHUB_OAUTH_CLIENT_SECRET` | 40 character long hexadecimal client secret of the GitHub App,<br/>e.g. `0123456789abcdef01234567890abcdef0123456`     |
-| `HOSTING_URL`                | Public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com` |
+
+## Running the Commitspark editing frontend
+
+### Configuration
+
+The frontend application is configured through a configuration file [commitspark.config.ts](commitspark.config.ts)
+and further parametrized through environment variables or `.env` file.
+
+The following environment variables must be set independent of configuration:
+
+| Variable                     | Description                                                                                                                     |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `HOSTING_URL`                | Set to a public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com` |
 
 ### Running from source
 
 The frontend is implemented as a [Next.js](https://nextjs.org/) application, so the standard concepts of running and
 deploying Next.js applications apply.
 
-For local development or evaluation, simply run these commands:
+To run from source, simply clone this repository and run the following commands:
 
 ```shell
 npm install
@@ -81,7 +84,8 @@ Then open `http://localhost:3000` in your browser.
 
 ### Running from Docker
 
-Automated builds of branch `main` are published as a Docker image to GitHub packages:
+Automated builds of branch `main` with GitHub configured as Git provider are published as a Docker image to GitHub 
+packages:
 
 ```
 ghcr.io/commitspark/frontend:latest
@@ -95,13 +99,13 @@ docker run -e "GITHUB_OAUTH_CLIENT_ID=..." -e "GITHUB_OAUTH_CLIENT_SECRET=..." -
 
 Then open `http://localhost:3000` in your browser.
 
-## Getting started with content editing
+## Getting started with data editing
 
 To quickly see the Commitspark editing frontend in action, we offer a
-[public example content repository](https://github.com/commitspark/example-content-website) which you can
+[public example data repository](https://github.com/commitspark/example-content-website) which you can
 [use as a template](https://github.com/new?template_name=example-content-website&template_owner=commitspark) for
-your own content repository.
+your own data repository.
 
 After cloning, ensure your GitHub App grants access to this new repository
 (`GitHub -> Settings -> GitHub Apps -> Configure -> Repository access`), then go to your Commitspark frontend,
-sign in with GitHub and start editing in the repository.
+sign in with your authentication provider and start editing in the repository.
