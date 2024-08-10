@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react'
+import React, { memo } from 'react'
 import {
   GraphQLType,
   isListType,
@@ -15,18 +15,7 @@ import {
 import NamedType from './NamedType'
 import ListType from './ListType'
 import FieldLabel from './FieldLabel'
-import {
-  getDirectiveByName,
-  getNamedTypeFromWrappingType,
-} from '../../lib/schema-utils'
-import {
-  AiInstructionHandler,
-  AiProgressHandler,
-  EditorContextValue,
-  useEditor,
-} from '../../context/EditorProvider'
-import { processAiInstruction } from '../../lib/ai'
-import { STORAGE_TOKEN_OPEN_AI } from '../../../lib/localStorage'
+import { getNamedTypeFromWrappingType } from '../../lib/schema-utils'
 import { deepEqual } from '../../lib/content-utils'
 
 interface FieldProps {
@@ -40,23 +29,8 @@ interface FieldProps {
 
 const Field: React.FC<FieldProps> = memo<FieldProps>(
   (props: FieldProps) => {
-    const editorContext = useEditor() as EditorContextValue
-    const openAiToken: string =
-      localStorage.getItem(STORAGE_TOKEN_OPEN_AI) ?? ''
-
     let typeInstance
     let typeNameLabel = ''
-    let concreteFieldType: GraphQLType = props.field.type
-
-    let aiAbortController: AbortController | null = null
-    useEffect(() => {
-      return () => {
-        if (aiAbortController) {
-          aiAbortController.abort()
-        }
-      }
-    }, [aiAbortController])
-
     if (isNonNullType(props.fieldType)) {
       return (
         <Field
@@ -108,62 +82,11 @@ const Field: React.FC<FieldProps> = memo<FieldProps>(
           if (!concreteFieldTypeInstance) {
             throw new Error(`Unexpected union type "${concreteUnionTypeName}".`)
           }
-          concreteFieldType = concreteFieldTypeInstance
         }
       }
     } else {
       throw new Error(`Unknown field type for field "${props.field.name}"`)
     }
-
-    const offerAiAssist =
-      editorContext.isAiEnabled &&
-      isNamedType(props.fieldType) &&
-      !getDirectiveByName(props.fieldType, 'Entry') &&
-      props.fieldName !== 'id' // TODO generalize to not offer AI Assist for any disabled form field
-
-    const aiInstructionHandler: AiInstructionHandler = async (
-      instruction: string,
-      aiProgressHandler: AiProgressHandler,
-    ) => {
-      if (!aiAbortController) {
-        throw new Error('Expected AbortController instance')
-      }
-
-      const responseData = await processAiInstruction(
-        openAiToken,
-        editorContext.schema.current,
-        null,
-        props.field,
-        editorContext.entryData.current,
-        props.data,
-        instruction,
-        aiProgressHandler,
-        aiAbortController.signal,
-      )
-      // console.log(responseData)
-      if (aiAbortController.signal.aborted) {
-        return
-      }
-
-      if (isUnionType(props.fieldType) && isNamedType(concreteFieldType)) {
-        // ensure that type information remains when writing back the AI response
-        props.handleChildDataChangeRequest(props.fieldName, {
-          ...responseData.data,
-          __typename: concreteFieldType.name,
-        })
-      } else {
-        props.handleChildDataChangeRequest(props.fieldName, responseData.data)
-      }
-
-      editorContext.closeAiModal()
-    }
-
-    const aiEventHandler = offerAiAssist
-      ? () => {
-          aiAbortController = new AbortController()
-          editorContext.openAiModal(aiInstructionHandler, aiAbortController)
-        }
-      : null
 
     return (
       <FieldLabel
@@ -174,7 +97,6 @@ const Field: React.FC<FieldProps> = memo<FieldProps>(
         removeEventHandler={() => {
           props.handleChildDataChangeRequest(props.fieldName, null)
         }}
-        aiEventHandler={aiEventHandler}
       >
         {typeInstance}
       </FieldLabel>
