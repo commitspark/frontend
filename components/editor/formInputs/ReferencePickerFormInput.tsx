@@ -144,7 +144,6 @@ async function doFetch(
     throw new Error('Expected RepositoryInfo context')
   }
   return fetchAllByType(
-    repositoryInfoState.provider,
     token,
     repositoryInfoState.owner,
     repositoryInfoState.repository,
