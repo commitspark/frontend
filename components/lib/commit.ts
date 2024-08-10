@@ -16,7 +16,6 @@ import {
 import { assertIsRecordOrNull, assertIsString } from './assert'
 
 export async function commitContentEntry(
-  provider: string,
   token: string,
   owner: string,
   repository: string,
@@ -61,7 +60,7 @@ export async function commitContentEntry(
     },
   }
 
-  return mutateContent(provider, token, owner, repository, ref, mutation)
+  return mutateContent(token, owner, repository, ref, mutation)
 }
 
 // returns `data` but recursively leaves out all fields that are not defined in `inputObjectTypeDefinitionNode`

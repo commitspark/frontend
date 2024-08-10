@@ -6,9 +6,9 @@ import logo from '../../app/icon.png'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { default as NextLink } from 'next/link'
-import { deleteCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../lib/cookies'
 import { DropDownEntryProps } from '../DropDownEntry'
+import { commitsparkConfig } from '../../commitspark.config'
+import { routes } from '../lib/route-generator'
 
 interface NavbarProps {}
 
@@ -17,13 +17,13 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
   const userMenuEntries: DropDownEntryProps[] = [
     {
       label: 'Settings',
-      target: `/settings/`,
+      target: routes.settings(),
     },
     {
       label: 'Sign out',
-      onClickHandler: (event) => {
-        deleteCookie(COOKIE_PROVIDER_TOKEN_GITHUB)
-        router.push(`/`)
+      onClickHandler: async (event) => {
+        await commitsparkConfig.createAuthenticator().removeAuthentication()
+        router.push(routes.signIn())
       },
     },
   ]
@@ -33,7 +33,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
       {/* Logo area */}
       <div className="flex-none">
         <NextLink
-          href={`/p/github/`} // TODO generalize provider
+          href={routes.repositoryList()}
           className={
             'vertical-nav-width menu-bar-height vertical-nav-background flex aspect-square items-center justify-center'
           }

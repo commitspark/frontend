@@ -18,10 +18,7 @@ const NavbarEntries: React.FC<NavbarEntries> = (props: NavbarEntries) => {
   return (
     <div className="flex-grow border-b app-border-color flex flex-row gap-x-4 pr-4">
       {repositoryInfoState?.repository && (
-        <BackButton
-          href={routes.repositoryList(repositoryInfoState.provider)}
-          className={'border-r'}
-        />
+        <BackButton href={routes.repositoryList()} className={'border-r'} />
       )}
       <div className="flex items-center text-gray-900">
         {repositoryInfoState?.repository &&

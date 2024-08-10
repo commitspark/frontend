@@ -2,8 +2,8 @@ import React from 'react'
 import Application, {
   Activity,
   Layout,
-} from '../../../../../../components/shell/Application'
-import BranchSelectorColumn from '../../../../../../components/shell/BranchSelectorColumn'
+} from '../../../../components/shell/Application'
+import BranchSelectorColumn from '../../../../components/shell/BranchSelectorColumn'
 
 interface RepositoryPageParams {
   provider: string

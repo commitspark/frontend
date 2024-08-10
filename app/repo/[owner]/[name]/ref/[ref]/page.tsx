@@ -2,14 +2,13 @@ import React from 'react'
 import Application, {
   Activity,
   Layout,
-} from '../../../../../../../../components/shell/Application'
-import PageHeading from '../../../../../../../../components/PageHeading'
-import ContentTypes from '../../../../../../../../components/ContentTypes'
-import BranchSelectorColumn from '../../../../../../../../components/shell/BranchSelectorColumn'
-import Column from '../../../../../../../../components/shell/Column'
+} from '../../../../../../components/shell/Application'
+import PageHeading from '../../../../../../components/PageHeading'
+import ContentTypes from '../../../../../../components/ContentTypes'
+import BranchSelectorColumn from '../../../../../../components/shell/BranchSelectorColumn'
+import Column from '../../../../../../components/shell/Column'
 
 export interface ContentTypesOverviewPageParams {
-  provider: string
   owner: string
   name: string
   ref: string
@@ -23,7 +22,6 @@ export default function ContentTypesOverviewPage({
   const decodedRef = decodeURIComponent(params.ref)
 
   const repositoryInfo = {
-    provider: params.provider,
     owner: params.owner,
     repository: params.name,
     gitRef: decodedRef,
@@ -38,7 +36,6 @@ export default function ContentTypesOverviewPage({
       }
     >
       <ContentTypes
-        provider={repositoryInfo.provider}
         owner={repositoryInfo.owner}
         repository={repositoryInfo.repository}
         gitRef={repositoryInfo.gitRef}

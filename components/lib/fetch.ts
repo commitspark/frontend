@@ -8,7 +8,6 @@ interface GraphQLQuery {
 }
 
 export async function fetchTypeNameById(
-  provider: string,
   token: string,
   owner: string,
   name: string,
@@ -16,7 +15,7 @@ export async function fetchTypeNameById(
   entryId: string,
 ): Promise<string> {
   const apiService = await getApiService()
-  const adapter = await getAdapter(provider, token, owner, name)
+  const adapter = await getAdapter(token, owner, name)
   const response = await apiService.postGraphQL(adapter, ref, {
     query: `query { data: _typeName(id:"${entryId}") }`,
   })
@@ -25,21 +24,19 @@ export async function fetchTypeNameById(
 }
 
 export async function fetchSchema(
-  provider: string,
   token: string,
   owner: string,
   name: string,
   ref: string,
 ): Promise<string> {
   const apiService = await getApiService()
-  const adapter = await getAdapter(provider, token, owner, name)
+  const adapter = await getAdapter(token, owner, name)
 
   const response = await apiService.getSchema(adapter, ref)
   return response.data
 }
 
 export async function fetchContent(
-  provider: string,
   token: string,
   owner: string,
   name: string,
@@ -47,13 +44,12 @@ export async function fetchContent(
   query: GraphQLQuery,
 ): Promise<Record<string, any>> {
   const apiService = await getApiService()
-  const adapter = await getAdapter(provider, token, owner, name)
+  const adapter = await getAdapter(token, owner, name)
 
   return apiService.postGraphQL(adapter, ref, query)
 }
 
 export async function fetchAllByType(
-  provider: string,
   token: string,
   owner: string,
   name: string,
@@ -62,7 +58,7 @@ export async function fetchAllByType(
   additionalFields?: string[],
 ): Promise<Record<string, any>[]> {
   const apiService = await getApiService()
-  const adapter = await getAdapter(provider, token, owner, name)
+  const adapter = await getAdapter(token, owner, name)
   const response = await apiService.postGraphQL(adapter, ref, {
     query: `query { data: all${typeName}s {
     id

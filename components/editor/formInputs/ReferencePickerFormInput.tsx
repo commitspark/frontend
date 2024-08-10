@@ -1,8 +1,6 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { getCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../../lib/cookies'
 import { fetchAllByType } from '../../lib/fetch'
 import { getListVisibleFieldNames } from '../../lib/schema-utils'
 import {
@@ -12,6 +10,7 @@ import {
 import Loading from '../../Loading'
 import { GraphQLObjectType } from 'graphql/type'
 import ListBoxInput from '../../styledInput/ListBoxInput'
+import { commitsparkConfig } from '../../../commitspark.config'
 
 interface ReferencePickerFormInputProps {
   objectType: GraphQLObjectType
@@ -24,7 +23,6 @@ interface ReferencePickerFormInputProps {
 const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
   props: ReferencePickerFormInputProps,
 ) => {
-  const token = `${getCookie(COOKIE_PROVIDER_TOKEN_GITHUB)}`
   const repositoryInfoState = useRepositoryInfo() as RepositoryInfoState
   const [isLoaded, setIsLoaded] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -41,6 +39,7 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
 
   useEffect(() => {
     async function autoLoadReferences() {
+      const token = await commitsparkConfig.createAuthenticator().getToken()
       const loadedReferences = await doFetch(
         token,
         repositoryInfoState,
@@ -73,6 +72,7 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
   const listVisibleFieldNames = getListVisibleFieldNames(props.objectType)
 
   async function fetchReferences() {
+    const token = await commitsparkConfig.createAuthenticator().getToken()
     let loadedReferences = await doFetch(
       token,
       repositoryInfoState,
@@ -144,7 +144,6 @@ async function doFetch(
     throw new Error('Expected RepositoryInfo context')
   }
   return fetchAllByType(
-    repositoryInfoState.provider,
     token,
     repositoryInfoState.owner,
     repositoryInfoState.repository,

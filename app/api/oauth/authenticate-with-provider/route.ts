@@ -1,0 +1,6 @@
+import { commitsparkConfig } from '../../../../commitspark.config'
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  return commitsparkConfig.createAuthenticator().authenticate(request)
+}

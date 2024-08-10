@@ -22,8 +22,6 @@ import { useRouter } from 'next/navigation'
 import { useTransientNotification } from '../context/TransientNotificationProvider'
 import AiModal from './AiModal'
 import { processAiInstruction } from '../lib/ai'
-import { getCookie } from 'cookies-next'
-import { COOKIE_PROVIDER_TOKEN_GITHUB } from '../../lib/cookies'
 import { fetchContent, fetchSchema, fetchTypeNameById } from '../lib/fetch'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, isObjectType } from 'graphql/type'
@@ -35,9 +33,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { commitContentEntry } from '../lib/commit'
 import { mutateContent } from '../lib/mutate'
 import { STORAGE_TOKEN_OPEN_AI } from '../../lib/localStorage'
+import { commitsparkConfig } from '../../commitspark.config'
 
 interface EntryEditorProps {
-  provider: string
   owner: string
   repository: string
   gitRef: string
@@ -57,7 +55,6 @@ export default function EntryEditor(props: EntryEditorProps) {
     typeof localStorage !== 'undefined'
       ? localStorage.getItem(STORAGE_TOKEN_OPEN_AI) ?? ''
       : ''
-  const gitToken: string = `${getCookie(COOKIE_PROVIDER_TOKEN_GITHUB)}`
 
   const [entryData, setEntryData] = useState<Record<string, any> | null>(null)
   const [originalEntryData, setOriginalEntryData] = useState<
@@ -74,12 +71,12 @@ export default function EntryEditor(props: EntryEditorProps) {
     if (!editorContext.schema.current || !entryData || !entryType) {
       throw new Error('Cannot commit without required data')
     }
+    const token = await commitsparkConfig.createAuthenticator().getToken()
 
     const entryId = props.entryId ?? uuidv4() // TODO remove this once editing form UI supports entering own ID
 
     await commitContentEntry(
-      props.provider,
-      gitToken,
+      token,
       props.owner,
       props.repository,
       props.gitRef,
@@ -98,22 +95,16 @@ export default function EntryEditor(props: EntryEditorProps) {
   }
 
   const doDelete = async (commitMessage: string): Promise<void> => {
-    if (
-      !props.provider ||
-      !props.owner ||
-      !props.repository ||
-      !props.gitRef ||
-      !props.entryId
-    ) {
+    if (!props.owner || !props.repository || !props.gitRef || !props.entryId) {
       throw new Error(
         'Repository info and entry ID required for deleting entry',
       )
     }
+    const token = await commitsparkConfig.createAuthenticator().getToken()
 
     // TODO simplify this to use the type information we loaded when the editor was instantiated
     const typeName = await fetchTypeNameById(
-      props.provider,
-      gitToken,
+      token,
       props.owner,
       props.repository,
       props.gitRef,
@@ -130,8 +121,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       },
     }
     await mutateContent(
-      props.provider,
-      gitToken,
+      token,
       props.owner,
       props.repository,
       props.gitRef,
@@ -158,9 +148,13 @@ export default function EntryEditor(props: EntryEditorProps) {
   function commitSuccessHandler(entryId: string): void {
     // if new entry first committed
     if (props.entryId !== entryId) {
-      const encodedRef = encodeURIComponent(props.gitRef)
       router.push(
-        `/p/${props.provider}/repo/${props.owner}/${props.repository}/ref/${encodedRef}/id/${entryId}/`,
+        routes.editContentEntry(
+          props.owner,
+          props.repository,
+          props.gitRef,
+          entryId,
+        ),
       )
     }
     addTransientNotification({
@@ -171,10 +165,21 @@ export default function EntryEditor(props: EntryEditorProps) {
   }
 
   function deleteSuccessHandler(): void {
-    const encodedRef = encodeURIComponent(props.gitRef)
-    router.push(
-      `/p/${props.provider}/repo/${props.owner}/${props.repository}/ref/${encodedRef}/type/${entryType}/`,
-    )
+    if (!entryType) {
+      // should never reach this
+      router.push(
+        routes.contentTypesList(props.owner, props.repository, props.gitRef),
+      )
+    } else {
+      router.push(
+        routes.contentEntriesOfTypeList(
+          props.owner,
+          props.repository,
+          props.gitRef,
+          entryType.name,
+        ),
+      )
+    }
     addTransientNotification({
       id: Date.now().toString(),
       type: Actions.positive,
@@ -197,10 +202,10 @@ export default function EntryEditor(props: EntryEditorProps) {
       if (!!props.entryId === !!props.typeName) {
         throw new Error('Expected one of entryId or typeName')
       }
+      const token = await commitsparkConfig.createAuthenticator().getToken()
 
       const schemaString = await fetchSchema(
-        props.provider,
-        gitToken,
+        token,
         props.owner,
         props.repository,
         props.gitRef,
@@ -209,8 +214,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       let typeName
       if (props.entryId !== undefined) {
         typeName = await fetchTypeNameById(
-          props.provider,
-          gitToken,
+          token,
           props.owner,
           props.repository,
           props.gitRef,
@@ -233,8 +237,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       if (props.entryId !== undefined) {
         const entryContentQuery = createContentQueryFromNamedType(type)
         const entryResponse = await fetchContent(
-          props.provider,
-          gitToken,
+          token,
           props.owner,
           props.repository,
           props.gitRef,
@@ -283,7 +286,7 @@ export default function EntryEditor(props: EntryEditorProps) {
     return () => {
       ignore = true
     }
-  }, [])
+  }, [props.owner, props.repository, props.gitRef])
 
   let aiAbortController: AbortController | null = null
   useEffect(() => {
@@ -363,7 +366,6 @@ export default function EntryEditor(props: EntryEditorProps) {
                 title={props.entryId ?? 'New entry'}
                 subTitle={entryType.name}
                 backLink={routes.contentEntriesOfTypeList(
-                  props.provider,
                   props.owner,
                   props.repository,
                   props.gitRef,
