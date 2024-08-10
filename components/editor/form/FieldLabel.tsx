@@ -1,7 +1,6 @@
 import React from 'react'
 import DropDown, { OpenDirection } from '../../DropDown'
 import { DropDownEntryProps } from '../../DropDownEntry'
-import { IconTheme } from '../../DynamicIcon'
 
 interface FieldLabelProps {
   fieldName: string
@@ -9,7 +8,6 @@ interface FieldLabelProps {
   isRequiredField: boolean
   offerRemoveAction: boolean
   removeEventHandler: () => void
-  aiEventHandler: null | (() => void)
 }
 
 const FieldLabel: React.FC<React.PropsWithChildren<FieldLabelProps>> = (
@@ -21,14 +19,6 @@ const FieldLabel: React.FC<React.PropsWithChildren<FieldLabelProps>> = (
       label: 'Remove',
       iconName: 'XMarkIcon',
       onClickHandler: props.removeEventHandler,
-    })
-  }
-  if (props.aiEventHandler !== null) {
-    dropDownEntries.push({
-      label: 'AI Assist',
-      iconTheme: IconTheme.OutlineIcons24,
-      iconName: 'LightBulbIcon',
-      onClickHandler: props.aiEventHandler,
     })
   }
 

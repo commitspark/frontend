@@ -16,10 +16,6 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
   const router = useRouter()
   const userMenuEntries: DropDownEntryProps[] = [
     {
-      label: 'Settings',
-      target: routes.settings(),
-    },
-    {
       label: 'Sign out',
       onClickHandler: async (event) => {
         await commitsparkConfig.createAuthenticator().removeAuthentication()

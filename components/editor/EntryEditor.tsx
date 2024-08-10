@@ -3,12 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import ContentTypeForm from './form/ContentTypeForm'
 import Loading from '../Loading'
-import {
-  AiInstructionHandler,
-  AiProgressHandler,
-  EditorContextValue,
-  useEditor,
-} from '../context/EditorProvider'
+import { EditorContextValue, useEditor } from '../context/EditorProvider'
 import Column from '../shell/Column'
 import PageHeading from '../PageHeading'
 import { routes } from '../lib/route-generator'
@@ -20,8 +15,6 @@ import StyledButton from '../StyledButton'
 import DeleteEntryModal from './DeleteEntryModal'
 import { useRouter } from 'next/navigation'
 import { useTransientNotification } from '../context/TransientNotificationProvider'
-import AiModal from './AiModal'
-import { processAiInstruction } from '../lib/ai'
 import { fetchContent, fetchSchema, fetchTypeNameById } from '../lib/fetch'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, isObjectType } from 'graphql/type'
@@ -32,7 +25,6 @@ import { assertIsString } from '../lib/assert'
 import { v4 as uuidv4 } from 'uuid'
 import { commitContentEntry } from '../lib/commit'
 import { mutateContent } from '../lib/mutate'
-import { STORAGE_TOKEN_OPEN_AI } from '../../lib/localStorage'
 import { commitsparkConfig } from '../../commitspark.config'
 
 interface EntryEditorProps {
@@ -51,10 +43,6 @@ export default function EntryEditor(props: EntryEditorProps) {
     useState<boolean>(false)
   const router = useRouter()
   const { addTransientNotification } = useTransientNotification()
-  const openAiToken: string =
-    typeof localStorage !== 'undefined'
-      ? localStorage.getItem(STORAGE_TOKEN_OPEN_AI) ?? ''
-      : ''
 
   const [entryData, setEntryData] = useState<Record<string, any> | null>(null)
   const [originalEntryData, setOriginalEntryData] = useState<
@@ -288,55 +276,8 @@ export default function EntryEditor(props: EntryEditorProps) {
     }
   }, [props.owner, props.repository, props.gitRef])
 
-  let aiAbortController: AbortController | null = null
-  useEffect(() => {
-    return () => {
-      if (aiAbortController) {
-        aiAbortController.abort()
-      }
-    }
-  }, [aiAbortController])
-
   if (!entryType) {
     return <></>
-  }
-
-  const aiInstructionHandler: AiInstructionHandler = async (
-    instruction: string,
-    aiProgressHandler: AiProgressHandler,
-  ): Promise<void> => {
-    if (!aiAbortController) {
-      throw new Error('Expected AbortController instance')
-    }
-
-    const responseData = await processAiInstruction(
-      openAiToken,
-      editorContext.schema.current,
-      entryType,
-      null,
-      editorContext.entryData.current,
-      editorContext.entryData.current,
-      instruction,
-      aiProgressHandler,
-      aiAbortController.signal,
-    )
-
-    if (aiAbortController.signal.aborted) {
-      return
-    }
-
-    // TODO assert entry ID has not been changed
-    setEntryData(responseData.data)
-    editorContext.setEntryData(responseData.data)
-    editorContext.closeAiModal()
-  }
-
-  const aiButtonHandler = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ): void => {
-    event.preventDefault()
-    aiAbortController = new AbortController()
-    editorContext.openAiModal(aiInstructionHandler, aiAbortController)
   }
 
   return (
@@ -356,7 +297,6 @@ export default function EntryEditor(props: EntryEditorProps) {
           deleteSuccessHandler={deleteSuccessHandler}
         />
       )}
-      {editorContext.isAiEnabled && <AiModal />}
       {!(isSchemaLoaded && isContentLoaded) && <Loading />}
       {isSchemaLoaded && isContentLoaded && (
         <Column
@@ -373,18 +313,6 @@ export default function EntryEditor(props: EntryEditorProps) {
                 )}
               >
                 <div className="flex flex-row gap-x-4 items-center">
-                  {editorContext.isAiEnabled && (
-                    <StyledButton
-                      actionType={Actions.neutral}
-                      disabled={false}
-                      size={Size.lg}
-                      onClick={aiButtonHandler}
-                      aria-label="AI Assist"
-                    >
-                      AI
-                    </StyledButton>
-                  )}
-
                   <StyledButton
                     actionType={Actions.primary}
                     disabled={!isContentModified}
