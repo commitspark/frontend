@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { deleteCookie, getCookie } from 'cookies-next'
 import { routes } from '../../../components/lib/route-generator'
 
-export class GithubAuthenticator implements Authenticator {
+export class GitHubAuthenticator implements Authenticator {
   private static COOKIE_NAME_TOKEN = 'provider_token_github'
 
   getAuthenticationUrl(): string {
@@ -66,7 +66,7 @@ export class GithubAuthenticator implements Authenticator {
           307,
         )
         response.cookies.set(
-          GithubAuthenticator.COOKIE_NAME_TOKEN,
+          GitHubAuthenticator.COOKIE_NAME_TOKEN,
           accessToken,
           {
             path: '/',
@@ -86,7 +86,7 @@ export class GithubAuthenticator implements Authenticator {
   isAuthenticated(request: NextRequest): Promise<boolean> {
     return new Promise((resolve) =>
       resolve(
-        request.cookies.get(GithubAuthenticator.COOKIE_NAME_TOKEN)?.value !==
+        request.cookies.get(GitHubAuthenticator.COOKIE_NAME_TOKEN)?.value !==
           undefined,
       ),
     )
@@ -94,12 +94,12 @@ export class GithubAuthenticator implements Authenticator {
 
   getToken(): Promise<string> {
     return new Promise((resolve) =>
-      resolve(`${getCookie(GithubAuthenticator.COOKIE_NAME_TOKEN)}`),
+      resolve(`${getCookie(GitHubAuthenticator.COOKIE_NAME_TOKEN)}`),
     )
   }
 
   removeAuthentication(): Promise<void> {
-    deleteCookie(GithubAuthenticator.COOKIE_NAME_TOKEN)
+    deleteCookie(GitHubAuthenticator.COOKIE_NAME_TOKEN)
     return new Promise((resolve) => resolve())
   }
 }

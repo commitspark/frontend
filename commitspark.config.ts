@@ -1,6 +1,6 @@
 import { CommitsparkConfig } from './lib/commitspark-config'
-import { GithubProvider } from './lib/provider/github/github-provider'
-import { GithubAuthenticator } from './lib/provider/github/github-authenticator'
+import { GitHubProvider } from './lib/provider/github/github-provider'
+import { GitHubAuthenticator } from './lib/provider/github/github-authenticator'
 import {
   createAdapter,
   GitHubRepositoryOptions,
@@ -12,10 +12,10 @@ export const commitsparkConfig: CommitsparkConfig = {
   getProviderLabel: () => 'GitHub',
   getProviderIcon: <P>(props: P) => GitHubIcon(props),
   createProvider: () => {
-    return new GithubProvider()
+    return new GitHubProvider()
   },
   createAuthenticator: () => {
-    return new GithubAuthenticator()
+    return new GitHubAuthenticator()
   },
   createGitAdapter: async (repositoryOptions): Promise<GitAdapter> => {
     const adapter = createAdapter()
