@@ -11,9 +11,9 @@
         "start": "next start"
     },
     "dependencies": {
-        "@commitspark/git-adapter-cache-memory": "^0.4.0",
-        "@commitspark/git-adapter-github": "^0.5.0",
-        "@commitspark/graphql-api": "^0.10.0",
+        "@commitspark/git-adapter-cache-memory": "^0.5.2",
+        "@commitspark/git-adapter-github": "^0.6.0",
+        "@commitspark/graphql-api": "^0.11.0",
         "@graphql-tools/schema": "^9.0.16",
         "@headlessui/react": "^1.7.13",
         "@heroicons/react": "^2.0.16",
