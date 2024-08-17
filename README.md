@@ -1,16 +1,16 @@
 # Commitspark Data Editing Frontend
 
 This repository holds the data editing frontend of [Commitspark](https://commitspark.com). It enables users with limited
-technical
-knowledge to create, read, update, and delete [Commitspark-managed](https://github.com/commitspark/graphql-api)
-structured data stored in a Git repository hosted on a Git provider (e.g. GitHub, GitLab).
+technical knowledge to create, read, update, and
+delete [Commitspark-managed](https://github.com/commitspark/graphql-api) structured data stored in a Git repository
+hosted on a Git provider (e.g. GitHub, GitLab).
 
 ## User authentication
 
 To obtain repository access, frontend users (i.e. data editors) must authenticate against a configurable
 authenticator. Typically, this is implemented by the same provider where the targeted Git repository
 is hosted. The underlying idea is that data editors are then considered native users of the provider's platform
-and can then use all of the provider's collaboration features (e.g. commenting, approval).
+and can then use all the provider's collaboration features (e.g. commenting, approval).
 
 ## Supported Git providers
 
