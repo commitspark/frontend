@@ -20,9 +20,7 @@ export const commitsparkConfig: CommitsparkConfig = {
   createGitAdapter: async (repositoryOptions): Promise<GitAdapter> => {
     const adapter = createAdapter()
     await adapter.setRepositoryOptions({
-      repositoryOwner: repositoryOptions.repositoryOwner,
-      repositoryName: repositoryOptions.repositoryName,
-      personalAccessToken: repositoryOptions.accessToken,
+      ...repositoryOptions,
     } as GitHubRepositoryOptions)
     return adapter
   },
