@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix entry editing route generation for entry IDs that require URL encoding
+
 ### Changed
 
 - Upgrade to `@commitspark/git-adapter-github` 0.7.0
+- Replace mandatory automatic entry ID generation with manual custom ID input when creating new entries
 
 ## [0.11.0] - 2024-08-17
 

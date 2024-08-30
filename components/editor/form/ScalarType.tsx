@@ -14,6 +14,7 @@ import SingleLineTextFormInput from '../formInputs/SingleLineTextFormInput'
 import NumberFormInput from '../formInputs/NumberFormInput'
 import BooleanFormInput from '../formInputs/BooleanFormInput'
 import { NumberType } from '../../styledInput/NumberInput'
+import { EditorContextValue, useEditor } from '../../context/EditorProvider'
 
 interface ScalarTypeProps {
   fieldType: GraphQLScalarType
@@ -26,6 +27,7 @@ interface ScalarTypeProps {
 
 const ScalarType: React.FC<ScalarTypeProps> = (props: ScalarTypeProps) => {
   const fieldTypeName = props.fieldType.name
+  const editorContext = useEditor() as EditorContextValue
 
   const customEditorName = getFieldDirectiveArgumentStringValue(
     props.field,
@@ -50,13 +52,14 @@ const ScalarType: React.FC<ScalarTypeProps> = (props: ScalarTypeProps) => {
 
   if (fieldTypeName === 'ID') {
     assertIsStringOrNull(props.data)
+    // TODO add ID validation; see @commitspark/git-adapter ENTRY_ID_INVALID_CHARACTERS constant
     return (
       <SingleLineTextFormInput
         fieldName={props.fieldName}
         fieldType={props.fieldType}
         handleChildDataChangeRequest={props.handleChildDataChangeRequest}
         value={props.data}
-        readOnly={true}
+        readOnly={!editorContext.isNewEntry}
       />
     )
   } else if (fieldTypeName === 'String') {

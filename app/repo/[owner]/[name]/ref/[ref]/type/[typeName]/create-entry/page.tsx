@@ -25,7 +25,11 @@ export default async function Page({ params }: { params: PageParams }) {
 
   const primaryColumn = (
     <EditorProvider
-      entryProps={{ ...repositoryInfo, typeName: params.typeName }}
+      entryProps={{
+        ...repositoryInfo,
+        typeName: params.typeName,
+        entryId: undefined,
+      }}
     >
       <EntryEditor
         owner={params.owner}

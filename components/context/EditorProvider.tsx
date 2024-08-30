@@ -14,6 +14,7 @@ export interface EditorContextValue {
   setSchema: (schema: GraphQLSchema) => void
   entryData: MutableRefObject<Record<string, any>>
   setEntryData: (entryData: Record<string, any>) => void
+  isNewEntry: boolean
 }
 
 const editorContext = createContext<EditorContextValue | null>(null)
@@ -52,6 +53,7 @@ export const EditorProvider: React.FC<
           setSchema,
           entryData: currentEntryData,
           setEntryData,
+          isNewEntry: props.entryProps.entryId === undefined,
         } as EditorContextValue
       }
     >
