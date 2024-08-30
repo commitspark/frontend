@@ -22,7 +22,6 @@ import { createContentQueryFromNamedType } from '../lib/query'
 import { createDefaultData } from '../lib/default-data-generator'
 import { deepEqual } from '../lib/content-utils'
 import { assertIsString } from '../lib/assert'
-import { v4 as uuidv4 } from 'uuid'
 import { commitContentEntry } from '../lib/commit'
 import { mutateContent } from '../lib/mutate'
 import { commitsparkConfig } from '../../commitspark.config'
@@ -61,7 +60,7 @@ export default function EntryEditor(props: EntryEditorProps) {
     }
     const token = await commitsparkConfig.createAuthenticator().getToken()
 
-    const entryId = props.entryId ?? uuidv4() // TODO remove this once editing form UI supports entering own ID
+    const entryId = entryData.id
 
     await commitContentEntry(
       token,
@@ -70,7 +69,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       props.gitRef,
       entryId,
       editorContext.schema.current,
-      props.entryId ? 'update' : 'create',
+      editorContext.isNewEntry ? 'create' : 'update',
       entryData,
       entryType.name,
       commitMessage,
