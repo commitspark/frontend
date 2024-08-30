@@ -59,7 +59,8 @@ function editContentEntry(
   assertIsString(ref)
   assertIsString(entryId)
   const encodedRef = encodeURIComponent(ref)
-  return `/repo/${owner}/${repository}/ref/${encodedRef}/id/${entryId}/` as Route
+  const encodedEntryId = encodeURIComponent(entryId)
+  return `/repo/${owner}/${repository}/ref/${encodedRef}/id/${encodedEntryId}/` as Route
 }
 
 function createContentEntry(

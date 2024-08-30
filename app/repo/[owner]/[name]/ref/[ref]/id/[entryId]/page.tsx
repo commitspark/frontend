@@ -16,6 +16,7 @@ interface PageParams {
 
 export default async function Page({ params }: { params: PageParams }) {
   const decodedRef = decodeURIComponent(params.ref)
+  const decodedEntryId = decodeURIComponent(params.entryId)
 
   const repositoryInfo = {
     owner: params.owner,
@@ -24,12 +25,12 @@ export default async function Page({ params }: { params: PageParams }) {
   }
 
   const primaryColumn = (
-    <EditorProvider entryProps={{ ...repositoryInfo, entryId: params.entryId }}>
+    <EditorProvider entryProps={{ ...repositoryInfo, entryId: decodedEntryId }}>
       <EntryEditor
         owner={params.owner}
         repository={params.name}
         gitRef={decodedRef}
-        entryId={params.entryId}
+        entryId={decodedEntryId}
       />
     </EditorProvider>
   )
