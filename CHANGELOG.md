@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Prevent reloading or closing tab on unsaved editor changes
+
 ### Fixed
 
 - Fix entry editing route generation for entry IDs that require URL encoding

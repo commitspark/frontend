@@ -184,6 +184,23 @@ export default function EntryEditor(props: EntryEditorProps) {
     })
   }
 
+  // TODO prevent Next.js links from navigating away using custom Link component
+  // preventing navigation triggered by browser back/forward is currently not possible
+  // see https://github.com/vercel/next.js/discussions/41934#discussioncomment-8996669
+  useEffect(() => {
+    if (!isContentModified) {
+      return
+    }
+    const beforeUnload = (e: BeforeUnloadEvent) => {
+      // prevent reloading or closing the tab
+      e.preventDefault()
+    }
+    window.addEventListener('beforeunload', beforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnload)
+    }
+  }, [isContentModified])
+
   useEffect(() => {
     async function fetchEntry(): Promise<void> {
       if (!!props.entryId === !!props.typeName) {
