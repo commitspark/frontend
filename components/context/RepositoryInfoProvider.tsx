@@ -13,7 +13,6 @@ import React, {
 export interface RepositoryInfoState {
   owner: string | null
   repository: string | null
-  gitRef: string | null
 }
 
 const RepositoryInfoStateContext = createContext<RepositoryInfoState | null>(

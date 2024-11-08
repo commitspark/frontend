@@ -30,10 +30,10 @@ export default function RepositoriesListPage({
       repositoryInfo={{
         owner: null,
         repository: null,
-        gitRef: null,
       }}
-      primaryColumn={primaryColumn}
       asideColumn={null}
-    />
+    >
+      {primaryColumn}
+    </Application>
   )
 }

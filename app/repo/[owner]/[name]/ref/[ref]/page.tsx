@@ -1,11 +1,6 @@
 import React from 'react'
-import Application, {
-  Activity,
-  Layout,
-} from '../../../../../../components/shell/Application'
 import PageHeading from '../../../../../../components/PageHeading'
 import ContentTypes from '../../../../../../components/ContentTypes'
-import BranchSelectorColumn from '../../../../../../components/shell/BranchSelectorColumn'
 import Column from '../../../../../../components/shell/Column'
 
 export interface ContentTypesOverviewPageParams {
@@ -27,7 +22,7 @@ export default function ContentTypesOverviewPage({
     gitRef: decodedRef,
   }
 
-  const primaryColumn = (
+  return (
     <Column
       pageHeading={
         <div className={'border-b app-border-color px-4'}>
@@ -41,19 +36,5 @@ export default function ContentTypesOverviewPage({
         gitRef={repositoryInfo.gitRef}
       />
     </Column>
-  )
-
-  const branchSelectorColumn = (
-    <BranchSelectorColumn repositoryInfo={repositoryInfo} />
-  )
-
-  return (
-    <Application
-      layout={Layout.TwoColumn}
-      activity={Activity.editing}
-      repositoryInfo={repositoryInfo}
-      primaryColumn={primaryColumn}
-      asideColumn={branchSelectorColumn}
-    />
   )
 }

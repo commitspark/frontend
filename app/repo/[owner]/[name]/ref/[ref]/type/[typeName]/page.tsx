@@ -3,11 +3,6 @@ import Entries from '../../../../../../../../components/Entries'
 import PageHeading from '../../../../../../../../components/PageHeading'
 import StyledButton from '../../../../../../../../components/StyledButton'
 import Column from '../../../../../../../../components/shell/Column'
-import BranchSelectorColumn from '../../../../../../../../components/shell/BranchSelectorColumn'
-import Application, {
-  Activity,
-  Layout,
-} from '../../../../../../../../components/shell/Application'
 import {
   Actions,
   Size,
@@ -29,15 +24,6 @@ export default function ContentTypeEntriesPage({
 }) {
   const decodedRef = decodeURIComponent(params.ref)
 
-  const repositoryInfo = {
-    owner: params.owner,
-    repository: params.name,
-    gitRef: decodedRef,
-  }
-
-  const branchSelectorColumn = (
-    <BranchSelectorColumn repositoryInfo={repositoryInfo} />
-  )
   const pageHeading = (
     <div className="border-b app-border-color pr-4">
       <PageHeading
@@ -64,7 +50,7 @@ export default function ContentTypeEntriesPage({
     </div>
   )
 
-  const primaryColumn = (
+  return (
     <Column pageHeading={pageHeading}>
       <Entries
         owner={params.owner}
@@ -73,17 +59,5 @@ export default function ContentTypeEntriesPage({
         typeName={params.typeName}
       />
     </Column>
-  )
-
-  return (
-    <>
-      <Application
-        layout={Layout.TwoColumn}
-        activity={Activity.editing}
-        repositoryInfo={repositoryInfo}
-        primaryColumn={primaryColumn}
-        asideColumn={branchSelectorColumn}
-      />
-    </>
   )
 }

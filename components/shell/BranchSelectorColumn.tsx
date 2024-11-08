@@ -26,7 +26,6 @@ const BranchSelectorColumn: React.FC<
       <Branches
         owner={props.repositoryInfo.owner}
         repository={props.repositoryInfo.repository}
-        currentBranchName={props.repositoryInfo.gitRef ?? null}
       />
     </Column>
   )

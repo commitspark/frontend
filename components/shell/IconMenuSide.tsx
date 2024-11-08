@@ -2,10 +2,6 @@
 
 import React from 'react'
 import { classNames } from '../lib/styling'
-import {
-  RepositoryInfoState,
-  useRepositoryInfo,
-} from '../context/RepositoryInfoProvider'
 import { ActivityState, useActivity } from '../context/ActivityProvider'
 import Link from 'next/link'
 import DynamicIcon, { IconTheme } from '../DynamicIcon'
@@ -15,11 +11,7 @@ interface IconMenuSideProps {}
 const IconMenuSide: React.FC<IconMenuSideProps> = (
   props: IconMenuSideProps,
 ) => {
-  const repositoryInfoState = useRepositoryInfo() as RepositoryInfoState
   const activity = useActivity() as ActivityState
-  if (!repositoryInfoState.owner || !repositoryInfoState.repository) {
-    throw new Error('RepositoryInfo expected')
-  }
 
   return (
     <nav className="flex-none vertical-nav-width vertical-nav-background overflow-y-auto">
