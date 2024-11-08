@@ -1,9 +1,4 @@
 import React from 'react'
-import Application, {
-  Activity,
-  Layout,
-} from '../../../../../../../../../components/shell/Application'
-import BranchSelectorColumn from '../../../../../../../../../components/shell/BranchSelectorColumn'
 import { EditorProvider } from '../../../../../../../../../components/context/EditorProvider'
 import EntryEditor from '../../../../../../../../../components/editor/EntryEditor'
 
@@ -23,13 +18,13 @@ export default async function Page({ params }: { params: PageParams }) {
     gitRef: decodedRef,
   }
 
-  const primaryColumn = (
+  return (
     <EditorProvider
       entryProps={{
-        ...repositoryInfo,
         typeName: params.typeName,
         entryId: undefined,
       }}
+      repositoryRefInfo={repositoryInfo}
     >
       <EntryEditor
         owner={params.owner}
@@ -39,19 +34,5 @@ export default async function Page({ params }: { params: PageParams }) {
         typeName={params.typeName}
       />
     </EditorProvider>
-  )
-
-  const branchSelectorColumn = (
-    <BranchSelectorColumn repositoryInfo={repositoryInfo} />
-  )
-
-  return (
-    <Application
-      repositoryInfo={repositoryInfo}
-      activity={Activity.editing}
-      layout={Layout.TwoColumn}
-      primaryColumn={primaryColumn}
-      asideColumn={branchSelectorColumn}
-    />
   )
 }

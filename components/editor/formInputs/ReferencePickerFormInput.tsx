@@ -3,14 +3,15 @@
 import React, { useEffect, useState } from 'react'
 import { fetchAllByType } from '../../lib/fetch'
 import { getListVisibleFieldNames } from '../../lib/schema-utils'
-import {
-  RepositoryInfoState,
-  useRepositoryInfo,
-} from '../../context/RepositoryInfoProvider'
 import Loading from '../../Loading'
 import { GraphQLObjectType } from 'graphql/type'
 import ListBoxInput from '../../styledInput/ListBoxInput'
 import { commitsparkConfig } from '../../../commitspark.config'
+import {
+  EditorContextValue,
+  RepositoryRefInfo,
+  useEditor,
+} from '../../context/EditorProvider'
 
 interface ReferencePickerFormInputProps {
   objectType: GraphQLObjectType
@@ -23,7 +24,9 @@ interface ReferencePickerFormInputProps {
 const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
   props: ReferencePickerFormInputProps,
 ) => {
-  const repositoryInfoState = useRepositoryInfo() as RepositoryInfoState
+  const { handleChildDataChangeRequest, fieldName, objectType } = props
+
+  const editorContext = useEditor() as EditorContextValue
   const [isLoaded, setIsLoaded] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const requiresAutoLoading =
@@ -37,25 +40,27 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
     Record<string, any>[]
   >(props.data ? [props.data] : [])
 
+  const listVisibleFieldNames = getListVisibleFieldNames(objectType)
+
   useEffect(() => {
     async function autoLoadReferences() {
       const token = await commitsparkConfig.createAuthenticator().getToken()
       const loadedReferences = await doFetch(
         token,
-        repositoryInfoState,
-        props.objectType.name,
+        editorContext.repositoryRefInfo,
+        objectType.name,
         listVisibleFieldNames,
       )
       if (!ignore) {
         const initialValue = loadedReferences[0] ?? {}
         const newSelectedData = {
-          __typename: props.objectType.name,
+          __typename: objectType.name,
           ...initialValue,
         }
         setDataPossibleReferences(loadedReferences)
         setIsLoaded(true)
         setIsLoading(false)
-        props.handleChildDataChangeRequest(props.fieldName, newSelectedData)
+        handleChildDataChangeRequest(fieldName, newSelectedData)
       }
     }
 
@@ -67,16 +72,22 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
     return () => {
       ignore = true
     }
-  }, [])
+  }, [
+    editorContext,
+    isLoaded,
+    handleChildDataChangeRequest,
+    requiresAutoLoading,
+    objectType,
+    fieldName,
+    listVisibleFieldNames,
+  ])
 
-  const listVisibleFieldNames = getListVisibleFieldNames(props.objectType)
-
-  async function fetchReferences() {
+  const fetchReferences = async function (): Promise<void> {
     const token = await commitsparkConfig.createAuthenticator().getToken()
     let loadedReferences = await doFetch(
       token,
-      repositoryInfoState,
-      props.objectType.name,
+      editorContext.repositoryRefInfo,
+      objectType.name,
       listVisibleFieldNames,
     )
 
@@ -94,17 +105,35 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
     setIsLoading(false)
   }
 
-  function selectionChangeHandler(selection: Record<string, any> | null): void {
+  const selectionChangeHandler = (
+    selection: Record<string, any> | null,
+  ): void => {
     if (!selection) {
-      props.handleChildDataChangeRequest(props.fieldName, {
-        __typename: props.objectType.name,
+      handleChildDataChangeRequest(fieldName, {
+        __typename: objectType.name,
       })
       return
     }
-    props.handleChildDataChangeRequest(props.fieldName, {
+    handleChildDataChangeRequest(fieldName, {
       ...selection, // put all data so that the data for our listVisibleFieldNames is included
-      __typename: props.objectType.name,
+      __typename: objectType.name,
     })
+  }
+
+  const doFetch = async (
+    token: string,
+    repositoryRefInfo: RepositoryRefInfo,
+    typeName: string,
+    additionalFields: string[],
+  ): Promise<Record<string, any>[]> => {
+    return fetchAllByType(
+      token,
+      repositoryRefInfo.owner,
+      repositoryRefInfo.repository,
+      repositoryRefInfo.gitRef,
+      typeName,
+      additionalFields,
+    )
   }
 
   return (
@@ -126,30 +155,6 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
         />
       )}
     </>
-  )
-}
-
-async function doFetch(
-  token: string,
-  repositoryInfoState: RepositoryInfoState | null,
-  typeName: string,
-  additionalFields: string[],
-): Promise<Record<string, any>[]> {
-  if (
-    !repositoryInfoState ||
-    !repositoryInfoState.owner ||
-    !repositoryInfoState.repository ||
-    !repositoryInfoState.gitRef
-  ) {
-    throw new Error('Expected RepositoryInfo context')
-  }
-  return fetchAllByType(
-    token,
-    repositoryInfoState.owner,
-    repositoryInfoState.repository,
-    repositoryInfoState.gitRef,
-    typeName,
-    additionalFields,
   )
 }
 

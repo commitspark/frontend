@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react'
+import React, { ReactElement } from 'react'
 import {
   RepositoryInfoProvider,
   RepositoryInfoState,
@@ -25,7 +25,6 @@ export enum Activity {
 interface ApplicationProps {
   repositoryInfo: RepositoryInfoState
   layout: Layout
-  primaryColumn: ReactNode
   asideColumn:
     | ReactElement<ColumnProps>
     | ReactElement<BranchSelectorColumnProps>
@@ -39,7 +38,7 @@ const Application: React.FC<React.PropsWithChildren<ApplicationProps>> = (
   let currentScreen = null
   switch (props.layout) {
     case Layout.SingleArea:
-      currentScreen = props.primaryColumn
+      currentScreen = props.children
       break
     case Layout.TwoColumn:
       if (props.activity === null) {
@@ -49,7 +48,7 @@ const Application: React.FC<React.PropsWithChildren<ApplicationProps>> = (
         <>
           <IconMenuLayout>
             <TwoColumnLayout asideColumn={props.asideColumn}>
-              {props.primaryColumn}
+              {props.children}
             </TwoColumnLayout>
           </IconMenuLayout>
         </>

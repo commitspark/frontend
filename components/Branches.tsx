@@ -7,26 +7,31 @@ import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
 import { Branch } from '../lib/provider/provider'
 import { commitsparkConfig } from '../commitspark.config'
+import { useSelectedLayoutSegments } from 'next/navigation'
 
 export interface BranchesProps {
   owner: string
   repository: string
-  currentBranchName: string | null
 }
 
 const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
+  const { owner, repository } = props
   const [branches, setBranches] = useState([] as Branch[])
   const [loading, setLoading] = useState<boolean>(true)
 
-  // TODO use useMemo() to cache results
+  // `segments` contains paths starting at nearest parent layout; 0 = `ref`, 1 = value of `[ref]`, ...;
+  // see https://nextjs.org/docs/app/api-reference/functions/use-selected-layout-segments
+  const segments = useSelectedLayoutSegments()
+  const decodedGitRef = decodeURIComponent(segments[1])
+
   useEffect(() => {
     async function fetchBranches() {
       setBranches([])
       const token = await commitsparkConfig.createAuthenticator().getToken()
       const provider = commitsparkConfig.createProvider()
       const branches = await provider.getBranches(token, {
-        owner: props.owner,
-        name: props.repository,
+        owner: owner,
+        name: repository,
       })
       if (!ignore) {
         setBranches(branches)
@@ -39,18 +44,14 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
     return () => {
       ignore = true
     }
-  }, [props.owner, props.repository])
+  }, [owner, repository])
 
   const branchListEntries = branches.map(
     (branch) =>
       ({
-        linkTarget: routes.contentTypesList(
-          props.owner,
-          props.repository,
-          branch.name,
-        ),
+        linkTarget: routes.contentTypesList(owner, repository, branch.name),
         linkContent: { id: branch.name },
-        isCurrent: branch.name === props.currentBranchName,
+        isCurrent: branch.name === decodedGitRef,
       } as ListEntryProps),
   )
 

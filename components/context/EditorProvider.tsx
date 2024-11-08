@@ -15,20 +15,25 @@ export interface EditorContextValue {
   entryData: MutableRefObject<Record<string, any>>
   setEntryData: (entryData: Record<string, any>) => void
   isNewEntry: boolean
+  repositoryRefInfo: RepositoryRefInfo
 }
 
 const editorContext = createContext<EditorContextValue | null>(null)
 
 interface EditorProviderProps {
   entryProps: EntryProps
+  repositoryRefInfo: RepositoryRefInfo
 }
 
 interface EntryProps {
+  entryId?: string
+  typeName?: string
+}
+
+export interface RepositoryRefInfo {
   owner: string
   repository: string
   gitRef: string
-  entryId?: string
-  typeName?: string
 }
 
 export const EditorProvider: React.FC<
@@ -54,6 +59,7 @@ export const EditorProvider: React.FC<
           entryData: currentEntryData,
           setEntryData,
           isNewEntry: props.entryProps.entryId === undefined,
+          repositoryRefInfo: props.repositoryRefInfo,
         } as EditorContextValue
       }
     >
