@@ -5,6 +5,7 @@ import '../styles/tailwind.css'
 import { classNames } from '../components/lib/styling'
 import { Metadata } from 'next'
 import { TransientNotificationProvider } from '../components/context/TransientNotificationProvider'
+import { NavigationGuardProvider } from 'next-navigation-guard'
 
 const overpass = Overpass({
   weight: ['200', '300', '400', '500', '600', '700', '800'],
@@ -24,9 +25,11 @@ const ProviderLayout: React.FC<React.PropsWithChildren<ProviderLayoutProps>> = (
   return (
     <html lang="en" className={'h-full overflow-y-hidden'}>
       <body className={classNames(overpass.className, 'h-full')}>
-        <TransientNotificationProvider>
-          {props.children}
-        </TransientNotificationProvider>
+        <NavigationGuardProvider>
+          <TransientNotificationProvider>
+            {props.children}
+          </TransientNotificationProvider>
+        </NavigationGuardProvider>
       </body>
     </html>
   )

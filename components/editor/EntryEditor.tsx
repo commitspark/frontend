@@ -25,6 +25,7 @@ import { assertIsString } from '../lib/assert'
 import { commitContentEntry } from '../lib/commit'
 import { mutateContent } from '../lib/mutate'
 import { commitsparkConfig } from '../../commitspark.config'
+import { useNavigationGuard } from 'next-navigation-guard'
 
 interface EntryEditorProps {
   owner: string
@@ -184,22 +185,13 @@ export default function EntryEditor(props: EntryEditorProps) {
     })
   }
 
-  // TODO prevent Next.js links from navigating away using custom Link component
-  // preventing navigation triggered by browser back/forward is currently not possible
-  // see https://github.com/vercel/next.js/discussions/41934#discussioncomment-8996669
-  useEffect(() => {
-    if (!isContentModified) {
-      return
-    }
-    const beforeUnload = (e: BeforeUnloadEvent) => {
-      // prevent reloading or closing the tab
-      e.preventDefault()
-    }
-    window.addEventListener('beforeunload', beforeUnload)
-    return () => {
-      window.removeEventListener('beforeunload', beforeUnload)
-    }
-  }, [isContentModified])
+  useNavigationGuard({
+    enabled: isContentModified,
+    confirm: () =>
+      window.confirm(
+        'You have unsaved changes. Are you sure you want to leave?',
+      ),
+  })
 
   useEffect(() => {
     async function fetchEntry(): Promise<void> {
