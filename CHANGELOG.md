@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Prevent reloading or closing tab on unsaved editor changes
+- Warn user before navigating away on unsaved editor changes
 
 ### Fixed
 
