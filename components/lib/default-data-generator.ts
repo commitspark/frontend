@@ -7,7 +7,7 @@ import {
   isScalarType,
   isUnionType,
 } from 'graphql/type'
-import { MAXIMUM_RECURSION_DEPTH } from './query'
+import { MAXIMUM_RECURSION_DEPTH } from './query-factory'
 import { getDirectiveByName } from './schema-utils'
 
 export function createDefaultData(

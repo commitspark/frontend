@@ -23,7 +23,7 @@ import {
 } from '../../app/server-actions/actions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, isObjectType } from 'graphql/type'
-import { createContentQueryFromNamedType } from '../lib/query'
+import { createContentQueryFromNamedType } from '../lib/query-factory'
 import { createDefaultData } from '../lib/default-data-generator'
 import { deepEqual } from '../lib/content-utils'
 import { assertIsString } from '../lib/assert'
