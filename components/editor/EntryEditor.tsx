@@ -19,6 +19,7 @@ import {
   fetchContent,
   fetchSchemaString,
   fetchTypeNameById,
+  mutateContent,
 } from '../../app/server-actions/actions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, isObjectType } from 'graphql/type'
@@ -27,7 +28,6 @@ import { createDefaultData } from '../lib/default-data-generator'
 import { deepEqual } from '../lib/content-utils'
 import { assertIsString } from '../lib/assert'
 import { commitContentEntry } from '../lib/commit'
-import { mutateContent } from '../lib/mutate'
 import { commitsparkConfig } from '../../commitspark.config'
 import { useNavigationGuard } from 'next-navigation-guard'
 

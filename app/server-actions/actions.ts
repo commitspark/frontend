@@ -7,6 +7,7 @@ import { getAdapter } from '../../components/lib/getAdapter'
 import {
   assertIsArrayOfRecordsOrNull,
   assertIsString,
+  assertIsRecordOrNull,
 } from '../../components/lib/assert'
 
 interface GraphQLQuery {
@@ -109,4 +110,30 @@ export async function fetchAllByType(
   assertIsArrayOfRecordsOrNull(response.data?.data)
 
   return JSON.parse(JSON.stringify(response.data?.data)) ?? []
+}
+
+export async function mutateContent(
+  token: string,
+  owner: string,
+  repository: string,
+  ref: string,
+  mutation: { query: string; variables?: Record<string, unknown> | undefined },
+): Promise<Record<string, unknown> | null> {
+  const adapter = await getAdapter(token, owner, repository)
+  const apiService = await getApiService()
+  const response = await apiService.postGraphQL<Record<string, unknown>>(
+    adapter,
+    ref,
+    mutation,
+  )
+
+  if (response.errors) {
+    throw new Error(
+      `GraphQL call failed with error "${JSON.stringify(response.errors)}"`,
+    )
+  }
+
+  assertIsRecordOrNull(response.data)
+
+  return JSON.parse(JSON.stringify(response.data))
 }

@@ -1,4 +1,4 @@
-import { mutateContent } from './mutate'
+import { mutateContent } from '../../app/server-actions/actions'
 import { GraphQLSchema } from 'graphql/type'
 import {
   getTypeDefinitionNodeFromSchema,
@@ -60,7 +60,15 @@ export async function commitContentEntry(
     },
   }
 
-  return mutateContent(token, owner, repository, ref, mutation)
+  const mutationResponseData = await mutateContent(
+    token,
+    owner,
+    repository,
+    ref,
+    mutation,
+  )
+  assertIsRecordOrNull(mutationResponseData?.data)
+  return mutationResponseData.data
 }
 
 // returns `data` but recursively leaves out all fields that are not defined in `inputObjectTypeDefinitionNode`
