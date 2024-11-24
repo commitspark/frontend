@@ -1,17 +1,13 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { fetchAllByType } from '../../lib/fetch'
+import { fetchAllByType } from '../../../app/server-actions/actions'
 import { getListVisibleFieldNames } from '../../lib/schema-utils'
 import Loading from '../../Loading'
 import { GraphQLObjectType } from 'graphql/type'
 import ListBoxInput from '../../styledInput/ListBoxInput'
 import { commitsparkConfig } from '../../../commitspark.config'
-import {
-  EditorContextValue,
-  RepositoryRefInfo,
-  useEditor,
-} from '../../context/EditorProvider'
+import { EditorContextValue, useEditor } from '../../context/EditorProvider'
 
 interface ReferencePickerFormInputProps {
   objectType: GraphQLObjectType
@@ -43,37 +39,35 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
   const listVisibleFieldNames = getListVisibleFieldNames(objectType)
 
   useEffect(() => {
-    async function autoLoadReferences() {
+    const autoLoadReferences = async (): Promise<void> => {
       const token = await commitsparkConfig.createAuthenticator().getToken()
-      const loadedReferences = await doFetch(
+      const loadedReferences = await fetchAllByType(
         token,
-        editorContext.repositoryRefInfo,
+        editorContext.repositoryRefInfo.owner,
+        editorContext.repositoryRefInfo.repository,
+        editorContext.repositoryRefInfo.gitRef,
         objectType.name,
         listVisibleFieldNames,
       )
-      if (!ignore) {
-        const initialValue = loadedReferences[0] ?? {}
-        const newSelectedData = {
-          __typename: objectType.name,
-          ...initialValue,
-        }
-        setDataPossibleReferences(loadedReferences)
-        setIsLoaded(true)
-        setIsLoading(false)
-        handleChildDataChangeRequest(fieldName, newSelectedData)
+      const initialValue = loadedReferences[0] ?? {}
+      const newSelectedData = {
+        __typename: objectType.name,
+        ...initialValue,
       }
+      setDataPossibleReferences(loadedReferences)
+      setIsLoaded(true)
+      setIsLoading(false)
+      handleChildDataChangeRequest(fieldName, newSelectedData)
     }
 
-    let ignore = false
-    if (requiresAutoLoading && !isLoaded) {
+    if (requiresAutoLoading && !isLoaded && !isLoading) {
       autoLoadReferences()
-      setIsLoading(true)
     }
-    return () => {
-      ignore = true
-    }
+
+    return () => {}
   }, [
     editorContext,
+    isLoading,
     isLoaded,
     handleChildDataChangeRequest,
     requiresAutoLoading,
@@ -82,11 +76,13 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
     listVisibleFieldNames,
   ])
 
-  const fetchReferences = async function (): Promise<void> {
+  const fetchReferences = async (): Promise<void> => {
     const token = await commitsparkConfig.createAuthenticator().getToken()
-    let loadedReferences = await doFetch(
+    let loadedReferences = await fetchAllByType(
       token,
-      editorContext.repositoryRefInfo,
+      editorContext.repositoryRefInfo.owner,
+      editorContext.repositoryRefInfo.repository,
+      editorContext.repositoryRefInfo.gitRef,
       objectType.name,
       listVisibleFieldNames,
     )
@@ -118,22 +114,6 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
       ...selection, // put all data so that the data for our listVisibleFieldNames is included
       __typename: objectType.name,
     })
-  }
-
-  const doFetch = async (
-    token: string,
-    repositoryRefInfo: RepositoryRefInfo,
-    typeName: string,
-    additionalFields: string[],
-  ): Promise<Record<string, any>[]> => {
-    return fetchAllByType(
-      token,
-      repositoryRefInfo.owner,
-      repositoryRefInfo.repository,
-      repositoryRefInfo.gitRef,
-      typeName,
-      additionalFields,
-    )
   }
 
   return (

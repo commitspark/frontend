@@ -15,7 +15,11 @@ import StyledButton from '../StyledButton'
 import DeleteEntryModal from './DeleteEntryModal'
 import { useRouter } from 'next/navigation'
 import { useTransientNotification } from '../context/TransientNotificationProvider'
-import { fetchContent, fetchSchema, fetchTypeNameById } from '../lib/fetch'
+import {
+  fetchContent,
+  fetchSchemaString,
+  fetchTypeNameById,
+} from '../../app/server-actions/actions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, isObjectType } from 'graphql/type'
 import { createContentQueryFromNamedType } from '../lib/query'
@@ -194,13 +198,13 @@ export default function EntryEditor(props: EntryEditorProps) {
   })
 
   useEffect(() => {
-    async function fetchEntry(): Promise<void> {
+    const fetchEntry = async (): Promise<void> => {
       if (!!props.entryId === !!props.typeName) {
         throw new Error('Expected one of entryId or typeName')
       }
       const token = await commitsparkConfig.createAuthenticator().getToken()
 
-      const schemaString = await fetchSchema(
+      const schemaString = await fetchSchemaString(
         token,
         props.owner,
         props.repository,
@@ -232,7 +236,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       let entryData
       if (props.entryId !== undefined) {
         const entryContentQuery = createContentQueryFromNamedType(type)
-        const entryResponse = await fetchContent(
+        const contentResponse = await fetchContent(
           token,
           props.owner,
           props.repository,
@@ -244,45 +248,44 @@ export default function EntryEditor(props: EntryEditorProps) {
             },
           },
         )
-        if (
-          entryResponse.errors &&
-          Array.isArray(entryResponse.errors) &&
-          entryResponse.errors.length > 0
-        ) {
-          const message = entryResponse.errors
-            .map((error) => error.message)
-            .join('\n')
-          throw new Error(message)
-        }
         // TODO update entry data with mandatory default data as required by schema where it is needed
-        entryData = entryResponse.data.data
+        entryData = contentResponse.data
       } else {
         entryData = createDefaultData(type, 0)
       }
 
-      if (!ignore) {
-        setEntryData(entryData)
-        editorContext.setEntryData(entryData)
-        if (props.entryId === undefined) {
-          setOriginalEntryData(undefined)
-          setIsContentModified(true)
-        } else {
-          setOriginalEntryData(entryData)
-          setIsContentModified(false)
-        }
-        setEntryType(type)
-        editorContext.setSchema(schema)
-        setIsSchemaLoaded(true)
-        setIsContentLoaded(true)
+      setEntryData(entryData)
+      editorContext.setEntryData(entryData)
+      if (props.entryId === undefined) {
+        setOriginalEntryData(undefined)
+        setIsContentModified(true)
+      } else {
+        setOriginalEntryData(entryData)
+        setIsContentModified(false)
       }
+      setEntryType(type)
+      editorContext.setSchema(schema)
+      setIsSchemaLoaded(true)
+      setIsContentLoaded(true)
     }
 
-    let ignore = false
     fetchEntry()
+
     return () => {
-      ignore = true
+      setIsSchemaLoaded(false)
+      setIsContentLoaded(false)
+      setOriginalEntryData(undefined)
+      setIsContentModified(false)
+      setEntryType(undefined)
     }
-  }, [props.owner, props.repository, props.gitRef])
+  }, [
+    props.owner,
+    props.repository,
+    props.gitRef,
+    props.entryId,
+    props.typeName,
+    editorContext,
+  ])
 
   if (!entryType) {
     return <></>

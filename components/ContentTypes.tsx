@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getApiService } from '@commitspark/graphql-api'
-import { getAdapter } from './lib/getAdapter'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, GraphQLSchema } from 'graphql/type'
 import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
@@ -11,6 +9,7 @@ import List from './List'
 import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
 import { commitsparkConfig } from '../commitspark.config'
+import { fetchSchemaString } from '../app/server-actions/actions'
 
 export interface ContentTypesProps {
   owner: string
@@ -21,35 +20,32 @@ export interface ContentTypesProps {
 const ContentTypes: React.FC<ContentTypesProps> = (
   props: ContentTypesProps,
 ) => {
-  const [entryTypes, setEntryTypes] = useState<string[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [contentTypes, setContentTypes] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    async function fetchTypes() {
-      setEntryTypes([])
+    const updateTypes = async () => {
+      setIsLoading(true)
       const token = await commitsparkConfig.createAuthenticator().getToken()
-      const apiService = await getApiService()
-      const adapter = await getAdapter(token, props.owner, props.repository)
-      const response = await apiService.getSchema(adapter, props.gitRef)
-
+      const schemaString = await fetchSchemaString(
+        token,
+        props.owner,
+        props.repository,
+        props.gitRef,
+      )
       const schema = makeExecutableSchema({
-        typeDefs: response.data,
+        typeDefs: schemaString,
       })
 
-      if (!ignore) {
-        setEntryTypes(getEntryTypes(schema))
-        setLoading(false)
-      }
+      setContentTypes(getContentTypes(schema))
+      setIsLoading(false)
     }
 
-    let ignore = false
-    fetchTypes()
-    return () => {
-      ignore = true
-    }
+    updateTypes()
+    return () => {}
   }, [props.owner, props.repository, props.gitRef])
 
-  const contentTypesListEntries = entryTypes.map(
+  const contentTypesListEntries = contentTypes.map(
     (entryType: string) =>
       ({
         linkTarget: routes.contentEntriesOfTypeList(
@@ -64,15 +60,15 @@ const ContentTypes: React.FC<ContentTypesProps> = (
 
   return (
     <>
-      {loading && <Loading />}
-      {!loading && <List entries={contentTypesListEntries} />}
+      {isLoading && <Loading />}
+      {!isLoading && <List entries={contentTypesListEntries} />}
     </>
   )
 }
 
 export default ContentTypes
 
-function getEntryTypes(schema: GraphQLSchema): string[] {
+function getContentTypes(schema: GraphQLSchema): string[] {
   const result: string[] = []
 
   // get all types annotated with @Entry directive

@@ -11,7 +11,7 @@ export interface User {
 }
 
 export interface Avatar {
-  url: string
+  url: string // must be a publicly accessible URL
 }
 
 export interface Repository {

@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchAllByType, fetchSchema } from './lib/fetch'
+import {
+  fetchAllByType,
+  fetchSchemaString,
+} from '../app/server-actions/actions'
 import List from './List'
 import Loading from './Loading'
 import { ListEntryProps } from './ListEntry'
@@ -20,14 +23,14 @@ export interface EntriesOverviewProps {
 
 export default function Entries(props: EntriesOverviewProps) {
   const [entries, setEntries] = useState<Record<string, any>[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [visibleFieldNames, setVisibleFieldNames] = useState<string[]>()
 
   useEffect(() => {
-    async function fetchEntries() {
-      setEntries([])
+    const updateEntries = async () => {
+      setIsLoading(true)
       const token = await commitsparkConfig.createAuthenticator().getToken()
-      const schemaString = await fetchSchema(
+      const schemaString = await fetchSchemaString(
         token,
         props.owner,
         props.repository,
@@ -54,18 +57,14 @@ export default function Entries(props: EntriesOverviewProps) {
         props.typeName,
         listVisibleFieldNames,
       )
-      if (!ignore) {
-        setEntries(entries)
-        setVisibleFieldNames(listVisibleFieldNames)
-        setLoading(false)
-      }
+      setEntries(entries)
+      setVisibleFieldNames(listVisibleFieldNames)
+      setIsLoading(false)
     }
 
-    let ignore = false
-    fetchEntries()
-    return () => {
-      ignore = true
-    }
+    updateEntries()
+
+    return () => {}
   }, [props.owner, props.repository, props.gitRef, props.typeName])
 
   const entryListEntries = entries.map((entry: any) => {
@@ -90,8 +89,8 @@ export default function Entries(props: EntriesOverviewProps) {
 
   return (
     <>
-      {loading && <Loading />}
-      {!loading && <List entries={entryListEntries} />}
+      {isLoading && <Loading />}
+      {!isLoading && <List entries={entryListEntries} />}
     </>
   )
 }
