@@ -12,7 +12,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { getListVisibleFieldNames } from './lib/schema-utils'
 import { routes } from './lib/route-generator'
 import { isObjectType } from 'graphql/type'
-import { commitsparkConfig } from '../commitspark.config'
+import { getCookieSession } from './lib/session'
 
 export interface EntriesOverviewProps {
   owner: string
@@ -29,9 +29,9 @@ export default function Entries(props: EntriesOverviewProps) {
   useEffect(() => {
     const updateEntries = async () => {
       setIsLoading(true)
-      const token = await commitsparkConfig.createAuthenticator().getToken()
+      const session = getCookieSession()
       const schemaString = await fetchSchemaString(
-        token,
+        session,
         props.owner,
         props.repository,
         props.gitRef,
@@ -50,7 +50,7 @@ export default function Entries(props: EntriesOverviewProps) {
       }
       const listVisibleFieldNames = getListVisibleFieldNames(type)
       const entries = await fetchAllByType(
-        token,
+        session,
         props.owner,
         props.repository,
         props.gitRef,

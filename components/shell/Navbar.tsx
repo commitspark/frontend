@@ -7,8 +7,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { default as NextLink } from 'next/link'
 import { DropDownEntryProps } from '../DropDownEntry'
-import { commitsparkConfig } from '../../commitspark.config'
 import { routes } from '../lib/route-generator'
+import { removeAuthentication } from '../lib/session'
 
 interface NavbarProps {}
 
@@ -18,7 +18,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
     {
       label: 'Sign out',
       onClickHandler: async (event) => {
-        await commitsparkConfig.createAuthenticator().removeAuthentication()
+        await removeAuthentication()
         router.push(routes.signIn())
       },
     },

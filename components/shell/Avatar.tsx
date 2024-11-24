@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { User } from '../../lib/provider/provider'
-import { commitsparkConfig } from '../../commitspark.config'
 import { fetchUserInfo } from '../../app/server-actions/actions'
+import { getCookieSession } from '../lib/session'
 
 interface AvatarProps {}
 
@@ -14,8 +14,8 @@ const Avatar: React.FC<React.PropsWithChildren<AvatarProps>> = (
 
   useEffect(() => {
     const updateUserInfo = async () => {
-      const token = await commitsparkConfig.createAuthenticator().getToken()
-      const user = await fetchUserInfo(token)
+      const session = getCookieSession()
+      const user = await fetchUserInfo(session)
       setUserInfo(user)
     }
 

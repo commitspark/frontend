@@ -1,11 +1,16 @@
-import { Authenticator } from '../authenticator'
+import {
+  Authenticator,
+  COOKIE_SESSION_EXPIRY_DURATION,
+  COOKIE_SESSION_NAME,
+} from '../authenticator'
 import { NextRequest, NextResponse } from 'next/server'
-import { deleteCookie, getCookie } from 'cookies-next'
 import { routes } from '../../../components/lib/route-generator'
+import {
+  decryptSession,
+  encryptSession,
+} from '../../../app/server-actions/session'
 
 export class GitHubAuthenticator implements Authenticator {
-  private static COOKIE_NAME_TOKEN = 'provider_token_github'
-
   getAuthenticationUrl(): string {
     const authorizeParams = new URLSearchParams({
       scope: ['repo'].join(','),
@@ -44,62 +49,66 @@ export class GitHubAuthenticator implements Authenticator {
     data.append('code', code)
 
     const endpoint = 'https://github.com/login/oauth/access_token'
-    return await fetch(endpoint, {
-      method: 'POST',
-      body: data,
+    let remoteResponse
+    try {
+      remoteResponse = await fetch(endpoint, {
+        method: 'POST',
+        body: data,
+      })
+    } catch (error) {
+      return new NextResponse(null, {
+        status: 400,
+      })
+    }
+
+    const paramsString = await remoteResponse.text()
+
+    let params = new URLSearchParams(paramsString)
+    // see https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app#using-the-web-application-flow-to-generate-a-user-access-token
+    // step 4 for all values returned by GitHub
+    const accessToken = params.get('access_token')
+
+    if (!accessToken) {
+      return new NextResponse(null, {
+        status: 400,
+      })
+    }
+
+    const expiresAt = new Date(
+      Date.now() + COOKIE_SESSION_EXPIRY_DURATION * 1000,
+    )
+    const encryptedSession = await encryptSession(
+      { accessToken },
+      COOKIE_SESSION_EXPIRY_DURATION,
+    )
+
+    const response = NextResponse.redirect(
+      new URL(routes.repositoryList(), hostingUrl),
+      307,
+    )
+    response.cookies.set(COOKIE_SESSION_NAME, encryptedSession, {
+      secure: true,
+      path: '/',
+      expires: expiresAt,
     })
-      .then((response) => response.text())
-      .then((paramsString) => {
-        let params = new URLSearchParams(paramsString)
-        // see https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app#using-the-web-application-flow-to-generate-a-user-access-token
-        // step 4 for all values returned by GitHub
-        const accessToken = params.get('access_token')
 
-        if (!accessToken) {
-          return new NextResponse(null, {
-            status: 400,
-          })
-        }
-
-        const response = NextResponse.redirect(
-          new URL(routes.repositoryList(), hostingUrl),
-          307,
-        )
-        response.cookies.set(
-          GitHubAuthenticator.COOKIE_NAME_TOKEN,
-          accessToken,
-          {
-            path: '/',
-            maxAge: 3600 * 24 * 30,
-            secure: true,
-          },
-        )
-        return response
-      })
-      .catch((error) => {
-        return new NextResponse(null, {
-          status: 400,
-        })
-      })
+    return response
   }
 
-  isAuthenticated(request: NextRequest): Promise<boolean> {
-    return new Promise((resolve) =>
-      resolve(
-        request.cookies.get(GitHubAuthenticator.COOKIE_NAME_TOKEN)?.value !==
-          undefined,
-      ),
-    )
+  async isAuthenticated(request: NextRequest): Promise<boolean> {
+    const cookieValue = request.cookies.get(COOKIE_SESSION_NAME)?.value
+    let isAuthenticated = false
+    if (cookieValue) {
+      try {
+        await decryptSession(cookieValue)
+        isAuthenticated = true
+      } catch (error) {}
+    }
+
+    return new Promise<boolean>((resolve) => resolve(isAuthenticated))
   }
 
-  getToken(): Promise<string> {
-    return new Promise((resolve) =>
-      resolve(`${getCookie(GitHubAuthenticator.COOKIE_NAME_TOKEN)}`),
-    )
-  }
-
-  removeAuthentication(): Promise<void> {
-    deleteCookie(GitHubAuthenticator.COOKIE_NAME_TOKEN)
+  async removeAuthentication(): Promise<void> {
     return new Promise((resolve) => resolve())
   }
 }

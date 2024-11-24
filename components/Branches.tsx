@@ -6,9 +6,9 @@ import Loading from './Loading'
 import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
 import { Branch } from '../lib/provider/provider'
-import { commitsparkConfig } from '../commitspark.config'
 import { useSelectedLayoutSegments } from 'next/navigation'
 import { fetchBranches } from '../app/server-actions/actions'
+import { getCookieSession } from './lib/session'
 
 export interface BranchesProps {
   owner: string
@@ -28,8 +28,8 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
   useEffect(() => {
     const updateBranches = async () => {
       setLoading(true)
-      const token = await commitsparkConfig.createAuthenticator().getToken()
-      const branches = await fetchBranches(token, owner, repository)
+      const session = getCookieSession()
+      const branches = await fetchBranches(session, owner, repository)
       setBranches(branches)
       setLoading(false)
     }

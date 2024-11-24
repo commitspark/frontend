@@ -8,6 +8,7 @@ import { routes } from './lib/route-generator'
 import { Repository } from '../lib/provider/provider'
 import { commitsparkConfig } from '../commitspark.config'
 import { fetchRepositories } from '../app/server-actions/actions'
+import { getCookieSession } from './lib/session'
 
 export interface RepositoriesProps {}
 
@@ -20,8 +21,8 @@ const Repositories: React.FC<RepositoriesProps> = (
   useEffect(() => {
     const updateRepositories = async () => {
       setIsLoading(true)
-      const token = await commitsparkConfig.createAuthenticator().getToken()
-      const repositories = await fetchRepositories(token)
+      const session = getCookieSession()
+      const repositories = await fetchRepositories(session)
       setRepositories(repositories)
       setIsLoading(false)
     }

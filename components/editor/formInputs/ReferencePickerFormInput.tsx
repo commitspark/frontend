@@ -6,8 +6,8 @@ import { getListVisibleFieldNames } from '../../lib/schema-utils'
 import Loading from '../../Loading'
 import { GraphQLObjectType } from 'graphql/type'
 import ListBoxInput from '../../styledInput/ListBoxInput'
-import { commitsparkConfig } from '../../../commitspark.config'
 import { EditorContextValue, useEditor } from '../../context/EditorProvider'
+import { getCookieSession } from '../../lib/session'
 
 interface ReferencePickerFormInputProps {
   objectType: GraphQLObjectType
@@ -40,9 +40,9 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
 
   useEffect(() => {
     const autoLoadReferences = async (): Promise<void> => {
-      const token = await commitsparkConfig.createAuthenticator().getToken()
+      const session = getCookieSession()
       const loadedReferences = await fetchAllByType(
-        token,
+        session,
         editorContext.repositoryRefInfo.owner,
         editorContext.repositoryRefInfo.repository,
         editorContext.repositoryRefInfo.gitRef,
@@ -77,9 +77,9 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
   ])
 
   const fetchReferences = async (): Promise<void> => {
-    const token = await commitsparkConfig.createAuthenticator().getToken()
+    const session = getCookieSession()
     let loadedReferences = await fetchAllByType(
-      token,
+      session,
       editorContext.repositoryRefInfo.owner,
       editorContext.repositoryRefInfo.repository,
       editorContext.repositoryRefInfo.gitRef,

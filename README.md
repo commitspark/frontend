@@ -70,9 +70,10 @@ and further parametrized through environment variables or `.env` file.
 
 The following environment variables must be set independent of configuration:
 
-| Variable      | Description                                                                                                                     |
-|---------------|---------------------------------------------------------------------------------------------------------------------------------|
-| `HOSTING_URL` | Set to a public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com` |
+| Variable         | Description                                                                                                                           |
+|------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `HOSTING_URL`    | Set to a public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com`       |
+| `SESSION_SECRET` | Set to a base64 encoded secret string that is used to encrypt session data,<br/>e.g. generate a string with `openssl rand -base64 32` | 
 
 ### Running from source
 

@@ -8,8 +8,8 @@ import Loading from './Loading'
 import List from './List'
 import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
-import { commitsparkConfig } from '../commitspark.config'
 import { fetchSchemaString } from '../app/server-actions/actions'
+import { getCookieSession } from './lib/session'
 
 export interface ContentTypesProps {
   owner: string
@@ -26,9 +26,9 @@ const ContentTypes: React.FC<ContentTypesProps> = (
   useEffect(() => {
     const updateTypes = async () => {
       setIsLoading(true)
-      const token = await commitsparkConfig.createAuthenticator().getToken()
+      const session = getCookieSession()
       const schemaString = await fetchSchemaString(
-        token,
+        session,
         props.owner,
         props.repository,
         props.gitRef,

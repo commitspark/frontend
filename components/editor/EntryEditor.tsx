@@ -28,8 +28,8 @@ import { createDefaultData } from '../lib/default-data-generator'
 import { deepEqual } from '../lib/content-utils'
 import { assertIsString } from '../lib/assert'
 import { commitContentEntry } from '../lib/commit'
-import { commitsparkConfig } from '../../commitspark.config'
 import { useNavigationGuard } from 'next-navigation-guard'
+import { getCookieSession } from '../lib/session'
 
 interface EntryEditorProps {
   owner: string
@@ -63,12 +63,12 @@ export default function EntryEditor(props: EntryEditorProps) {
     if (!editorContext.schema.current || !entryData || !entryType) {
       throw new Error('Cannot commit without required data')
     }
-    const token = await commitsparkConfig.createAuthenticator().getToken()
+    const session = getCookieSession()
 
     const entryId = entryData.id
 
     await commitContentEntry(
-      token,
+      session,
       props.owner,
       props.repository,
       props.gitRef,
@@ -92,11 +92,11 @@ export default function EntryEditor(props: EntryEditorProps) {
         'Repository info and entry ID required for deleting entry',
       )
     }
-    const token = await commitsparkConfig.createAuthenticator().getToken()
+    const session = getCookieSession()
 
     // TODO simplify this to use the type information we loaded when the editor was instantiated
     const typeName = await fetchTypeNameById(
-      token,
+      session,
       props.owner,
       props.repository,
       props.gitRef,
@@ -113,7 +113,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       },
     }
     await mutateContent(
-      token,
+      session,
       props.owner,
       props.repository,
       props.gitRef,
@@ -202,10 +202,10 @@ export default function EntryEditor(props: EntryEditorProps) {
       if (!!props.entryId === !!props.typeName) {
         throw new Error('Expected one of entryId or typeName')
       }
-      const token = await commitsparkConfig.createAuthenticator().getToken()
+      const session = getCookieSession()
 
       const schemaString = await fetchSchemaString(
-        token,
+        session,
         props.owner,
         props.repository,
         props.gitRef,
@@ -214,7 +214,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       let typeName
       if (props.entryId !== undefined) {
         typeName = await fetchTypeNameById(
-          token,
+          session,
           props.owner,
           props.repository,
           props.gitRef,
@@ -237,7 +237,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       if (props.entryId !== undefined) {
         const entryContentQuery = createContentQueryFromNamedType(type)
         const contentResponse = await fetchContent(
-          token,
+          session,
           props.owner,
           props.repository,
           props.gitRef,
