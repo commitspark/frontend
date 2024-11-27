@@ -1,5 +1,6 @@
 'use server'
 
+import 'server-only'
 import { commitsparkConfig } from '../../commitspark.config'
 import { Repository, User } from '../../lib/provider/provider'
 import { getApiService } from '@commitspark/graphql-api'
