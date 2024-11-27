@@ -22,9 +22,7 @@ export async function encryptSession(
     .sign(encodedKey)
 }
 
-export async function decryptSession(
-  session: string | undefined = '',
-): Promise<SessionPayload> {
+export async function decryptSession(session: string): Promise<SessionPayload> {
   const { payload } = await jwtVerify<SessionPayload>(session, encodedKey, {
     algorithms: [algorithm],
   })
