@@ -27,7 +27,7 @@ export default function Entries(props: EntriesOverviewProps) {
   const [visibleFieldNames, setVisibleFieldNames] = useState<string[]>()
 
   useEffect(() => {
-    const updateEntries = async () => {
+    const updateEntries = async (): Promise<void> => {
       setIsLoading(true)
       const session = getCookieSession()
       const schemaString = await fetchSchemaString(

@@ -19,7 +19,7 @@ const Repositories: React.FC<RepositoriesProps> = (
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const updateRepositories = async () => {
+    const updateRepositories = async (): Promise<void> => {
       setIsLoading(true)
       const session = getCookieSession()
       const repositories = await fetchRepositories(session)

@@ -13,7 +13,7 @@ const Avatar: React.FC<React.PropsWithChildren<AvatarProps>> = (
   const [userInfo, setUserInfo] = useState<User | null>(null)
 
   useEffect(() => {
-    const updateUserInfo = async () => {
+    const updateUserInfo = async (): Promise<void> => {
       const session = getCookieSession()
       const user = await fetchUserInfo(session)
       setUserInfo(user)

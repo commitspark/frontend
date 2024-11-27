@@ -22,7 +22,7 @@ const EntryTypes: React.FC<EntryTypesProps> = (props: EntryTypesProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const updateTypes = async () => {
+    const updateTypes = async (): Promise<void> => {
       setIsLoading(true)
       const session = getCookieSession()
       const schemaString = await fetchSchemaString(

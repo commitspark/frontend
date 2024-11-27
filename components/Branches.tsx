@@ -26,7 +26,7 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
   const decodedGitRef = decodeURIComponent(segments[1])
 
   useEffect(() => {
-    const updateBranches = async () => {
+    const updateBranches = async (): Promise<void> => {
       setLoading(true)
       const session = getCookieSession()
       const branches = await fetchBranches(session, owner, repository)
