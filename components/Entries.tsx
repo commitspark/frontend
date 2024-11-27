@@ -77,7 +77,7 @@ export default function Entries(props: EntriesOverviewProps) {
       labelData['id'] = entry.id
     }
     return {
-      linkTarget: routes.editContentEntry(
+      linkTarget: routes.editEntry(
         props.owner,
         props.repository,
         props.gitRef,

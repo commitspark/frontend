@@ -19,7 +19,7 @@ import {
   fetchContent,
   fetchSchemaString,
   fetchTypeNameById,
-  mutateContent,
+  mutateEntry,
 } from '../../app/server-actions/actions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, isObjectType } from 'graphql/type'
@@ -27,7 +27,7 @@ import { createContentQueryFromNamedType } from '../lib/query-factory'
 import { createDefaultData } from '../lib/default-data-generator'
 import { deepEqual } from '../lib/content-utils'
 import { assertIsString } from '../lib/assert'
-import { commitContentEntry } from '../lib/commit'
+import { commitEntry } from '../lib/commit'
 import { useNavigationGuard } from 'next-navigation-guard'
 import { getCookieSession } from '../lib/session'
 
@@ -67,7 +67,7 @@ export default function EntryEditor(props: EntryEditorProps) {
 
     const entryId = entryData.id
 
-    await commitContentEntry(
+    await commitEntry(
       session,
       props.owner,
       props.repository,
@@ -112,7 +112,7 @@ export default function EntryEditor(props: EntryEditorProps) {
         message: commitMessage,
       },
     }
-    await mutateContent(
+    await mutateEntry(
       session,
       props.owner,
       props.repository,
@@ -141,12 +141,7 @@ export default function EntryEditor(props: EntryEditorProps) {
     // if new entry first committed
     if (props.entryId !== entryId) {
       router.push(
-        routes.editContentEntry(
-          props.owner,
-          props.repository,
-          props.gitRef,
-          entryId,
-        ),
+        routes.editEntry(props.owner, props.repository, props.gitRef, entryId),
       )
     }
     addTransientNotification({
@@ -160,11 +155,11 @@ export default function EntryEditor(props: EntryEditorProps) {
     if (!entryType) {
       // should never reach this
       router.push(
-        routes.contentTypesList(props.owner, props.repository, props.gitRef),
+        routes.entryTypesList(props.owner, props.repository, props.gitRef),
       )
     } else {
       router.push(
-        routes.contentEntriesOfTypeList(
+        routes.entriesOfTypeList(
           props.owner,
           props.repository,
           props.gitRef,
@@ -316,7 +311,7 @@ export default function EntryEditor(props: EntryEditorProps) {
               <PageHeading
                 title={props.entryId ?? 'New entry'}
                 subTitle={entryType.name}
-                backLink={routes.contentEntriesOfTypeList(
+                backLink={routes.entriesOfTypeList(
                   props.owner,
                   props.repository,
                   props.gitRef,

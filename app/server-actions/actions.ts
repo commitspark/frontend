@@ -123,7 +123,7 @@ export async function fetchAllByType(
   return JSON.parse(JSON.stringify(response.data?.data)) ?? []
 }
 
-export async function mutateContent(
+export async function mutateEntry(
   sessionCookie: string,
   owner: string,
   repository: string,

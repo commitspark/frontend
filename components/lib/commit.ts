@@ -1,4 +1,4 @@
-import { mutateContent } from '../../app/server-actions/actions'
+import { mutateEntry } from '../../app/server-actions/actions'
 import { GraphQLSchema } from 'graphql/type'
 import {
   getTypeDefinitionNodeFromSchema,
@@ -15,7 +15,7 @@ import {
 } from 'graphql/language/ast'
 import { assertIsRecordOrNull, assertIsString } from './assert'
 
-export async function commitContentEntry(
+export async function commitEntry(
   token: string,
   owner: string,
   repository: string,
@@ -60,7 +60,7 @@ export async function commitContentEntry(
     },
   }
 
-  const mutationResponseData = await mutateContent(
+  const mutationResponseData = await mutateEntry(
     token,
     owner,
     repository,

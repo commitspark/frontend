@@ -11,16 +11,14 @@ import { routes } from './lib/route-generator'
 import { fetchSchemaString } from '../app/server-actions/actions'
 import { getCookieSession } from './lib/session'
 
-export interface ContentTypesProps {
+export interface EntryTypesProps {
   owner: string
   repository: string
   gitRef: string
 }
 
-const ContentTypes: React.FC<ContentTypesProps> = (
-  props: ContentTypesProps,
-) => {
-  const [contentTypes, setContentTypes] = useState<string[]>([])
+const EntryTypes: React.FC<EntryTypesProps> = (props: EntryTypesProps) => {
+  const [entryTypes, setEntryTypes] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
@@ -37,7 +35,7 @@ const ContentTypes: React.FC<ContentTypesProps> = (
         typeDefs: schemaString,
       })
 
-      setContentTypes(getContentTypes(schema))
+      setEntryTypes(getEntryTypes(schema))
       setIsLoading(false)
     }
 
@@ -45,10 +43,10 @@ const ContentTypes: React.FC<ContentTypesProps> = (
     return () => {}
   }, [props.owner, props.repository, props.gitRef])
 
-  const contentTypesListEntries = contentTypes.map(
+  const contentTypesListEntries = entryTypes.map(
     (entryType: string) =>
       ({
-        linkTarget: routes.contentEntriesOfTypeList(
+        linkTarget: routes.entriesOfTypeList(
           props.owner,
           props.repository,
           props.gitRef,
@@ -66,9 +64,9 @@ const ContentTypes: React.FC<ContentTypesProps> = (
   )
 }
 
-export default ContentTypes
+export default EntryTypes
 
-function getContentTypes(schema: GraphQLSchema): string[] {
+const getEntryTypes = (schema: GraphQLSchema): string[] => {
   const result: string[] = []
 
   // get all types annotated with @Entry directive

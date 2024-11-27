@@ -73,7 +73,7 @@ const DeleteEntryModal: React.FC<
     >
       <div className="flex flex-col gap-y-4">
         <p className="text-sm text-color-light">
-          Are you sure you want to delete this content entry?
+          Are you sure you want to delete this entry?
         </p>
         <TextareaInput
           rows={3}

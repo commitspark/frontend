@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace mandatory automatic entry ID generation with manual custom ID input when creating new entries
 - Refactor pages and layout to no longer cause branch list reload on every navigation
 - Move Git provider authentication to server and only expose encrypted tokens to client
+- Harmonize domain wording
 
 ## [0.11.0] - 2024-08-17
 

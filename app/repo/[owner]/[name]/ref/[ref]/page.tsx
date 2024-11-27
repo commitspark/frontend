@@ -1,6 +1,6 @@
 import React from 'react'
 import PageHeading from '../../../../../../components/PageHeading'
-import ContentTypes from '../../../../../../components/ContentTypes'
+import EntryTypes from '../../../../../../components/EntryTypes'
 import Column from '../../../../../../components/shell/Column'
 
 export interface ContentTypesOverviewPageParams {
@@ -26,11 +26,11 @@ export default function ContentTypesOverviewPage({
     <Column
       pageHeading={
         <div className={'border-b app-border-color px-4'}>
-          <PageHeading title={'Content types'} />
+          <PageHeading title={'Entry types'} />
         </div>
       }
     >
-      <ContentTypes
+      <EntryTypes
         owner={repositoryInfo.owner}
         repository={repositoryInfo.repository}
         gitRef={repositoryInfo.gitRef}

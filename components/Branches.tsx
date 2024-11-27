@@ -42,7 +42,7 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
   const branchListEntries = branches.map(
     (branch) =>
       ({
-        linkTarget: routes.contentTypesList(owner, repository, branch.name),
+        linkTarget: routes.entryTypesList(owner, repository, branch.name),
         linkContent: { id: branch.name },
         isCurrent: branch.name === decodedGitRef,
       } as ListEntryProps),
