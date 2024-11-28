@@ -8,9 +8,14 @@ hosted on a Git provider (e.g. GitHub, GitLab).
 ## User authentication
 
 To obtain repository access, frontend users (i.e. data editors) must authenticate against a configurable
-authenticator. Typically, this is implemented by the same provider where the targeted Git repository
-is hosted. The underlying idea is that data editors are then considered native users of the provider's platform
-and can then use all the provider's collaboration features (e.g. commenting, approval).
+authenticator. Typically, this authenticator utilizes user accounts of the Git provider where targeted Git repositories
+are hosted. The underlying idea is that data editors are then considered native users of the provider's platform and can
+use all the provider's collaboration features (e.g. commenting, approval).
+
+However, all authentication and repository access is solely executed on the server and any credentials (e.g. tokens)
+obtained by the server to access a Git provider's repositories are only sent to the client as payload of an encrypted
+session cookie. This allows decoupling frontend users from Git provider accounts, enabling such scenarios as giving
+editors access to work with data in a Git repository without needing to have a Git provider account of their own.
 
 ## Supported Git providers
 
@@ -29,13 +34,13 @@ designated data repository.
 
 The following settings are relevant, all other settings can be left to their defaults:
 
-| Setting                          | Description                                                                                                                                                                            | Value                                                                                                                                |
-|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| Homepage URL                     | Enter the base URL that the frontend will be reachable under                                                                                                                           | e.g. `http://localhost:3000/` or `https://cs.exmaple.com/`                                                                           |
-| Callback URL                     | Enter the URL that GitHub should redirect to upon successful user authentication.<br/><br/>The built-in route that accepts these callbacks is `/api/oauth/authenticate-with-provider/` | e.g. `http://localhost:3000/api/oauth/authenticate-with-provider/` or `https://cs.example.com/api/oauth/authenticate-with-provider/` |
-| Expire user authorization tokens | Turn this off as token expiry is currently not supported                                                                                                                               | Off                                                                                                                                  |
-| Webhook                          | Notification about GitHub platform events related to the App is not relevant and must be turned off                                                                                    | Off                                                                                                                                  |
-| Permissions                      | Determines App access                                                                                                                                                                  | **Repository permissions**<br/>Contents: `Read and write`<br/>Metadata: `Read-only`                                                  |
+| Setting                          | Description                                                                                                                                                                            | Value                                                                                                                                    |
+|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| Homepage URL                     | Enter the base URL that the frontend will be reachable under                                                                                                                           | e.g. `http://localhost:3000/` or `https://cs.exmaple.com/`                                                                               |
+| Callback URL                     | Enter the URL that GitHub should redirect to upon successful user authentication.<br/><br/>The built-in route that accepts these callbacks is `/api/oauth/authenticate-with-provider/` | e.g. `http://localhost:3000/api/oauth/authenticate-with-provider/` or</br>`https://cs.example.com/api/oauth/authenticate-with-provider/` |
+| Expire user authorization tokens | Turn this off as token expiry is currently not supported                                                                                                                               | Off                                                                                                                                      |
+| Webhook                          | Notification about GitHub platform events related to the App is not relevant and must be turned off                                                                                    | Off                                                                                                                                      |
+| Permissions                      | Determines App access                                                                                                                                                                  | **Repository permissions**<br/>Contents: `Read and write`<br/>Metadata: `Read-only`                                                      |
 
 See the
 [GitHub documentation](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app)
@@ -101,7 +106,7 @@ ghcr.io/commitspark/frontend:latest
 Run the image locally as follows:
 
 ```shell
-docker run -e "GITHUB_OAUTH_CLIENT_ID=..." -e "GITHUB_OAUTH_CLIENT_SECRET=..." -e "HOSTING_URL=http://localhost:3000" -p 127.0.0.1:3000:3000 --name commitspark-frontend ghcr.io/commitspark/frontend:latest
+docker run -e "GITHUB_OAUTH_CLIENT_ID=..." -e "GITHUB_OAUTH_CLIENT_SECRET=..." -e "SESSION_SECRET=..." -e "HOSTING_URL=http://localhost:3000" -p 127.0.0.1:3000:3000 --name commitspark-frontend ghcr.io/commitspark/frontend:latest
 ```
 
 Then open `http://localhost:3000` in your browser.
