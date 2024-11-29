@@ -6,8 +6,8 @@ import {
 import { NextRequest, NextResponse } from 'next/server'
 import { routes } from '../../../components/lib/route-generator'
 import {
-  decryptSession,
-  encryptSession,
+  readSessionJwt,
+  createSessionJwt,
 } from '../../../app/server-actions/session'
 
 export class GitHubAuthenticator implements Authenticator {
@@ -77,7 +77,7 @@ export class GitHubAuthenticator implements Authenticator {
     const expiresAt = new Date(
       Date.now() + COOKIE_SESSION_EXPIRY_DURATION * 1000,
     )
-    const encryptedSession = await encryptSession(
+    const sessionJwt = await createSessionJwt(
       { accessToken },
       COOKIE_SESSION_EXPIRY_DURATION,
     )
@@ -86,7 +86,7 @@ export class GitHubAuthenticator implements Authenticator {
       new URL(routes.repositoryList(), hostingUrl),
       307,
     )
-    response.cookies.set(COOKIE_SESSION_NAME, encryptedSession, {
+    response.cookies.set(COOKIE_SESSION_NAME, sessionJwt, {
       secure: true,
       path: '/',
       expires: expiresAt,
@@ -100,7 +100,7 @@ export class GitHubAuthenticator implements Authenticator {
     let isAuthenticated = false
     if (cookieValue) {
       try {
-        await decryptSession(cookieValue)
+        await readSessionJwt(cookieValue)
         isAuthenticated = true
       } catch (error) {}
     }

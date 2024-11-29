@@ -1,30 +1,33 @@
 'use server'
 
 import 'server-only'
-import { JWTPayload, jwtVerify, SignJWT } from 'jose'
+import { EncryptJWT, jwtDecrypt, JWTPayload } from 'jose'
 
-const secretKey = process.env.SESSION_SECRET
-const encodedKey = new TextEncoder().encode(secretKey)
-const algorithm = 'HS256'
-
-export interface SessionPayload extends JWTPayload {
+export interface SessionPayload {
   accessToken: string
 }
 
-export async function encryptSession(
-  payload: SessionPayload,
+const encryptionKey = Buffer.from(
+  process.env.JWT_ENCRYPTION_KEY ?? '',
+  'base64',
+)
+
+export async function createSessionJwt(
+  sessionPayload: SessionPayload,
   expiryDuration: number,
 ): Promise<string> {
-  return new SignJWT(payload)
-    .setProtectedHeader({ alg: algorithm })
+  const payload: SessionPayload & JWTPayload = {
+    ...sessionPayload,
+  }
+
+  return await new EncryptJWT(payload)
+    .setProtectedHeader({ alg: 'dir', enc: 'A128CBC-HS256' })
     .setIssuedAt()
     .setExpirationTime(`${expiryDuration}s`)
-    .sign(encodedKey)
+    .encrypt(encryptionKey)
 }
 
-export async function decryptSession(session: string): Promise<SessionPayload> {
-  const { payload } = await jwtVerify<SessionPayload>(session, encodedKey, {
-    algorithms: [algorithm],
-  })
+export async function readSessionJwt(jwt: string): Promise<SessionPayload> {
+  const { payload } = await jwtDecrypt<SessionPayload>(jwt, encryptionKey)
   return payload
 }

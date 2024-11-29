@@ -10,7 +10,7 @@ import {
   assertIsString,
   assertIsRecordOrNull,
 } from '../../components/lib/assert'
-import { decryptSession } from './session'
+import { readSessionJwt } from './session'
 
 interface GraphQLQuery {
   query: string
@@ -22,7 +22,7 @@ export async function fetchBranches(
   owner: string,
   repository: string,
 ) {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const provider = commitsparkConfig.createProvider()
   return await provider.getBranches(accessToken, {
     owner: owner,
@@ -33,13 +33,13 @@ export async function fetchBranches(
 export async function fetchRepositories(
   sessionCookie: string,
 ): Promise<Repository[]> {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const provider = commitsparkConfig.createProvider()
   return await provider.getRepositories(accessToken)
 }
 
 export async function fetchUserInfo(sessionCookie: string): Promise<User> {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const provider = commitsparkConfig.createProvider()
   return await provider.getUser(accessToken)
 }
@@ -51,7 +51,7 @@ export async function fetchTypeNameById(
   ref: string,
   entryId: string,
 ): Promise<string> {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const apiService = await getApiService()
   const adapter = await getAdapter(accessToken, owner, name)
   const response = await apiService.postGraphQL(adapter, ref, {
@@ -67,7 +67,7 @@ export async function fetchSchemaString(
   name: string,
   ref: string,
 ): Promise<string> {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const apiService = await getApiService()
   const adapter = await getAdapter(accessToken, owner, name)
 
@@ -82,7 +82,7 @@ export async function fetchContent(
   ref: string,
   query: GraphQLQuery,
 ): Promise<Record<string, any>> {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const apiService = await getApiService()
   const adapter = await getAdapter(accessToken, owner, name)
 
@@ -108,7 +108,7 @@ export async function fetchAllByType(
   typeName: string,
   additionalFields?: string[],
 ): Promise<Record<string, any>[]> {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const apiService = await getApiService()
   const adapter = await getAdapter(accessToken, owner, name)
   const response = await apiService.postGraphQL(adapter, ref, {
@@ -130,7 +130,7 @@ export async function mutateEntry(
   ref: string,
   mutation: { query: string; variables?: Record<string, unknown> | undefined },
 ): Promise<Record<string, unknown> | null> {
-  const { accessToken } = await decryptSession(sessionCookie)
+  const { accessToken } = await readSessionJwt(sessionCookie)
   const adapter = await getAdapter(accessToken, owner, repository)
   const apiService = await getApiService()
   const response = await apiService.postGraphQL<Record<string, unknown>>(

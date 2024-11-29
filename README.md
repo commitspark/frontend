@@ -75,10 +75,10 @@ and further parametrized through environment variables or `.env` file.
 
 The following environment variables must be set independent of configuration:
 
-| Variable         | Description                                                                                                                           |
-|------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| `HOSTING_URL`    | Set to a public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com`       |
-| `SESSION_SECRET` | Set to a base64 encoded secret string that is used to encrypt session data,<br/>e.g. generate a string with `openssl rand -base64 32` | 
+| Variable             | Description                                                                                                                     |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `HOSTING_URL`        | Set to a public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com` |
+| `JWT_ENCRYPTION_KEY` | Set to a base64 encoded 32 byte secret that is used to encrypt JWTs,<br/>e.g. generate a string with `openssl rand -base64 32`  |
 
 ### Running from source
 
@@ -106,7 +106,7 @@ ghcr.io/commitspark/frontend:latest
 Run the image locally as follows:
 
 ```shell
-docker run -e "GITHUB_OAUTH_CLIENT_ID=..." -e "GITHUB_OAUTH_CLIENT_SECRET=..." -e "SESSION_SECRET=..." -e "HOSTING_URL=http://localhost:3000" -p 127.0.0.1:3000:3000 --name commitspark-frontend ghcr.io/commitspark/frontend:latest
+docker run -e "GITHUB_OAUTH_CLIENT_ID=..." -e "GITHUB_OAUTH_CLIENT_SECRET=..." -e "JWT_ENCRYPTION_KEY=..." -e "HOSTING_URL=http://localhost:3000" -p 127.0.0.1:3000:3000 --name commitspark-frontend ghcr.io/commitspark/frontend:latest
 ```
 
 Then open `http://localhost:3000` in your browser.
