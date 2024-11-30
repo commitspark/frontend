@@ -15,7 +15,7 @@ use all the provider's collaboration features (e.g. commenting, approval).
 However, all authentication and repository access is solely executed on the server and any credentials (e.g. tokens)
 obtained by the server to access a Git provider's repositories are only sent to the client as payload of an encrypted
 session cookie. This allows decoupling frontend users from Git provider accounts, enabling such scenarios as giving
-editors access to work with data in a Git repository without needing to have a Git provider account of their own.
+editors access to Git repositories without needing to have a Git provider account of their own.
 
 ## Supported Git providers
 
@@ -70,7 +70,7 @@ enable your implementation through the frontend configuration file (see below).
 
 ### Configuration
 
-The frontend application is configured through a configuration file [commitspark.config.ts](commitspark.config.ts)
+The frontend application is configured through configuration file [commitspark.config.ts](commitspark.config.ts)
 and further parametrized through environment variables or `.env` file.
 
 The following environment variables must be set independent of configuration:
