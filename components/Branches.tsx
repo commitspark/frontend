@@ -6,8 +6,9 @@ import Loading from './Loading'
 import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
 import { Branch } from '../lib/provider/provider'
-import { commitsparkConfig } from '../commitspark.config'
 import { useSelectedLayoutSegments } from 'next/navigation'
+import { fetchBranches } from '../app/server-actions/actions'
+import { getCookieSession } from './lib/session'
 
 export interface BranchesProps {
   owner: string
@@ -25,31 +26,23 @@ const Branches: React.FC<BranchesProps> = (props: BranchesProps) => {
   const decodedGitRef = decodeURIComponent(segments[1])
 
   useEffect(() => {
-    async function fetchBranches() {
-      setBranches([])
-      const token = await commitsparkConfig.createAuthenticator().getToken()
-      const provider = commitsparkConfig.createProvider()
-      const branches = await provider.getBranches(token, {
-        owner: owner,
-        name: repository,
-      })
-      if (!ignore) {
-        setBranches(branches)
-        setLoading(false)
-      }
+    const updateBranches = async (): Promise<void> => {
+      setLoading(true)
+      const session = getCookieSession()
+      const branches = await fetchBranches(session, owner, repository)
+      setBranches(branches)
+      setLoading(false)
     }
 
-    let ignore = false
-    fetchBranches()
-    return () => {
-      ignore = true
-    }
+    updateBranches()
+
+    return () => {}
   }, [owner, repository])
 
   const branchListEntries = branches.map(
     (branch) =>
       ({
-        linkTarget: routes.contentTypesList(owner, repository, branch.name),
+        linkTarget: routes.entryTypesList(owner, repository, branch.name),
         linkContent: { id: branch.name },
         isCurrent: branch.name === decodedGitRef,
       } as ListEntryProps),

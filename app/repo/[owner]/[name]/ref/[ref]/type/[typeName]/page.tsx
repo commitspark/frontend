@@ -28,14 +28,10 @@ export default function ContentTypeEntriesPage({
     <div className="border-b app-border-color pr-4">
       <PageHeading
         title={`Entries of type ${params.typeName}`}
-        backLink={routes.contentTypesList(
-          params.owner,
-          params.name,
-          decodedRef,
-        )}
+        backLink={routes.entryTypesList(params.owner, params.name, decodedRef)}
       >
         <Link
-          href={routes.createContentEntry(
+          href={routes.createEntry(
             params.owner,
             params.name,
             decodedRef,

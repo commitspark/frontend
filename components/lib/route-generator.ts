@@ -4,10 +4,10 @@ import type { Route } from 'next'
 export const routes = {
   repositoryList,
   editingStartScreen,
-  contentTypesList,
-  contentEntriesOfTypeList,
-  editContentEntry,
-  createContentEntry,
+  entryTypesList,
+  entriesOfTypeList,
+  editEntry,
+  createEntry,
   signIn,
   settings,
 }
@@ -22,11 +22,7 @@ function editingStartScreen(owner: string, repository: string): Route {
   return `/repo/${owner}/${repository}/` as Route
 }
 
-function contentTypesList(
-  owner: string,
-  repository: string,
-  ref: string,
-): Route {
+function entryTypesList(owner: string, repository: string, ref: string): Route {
   assertIsString(owner)
   assertIsString(repository)
   assertIsString(ref)
@@ -34,21 +30,21 @@ function contentTypesList(
   return `/repo/${owner}/${repository}/ref/${encodedRef}` as Route
 }
 
-function contentEntriesOfTypeList(
+function entriesOfTypeList(
   owner: string,
   repository: string,
   ref: string,
-  contentType: string,
+  entryType: string,
 ): Route {
   assertIsString(owner)
   assertIsString(repository)
   assertIsString(ref)
-  assertIsString(contentType)
+  assertIsString(entryType)
   const encodedRef = encodeURIComponent(ref)
-  return `/repo/${owner}/${repository}/ref/${encodedRef}/type/${contentType}/` as Route
+  return `/repo/${owner}/${repository}/ref/${encodedRef}/type/${entryType}/` as Route
 }
 
-function editContentEntry(
+function editEntry(
   owner: string,
   repository: string,
   ref: string,
@@ -63,18 +59,18 @@ function editContentEntry(
   return `/repo/${owner}/${repository}/ref/${encodedRef}/id/${encodedEntryId}/` as Route
 }
 
-function createContentEntry(
+function createEntry(
   owner: string,
   repository: string,
   ref: string,
-  contentType: string,
+  entryType: string,
 ): Route {
   assertIsString(owner)
   assertIsString(repository)
   assertIsString(ref)
-  assertIsString(contentType)
+  assertIsString(entryType)
   const encodedRef = encodeURIComponent(ref)
-  return `/repo/${owner}/${repository}/ref/${encodedRef}/type/${contentType}/create-entry/` as Route
+  return `/repo/${owner}/${repository}/ref/${encodedRef}/type/${entryType}/create-entry/` as Route
 }
 
 function signIn(): Route {

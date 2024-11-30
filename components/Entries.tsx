@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchAllByType, fetchSchema } from './lib/fetch'
+import {
+  fetchAllByType,
+  fetchSchemaString,
+} from '../app/server-actions/actions'
 import List from './List'
 import Loading from './Loading'
 import { ListEntryProps } from './ListEntry'
@@ -9,7 +12,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { getListVisibleFieldNames } from './lib/schema-utils'
 import { routes } from './lib/route-generator'
 import { isObjectType } from 'graphql/type'
-import { commitsparkConfig } from '../commitspark.config'
+import { getCookieSession } from './lib/session'
 
 export interface EntriesOverviewProps {
   owner: string
@@ -20,15 +23,15 @@ export interface EntriesOverviewProps {
 
 export default function Entries(props: EntriesOverviewProps) {
   const [entries, setEntries] = useState<Record<string, any>[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [visibleFieldNames, setVisibleFieldNames] = useState<string[]>()
 
   useEffect(() => {
-    async function fetchEntries() {
-      setEntries([])
-      const token = await commitsparkConfig.createAuthenticator().getToken()
-      const schemaString = await fetchSchema(
-        token,
+    const updateEntries = async (): Promise<void> => {
+      setIsLoading(true)
+      const session = getCookieSession()
+      const schemaString = await fetchSchemaString(
+        session,
         props.owner,
         props.repository,
         props.gitRef,
@@ -47,25 +50,21 @@ export default function Entries(props: EntriesOverviewProps) {
       }
       const listVisibleFieldNames = getListVisibleFieldNames(type)
       const entries = await fetchAllByType(
-        token,
+        session,
         props.owner,
         props.repository,
         props.gitRef,
         props.typeName,
         listVisibleFieldNames,
       )
-      if (!ignore) {
-        setEntries(entries)
-        setVisibleFieldNames(listVisibleFieldNames)
-        setLoading(false)
-      }
+      setEntries(entries)
+      setVisibleFieldNames(listVisibleFieldNames)
+      setIsLoading(false)
     }
 
-    let ignore = false
-    fetchEntries()
-    return () => {
-      ignore = true
-    }
+    updateEntries()
+
+    return () => {}
   }, [props.owner, props.repository, props.gitRef, props.typeName])
 
   const entryListEntries = entries.map((entry: any) => {
@@ -78,7 +77,7 @@ export default function Entries(props: EntriesOverviewProps) {
       labelData['id'] = entry.id
     }
     return {
-      linkTarget: routes.editContentEntry(
+      linkTarget: routes.editEntry(
         props.owner,
         props.repository,
         props.gitRef,
@@ -90,8 +89,8 @@ export default function Entries(props: EntriesOverviewProps) {
 
   return (
     <>
-      {loading && <Loading />}
-      {!loading && <List entries={entryListEntries} />}
+      {isLoading && <Loading />}
+      {!isLoading && <List entries={entryListEntries} />}
     </>
   )
 }

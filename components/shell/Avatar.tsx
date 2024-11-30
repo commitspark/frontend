@@ -1,39 +1,28 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import {
-  RepositoryInfoState,
-  useRepositoryInfo,
-} from '../context/RepositoryInfoProvider'
 import { User } from '../../lib/provider/provider'
-import { commitsparkConfig } from '../../commitspark.config'
+import { fetchUserInfo } from '../../app/server-actions/actions'
+import { getCookieSession } from '../lib/session'
 
 interface AvatarProps {}
 
 const Avatar: React.FC<React.PropsWithChildren<AvatarProps>> = (
   props: React.PropsWithChildren<AvatarProps>,
 ) => {
-  const repositoryInfoState = useRepositoryInfo() as RepositoryInfoState
-
   const [userInfo, setUserInfo] = useState<User | null>(null)
 
   useEffect(() => {
-    async function fetchUserInfo() {
-      setUserInfo(null)
-      const token = await commitsparkConfig.createAuthenticator().getToken()
-      const provider = commitsparkConfig.createProvider()
-      const user = await provider.getUser(token)
-      if (!ignore) {
-        setUserInfo(user)
-      }
+    const updateUserInfo = async (): Promise<void> => {
+      const session = getCookieSession()
+      const user = await fetchUserInfo(session)
+      setUserInfo(user)
     }
 
-    let ignore = false
-    fetchUserInfo()
-    return () => {
-      ignore = true
-    }
-  }, [repositoryInfoState])
+    updateUserInfo()
+
+    return () => {}
+  }, [])
 
   return (
     <>

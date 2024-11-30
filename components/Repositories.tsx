@@ -7,6 +7,8 @@ import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
 import { Repository } from '../lib/provider/provider'
 import { commitsparkConfig } from '../commitspark.config'
+import { fetchRepositories } from '../app/server-actions/actions'
+import { getCookieSession } from './lib/session'
 
 export interface RepositoriesProps {}
 
@@ -14,25 +16,20 @@ const Repositories: React.FC<RepositoriesProps> = (
   props: RepositoriesProps,
 ) => {
   const [repositories, setRepositories] = useState<Repository[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    async function fetchRepositories() {
-      setRepositories([])
-      const token = await commitsparkConfig.createAuthenticator().getToken()
-      const provider = commitsparkConfig.createProvider()
-      const repositories = await provider.getRepositories(token)
-      if (!ignore) {
-        setRepositories(repositories)
-        setLoading(false)
-      }
+    const updateRepositories = async (): Promise<void> => {
+      setIsLoading(true)
+      const session = getCookieSession()
+      const repositories = await fetchRepositories(session)
+      setRepositories(repositories)
+      setIsLoading(false)
     }
 
-    let ignore = false
-    fetchRepositories()
-    return () => {
-      ignore = true
-    }
+    updateRepositories()
+
+    return () => {}
   }, [])
 
   const repoListEntries = repositories.map((repository) => {
@@ -45,8 +42,8 @@ const Repositories: React.FC<RepositoriesProps> = (
 
   return (
     <div className={'pt-2'}>
-      {loading && <Loading />}
-      {!loading && <List entries={repoListEntries} />}
+      {isLoading && <Loading />}
+      {!isLoading && <List entries={repoListEntries} />}
     </div>
   )
 }

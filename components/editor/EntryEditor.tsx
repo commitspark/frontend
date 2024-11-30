@@ -15,17 +15,21 @@ import StyledButton from '../StyledButton'
 import DeleteEntryModal from './DeleteEntryModal'
 import { useRouter } from 'next/navigation'
 import { useTransientNotification } from '../context/TransientNotificationProvider'
-import { fetchContent, fetchSchema, fetchTypeNameById } from '../lib/fetch'
+import {
+  fetchContent,
+  fetchSchemaString,
+  fetchTypeNameById,
+  mutateEntry,
+} from '../../app/server-actions/actions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLObjectType, isObjectType } from 'graphql/type'
-import { createContentQueryFromNamedType } from '../lib/query'
+import { createContentQueryFromNamedType } from '../lib/query-factory'
 import { createDefaultData } from '../lib/default-data-generator'
 import { deepEqual } from '../lib/content-utils'
 import { assertIsString } from '../lib/assert'
-import { commitContentEntry } from '../lib/commit'
-import { mutateContent } from '../lib/mutate'
-import { commitsparkConfig } from '../../commitspark.config'
+import { commitEntry } from '../lib/commit'
 import { useNavigationGuard } from 'next-navigation-guard'
+import { getCookieSession } from '../lib/session'
 
 interface EntryEditorProps {
   owner: string
@@ -59,12 +63,12 @@ export default function EntryEditor(props: EntryEditorProps) {
     if (!editorContext.schema.current || !entryData || !entryType) {
       throw new Error('Cannot commit without required data')
     }
-    const token = await commitsparkConfig.createAuthenticator().getToken()
+    const session = getCookieSession()
 
     const entryId = entryData.id
 
-    await commitContentEntry(
-      token,
+    await commitEntry(
+      session,
       props.owner,
       props.repository,
       props.gitRef,
@@ -88,11 +92,11 @@ export default function EntryEditor(props: EntryEditorProps) {
         'Repository info and entry ID required for deleting entry',
       )
     }
-    const token = await commitsparkConfig.createAuthenticator().getToken()
+    const session = getCookieSession()
 
     // TODO simplify this to use the type information we loaded when the editor was instantiated
     const typeName = await fetchTypeNameById(
-      token,
+      session,
       props.owner,
       props.repository,
       props.gitRef,
@@ -108,8 +112,8 @@ export default function EntryEditor(props: EntryEditorProps) {
         message: commitMessage,
       },
     }
-    await mutateContent(
-      token,
+    await mutateEntry(
+      session,
       props.owner,
       props.repository,
       props.gitRef,
@@ -137,12 +141,7 @@ export default function EntryEditor(props: EntryEditorProps) {
     // if new entry first committed
     if (props.entryId !== entryId) {
       router.push(
-        routes.editContentEntry(
-          props.owner,
-          props.repository,
-          props.gitRef,
-          entryId,
-        ),
+        routes.editEntry(props.owner, props.repository, props.gitRef, entryId),
       )
     }
     addTransientNotification({
@@ -156,11 +155,11 @@ export default function EntryEditor(props: EntryEditorProps) {
     if (!entryType) {
       // should never reach this
       router.push(
-        routes.contentTypesList(props.owner, props.repository, props.gitRef),
+        routes.entryTypesList(props.owner, props.repository, props.gitRef),
       )
     } else {
       router.push(
-        routes.contentEntriesOfTypeList(
+        routes.entriesOfTypeList(
           props.owner,
           props.repository,
           props.gitRef,
@@ -194,14 +193,14 @@ export default function EntryEditor(props: EntryEditorProps) {
   })
 
   useEffect(() => {
-    async function fetchEntry(): Promise<void> {
+    const fetchEntry = async (): Promise<void> => {
       if (!!props.entryId === !!props.typeName) {
         throw new Error('Expected one of entryId or typeName')
       }
-      const token = await commitsparkConfig.createAuthenticator().getToken()
+      const session = getCookieSession()
 
-      const schemaString = await fetchSchema(
-        token,
+      const schemaString = await fetchSchemaString(
+        session,
         props.owner,
         props.repository,
         props.gitRef,
@@ -210,7 +209,7 @@ export default function EntryEditor(props: EntryEditorProps) {
       let typeName
       if (props.entryId !== undefined) {
         typeName = await fetchTypeNameById(
-          token,
+          session,
           props.owner,
           props.repository,
           props.gitRef,
@@ -232,8 +231,8 @@ export default function EntryEditor(props: EntryEditorProps) {
       let entryData
       if (props.entryId !== undefined) {
         const entryContentQuery = createContentQueryFromNamedType(type)
-        const entryResponse = await fetchContent(
-          token,
+        const contentResponse = await fetchContent(
+          session,
           props.owner,
           props.repository,
           props.gitRef,
@@ -244,45 +243,44 @@ export default function EntryEditor(props: EntryEditorProps) {
             },
           },
         )
-        if (
-          entryResponse.errors &&
-          Array.isArray(entryResponse.errors) &&
-          entryResponse.errors.length > 0
-        ) {
-          const message = entryResponse.errors
-            .map((error) => error.message)
-            .join('\n')
-          throw new Error(message)
-        }
         // TODO update entry data with mandatory default data as required by schema where it is needed
-        entryData = entryResponse.data.data
+        entryData = contentResponse.data
       } else {
         entryData = createDefaultData(type, 0)
       }
 
-      if (!ignore) {
-        setEntryData(entryData)
-        editorContext.setEntryData(entryData)
-        if (props.entryId === undefined) {
-          setOriginalEntryData(undefined)
-          setIsContentModified(true)
-        } else {
-          setOriginalEntryData(entryData)
-          setIsContentModified(false)
-        }
-        setEntryType(type)
-        editorContext.setSchema(schema)
-        setIsSchemaLoaded(true)
-        setIsContentLoaded(true)
+      setEntryData(entryData)
+      editorContext.setEntryData(entryData)
+      if (props.entryId === undefined) {
+        setOriginalEntryData(undefined)
+        setIsContentModified(true)
+      } else {
+        setOriginalEntryData(entryData)
+        setIsContentModified(false)
       }
+      setEntryType(type)
+      editorContext.setSchema(schema)
+      setIsSchemaLoaded(true)
+      setIsContentLoaded(true)
     }
 
-    let ignore = false
     fetchEntry()
+
     return () => {
-      ignore = true
+      setIsSchemaLoaded(false)
+      setIsContentLoaded(false)
+      setOriginalEntryData(undefined)
+      setIsContentModified(false)
+      setEntryType(undefined)
     }
-  }, [props.owner, props.repository, props.gitRef])
+  }, [
+    props.owner,
+    props.repository,
+    props.gitRef,
+    props.entryId,
+    props.typeName,
+    editorContext,
+  ])
 
   if (!entryType) {
     return <></>
@@ -313,7 +311,7 @@ export default function EntryEditor(props: EntryEditorProps) {
               <PageHeading
                 title={props.entryId ?? 'New entry'}
                 subTitle={entryType.name}
-                backLink={routes.contentEntriesOfTypeList(
+                backLink={routes.entriesOfTypeList(
                   props.owner,
                   props.repository,
                   props.gitRef,
