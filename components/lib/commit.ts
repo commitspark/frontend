@@ -16,7 +16,7 @@ import {
 import { assertIsRecordOrNull, assertIsString } from './assert'
 
 export async function commitEntry(
-  token: string,
+  session: string,
   owner: string,
   repository: string,
   ref: string,
@@ -61,7 +61,7 @@ export async function commitEntry(
   }
 
   const mutationResponseData = await mutateEntry(
-    token,
+    session,
     owner,
     repository,
     ref,
