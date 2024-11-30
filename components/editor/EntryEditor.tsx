@@ -119,12 +119,14 @@ export default function EntryEditor(props: EntryEditorProps) {
       props.gitRef,
       mutation,
     )
+
+    setIsContentModified(false)
   }
 
-  const updateIsContentModified = async (
+  const updateIsContentModified = (
     originalEntryData: Record<string, any> | undefined,
     newData: Record<string, any>,
-  ): Promise<void> => {
+  ): void => {
     setIsContentModified(!deepEqual(originalEntryData, newData))
   }
 
@@ -134,16 +136,25 @@ export default function EntryEditor(props: EntryEditorProps) {
       editorContext.setEntryData(childData)
       updateIsContentModified(originalEntryData, childData)
     },
-    [originalEntryData],
+    [originalEntryData, editorContext],
   )
 
-  function commitSuccessHandler(entryId: string): void {
+  const commitSuccessHandler = (entryId: string): void => {
     // if new entry first committed
     if (props.entryId !== entryId) {
-      router.push(
-        routes.editEntry(props.owner, props.repository, props.gitRef, entryId),
-      )
+      // use timeout to wait for `isContentModified` state to be updated so that navigation guard does not kick in
+      setTimeout(() => {
+        router.push(
+          routes.editEntry(
+            props.owner,
+            props.repository,
+            props.gitRef,
+            entryId,
+          ),
+        )
+      }, 0)
     }
+
     addTransientNotification({
       id: Date.now().toString(),
       type: Actions.positive,
@@ -158,15 +169,19 @@ export default function EntryEditor(props: EntryEditorProps) {
         routes.entryTypesList(props.owner, props.repository, props.gitRef),
       )
     } else {
-      router.push(
-        routes.entriesOfTypeList(
-          props.owner,
-          props.repository,
-          props.gitRef,
-          entryType.name,
-        ),
-      )
+      // use timeout to wait for `isContentModified` state to be updated so that navigation guard does not kick in
+      setTimeout(() => {
+        router.push(
+          routes.entriesOfTypeList(
+            props.owner,
+            props.repository,
+            props.gitRef,
+            entryType.name,
+          ),
+        )
+      }, 0)
     }
+
     addTransientNotification({
       id: Date.now().toString(),
       type: Actions.positive,

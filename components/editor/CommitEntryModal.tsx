@@ -12,6 +12,7 @@ interface CommitEntryModalProps {
   closeModalHandler: () => void
   commitHandler: (commitMessage: string) => Promise<string>
   commitSuccessHandler: (entryId: string) => void
+  // TODO add commitErrorHandler so that notifications don't need to be handled here
 }
 
 const CommitEntryModal: React.FC<CommitEntryModalProps> = (
@@ -21,7 +22,7 @@ const CommitEntryModal: React.FC<CommitEntryModalProps> = (
   const [isCommitting, setIsCommitting] = useState(false)
   const { addTransientNotification } = useTransientNotification()
 
-  async function commitButtonHandler() {
+  const commitButtonHandler = async (): Promise<void> => {
     setIsCommitting(true)
 
     let entryId: string | null = null

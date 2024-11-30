@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix entry editing route generation for entry IDs that require URL encoding
+- Fix unsuitable navigation guard warnings after committing new entries and deletions
 
 ### Changed
 
