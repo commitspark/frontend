@@ -1,4 +1,4 @@
-import { mutateEntry } from '../../app/server-actions/actions'
+import { actionMutateEntry } from '../../app/server-actions/actions'
 import { GraphQLSchema } from 'graphql/type'
 import {
   getTypeDefinitionNodeFromSchema,
@@ -60,7 +60,7 @@ export async function commitEntry(
     },
   }
 
-  const mutationResponseData = await mutateEntry(
+  const mutationResponseData = await actionMutateEntry(
     session,
     owner,
     repository,

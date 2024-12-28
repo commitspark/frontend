@@ -2,105 +2,22 @@
 
 import 'server-only'
 import { commitsparkConfig } from '../../commitspark.config'
-import { Repository, User } from '../../lib/provider/provider'
-import { getApiService } from '@commitspark/graphql-api'
+import { User } from '../../lib/provider/provider'
+import { readSessionJwt } from '../../components/lib/session'
+import { fetchAllByType } from '../../components/lib/git-functions'
 import { getAdapter } from '../../components/lib/getAdapter'
-import {
-  assertIsArrayOfRecordsOrNull,
-  assertIsString,
-  assertIsRecordOrNull,
-} from '../../components/lib/assert'
-import { readSessionJwt } from './session'
+import { getApiService } from '@commitspark/graphql-api'
+import { assertIsRecordOrNull } from '../../components/lib/assert'
 
-interface GraphQLQuery {
-  query: string
-  variables?: Record<string, any>
-}
-
-export async function fetchBranches(
+export async function actionFetchUserInfo(
   sessionCookie: string,
-  owner: string,
-  repository: string,
-) {
-  const { accessToken } = await readSessionJwt(sessionCookie)
-  const provider = commitsparkConfig.createProvider()
-  return await provider.getBranches(accessToken, {
-    owner: owner,
-    name: repository,
-  })
-}
-
-export async function fetchRepositories(
-  sessionCookie: string,
-): Promise<Repository[]> {
-  const { accessToken } = await readSessionJwt(sessionCookie)
-  const provider = commitsparkConfig.createProvider()
-  return await provider.getRepositories(accessToken)
-}
-
-export async function fetchUserInfo(sessionCookie: string): Promise<User> {
+): Promise<User> {
   const { accessToken } = await readSessionJwt(sessionCookie)
   const provider = commitsparkConfig.createProvider()
   return await provider.getUser(accessToken)
 }
 
-export async function fetchTypeNameById(
-  sessionCookie: string,
-  owner: string,
-  name: string,
-  ref: string,
-  entryId: string,
-): Promise<string> {
-  const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
-  const response = await apiService.postGraphQL(adapter, ref, {
-    query: `query { data: _typeName(id:"${entryId}") }`,
-  })
-  assertIsString(response.data?.data)
-  return response.data?.data
-}
-
-export async function fetchSchemaString(
-  sessionCookie: string,
-  owner: string,
-  name: string,
-  ref: string,
-): Promise<string> {
-  const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
-
-  const response = await apiService.getSchema(adapter, ref)
-  return response.data
-}
-
-export async function fetchContent(
-  sessionCookie: string,
-  owner: string,
-  name: string,
-  ref: string,
-  query: GraphQLQuery,
-): Promise<Record<string, any>> {
-  const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
-
-  const response = await apiService.postGraphQL(adapter, ref, query)
-
-  if (
-    response.errors &&
-    Array.isArray(response.errors) &&
-    response.errors.length > 0
-  ) {
-    const message = response.errors.map((error) => error.message).join('\n')
-    throw new Error(message)
-  }
-
-  return JSON.parse(JSON.stringify(response.data))
-}
-
-export async function fetchAllByType(
+export async function actionFetchAllByType(
   sessionCookie: string,
   owner: string,
   name: string,
@@ -108,22 +25,18 @@ export async function fetchAllByType(
   typeName: string,
   additionalFields?: string[],
 ): Promise<Record<string, any>[]> {
-  const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
-  const response = await apiService.postGraphQL(adapter, ref, {
-    query: `query { data: all${typeName}s {
-    id
-    ${additionalFields?.join('\n') ?? ''}
-    } }`,
-  })
-
-  assertIsArrayOfRecordsOrNull(response.data?.data)
-
-  return JSON.parse(JSON.stringify(response.data?.data)) ?? []
+  // TODO handle notFound exceptions
+  return fetchAllByType(
+    sessionCookie,
+    owner,
+    name,
+    ref,
+    typeName,
+    additionalFields,
+  )
 }
 
-export async function mutateEntry(
+export async function actionMutateEntry(
   sessionCookie: string,
   owner: string,
   repository: string,

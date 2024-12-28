@@ -4,6 +4,8 @@ import Application, {
   Layout,
 } from '../../../../components/shell/Application'
 import BranchSelectorColumn from '../../../../components/shell/BranchSelectorColumn'
+import { getCookieSession } from '../../../../components/lib/session'
+import { fetchBranches } from '../../../../components/lib/git-functions'
 
 interface LayoutProps {
   params: Promise<LayoutParams>
@@ -24,8 +26,15 @@ export default async function RefSpecificLayout(
     repository: params.name,
   }
 
+  const session = await getCookieSession()
+  const branches = await fetchBranches(
+    session,
+    repositoryInfo.owner,
+    repositoryInfo.repository,
+  )
+
   const branchSelectorColumn = (
-    <BranchSelectorColumn repositoryInfo={repositoryInfo} />
+    <BranchSelectorColumn repositoryInfo={repositoryInfo} branches={branches} />
   )
 
   return (
