@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Show 404 and 500 error pages when invalid data is accessed
+
 ### Changed
 
 - Refactor data fetching to happen on initial server-side page render instead of asynchronously upon client request

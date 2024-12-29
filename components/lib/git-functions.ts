@@ -1,9 +1,10 @@
 import { readSessionJwt } from './session'
 import { commitsparkConfig } from '../../commitspark.config'
 import { Repository } from '../../lib/provider/provider'
-import { getApiService } from '@commitspark/graphql-api'
+import { getApiService, GraphQLResponse } from '@commitspark/graphql-api'
 import { getAdapter } from './getAdapter'
 import { assertIsArrayOfRecordsOrNull, assertIsString } from './assert'
+import { notFound } from 'next/navigation'
 
 interface GraphQLQuery {
   query: string
@@ -44,14 +45,9 @@ export async function fetchTypeNameById(
   const response = await apiService.postGraphQL(adapter, ref, {
     query: `query { data: _typeName(id:"${entryId}") }`,
   })
-  if (
-    response.errors &&
-    Array.isArray(response.errors) &&
-    response.errors.length > 0
-  ) {
-    const message = response.errors.map((error) => error.message).join('\n')
-    throw new Error(message)
-  }
+
+  handleRequestErrors(response)
+
   assertIsString(response.data?.data)
   return response.data?.data
 }
@@ -66,7 +62,14 @@ export async function fetchSchemaString(
   const apiService = await getApiService()
   const adapter = await getAdapter(accessToken, owner, name)
 
-  const response = await apiService.getSchema(adapter, ref)
+  let response
+  try {
+    response = await apiService.getSchema(adapter, ref)
+  } catch (e) {
+    // TODO replace with case-specific handling once API library exposes the necessary details
+    throw e
+  }
+
   return response.data
 }
 
@@ -83,14 +86,7 @@ export async function fetchContent(
 
   const response = await apiService.postGraphQL(adapter, ref, query)
 
-  if (
-    response.errors &&
-    Array.isArray(response.errors) &&
-    response.errors.length > 0
-  ) {
-    const message = response.errors.map((error) => error.message).join('\n')
-    throw new Error(message)
-  }
+  handleRequestErrors(response)
 
   return JSON.parse(JSON.stringify(response.data))
 }
@@ -113,7 +109,29 @@ export async function fetchAllByType(
     } }`,
   })
 
-  assertIsArrayOfRecordsOrNull(response.data?.data)
+  handleRequestErrors(response)
 
-  return JSON.parse(JSON.stringify(response.data?.data)) ?? []
+  assertIsArrayOfRecordsOrNull(response.data?.data)
+  return JSON.parse(JSON.stringify(response.data.data)) ?? []
+}
+
+const handleRequestErrors = (
+  response: GraphQLResponse<Record<string, unknown> | null>,
+) => {
+  if (
+    response.errors &&
+    Array.isArray(response.errors) &&
+    response.errors.length > 0
+  ) {
+    if (
+      !!response.errors.find(
+        (error) => error.extensions['code'] === 'NOT_FOUND',
+      )
+    ) {
+      notFound()
+    } else {
+      const message = response.errors.map((error) => error.message).join('\n')
+      throw new Error(message)
+    }
+  }
 }

@@ -17,7 +17,11 @@ import {
 import { RepositoryRefInfo } from '../../../../../../../../components/context/EditorProvider'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { isObjectType } from 'graphql/type'
-import { getListVisibleFieldNames } from '../../../../../../../../components/lib/schema-utils'
+import {
+  getDirectiveByName,
+  getListVisibleFieldNames,
+} from '../../../../../../../../components/lib/schema-utils'
+import { notFound } from 'next/navigation'
 
 interface EntryTypeEntriesPageParams {
   owner: string
@@ -55,8 +59,8 @@ export default async function EntryTypeEntriesPage({
     typeDefs: schemaString,
   })
   const type = schema.getType(params.typeName)
-  if (!isObjectType(type)) {
-    throw new Error(`Expected GraphQLObjectType for type "${params.typeName}"`)
+  if (!isObjectType(type) || !getDirectiveByName(type, 'Entry')) {
+    notFound()
   }
   const listVisibleFieldNames = getListVisibleFieldNames(type)
   const entries = await fetchAllByType(

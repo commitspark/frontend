@@ -10,6 +10,8 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { isObjectType } from 'graphql/type'
 import { createDefaultData } from '../../../../../../../../../components/lib/default-data-generator'
 import { assertIsRecordOrNull } from '../../../../../../../../../components/lib/assert'
+import { notFound } from 'next/navigation'
+import { getDirectiveByName } from '../../../../../../../../../components/lib/schema-utils'
 
 interface PageParams {
   owner: string
@@ -42,8 +44,8 @@ export default async function Page({ params }: { params: PageParams }) {
     typeDefs: schemaString,
   })
   const type = schema.getType(params.typeName)
-  if (!isObjectType(type)) {
-    throw new Error(`Expected GraphQLObjectType for type "${params.typeName}".`)
+  if (!isObjectType(type) || !getDirectiveByName(type, 'Entry')) {
+    notFound()
   }
 
   const entryData = createDefaultData(type, 0)
