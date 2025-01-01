@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Show 404 and 500 error pages when invalid data is accessed
 
+### Fixed
+
+- Fix stale page content when re-opening an entry after committing a change to this entry
+
 ### Changed
 
 - Refactor data fetching to server-side page render instead of asynchronously upon client request

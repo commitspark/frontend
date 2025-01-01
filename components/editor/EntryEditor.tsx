@@ -129,20 +129,22 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
   )
 
   const commitSuccessHandler = async (entryId: string): Promise<void> => {
+    const entryPagePath = routes.editEntry(
+      editorContext.repositoryRefInfo.owner,
+      editorContext.repositoryRefInfo.repository,
+      editorContext.repositoryRefInfo.gitRef,
+      entryId,
+    )
+
     if (editorContext.isNewEntry) {
       await actionRevalidatePath(entryListPagePath)
 
       // use timeout to wait for `isContentModified` state to be updated so that navigation guard does not kick in
       setTimeout(() => {
-        router.push(
-          routes.editEntry(
-            editorContext.repositoryRefInfo.owner,
-            editorContext.repositoryRefInfo.repository,
-            editorContext.repositoryRefInfo.gitRef,
-            entryId,
-          ),
-        )
+        router.push(entryPagePath)
       }, 0)
+    } else {
+      await actionRevalidatePath(entryPagePath)
     }
 
     addTransientNotification({
