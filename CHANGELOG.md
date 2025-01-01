@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Refactor data fetching to happen on initial server-side page render instead of asynchronously upon client request
+- Refactor data fetching to server-side page render instead of asynchronously upon client request
+
+### Removed
+
 - Remove `cookies-next` package
 
 ## [0.12.0] - 2024-11-30
