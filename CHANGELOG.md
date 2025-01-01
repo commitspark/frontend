@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Refactor data fetching to server-side page render instead of asynchronously upon client request
+- Upgrade dependencies
 
 ### Removed
 
