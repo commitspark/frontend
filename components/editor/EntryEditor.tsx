@@ -14,7 +14,10 @@ import StyledButton from '../StyledButton'
 import DeleteEntryModal from './DeleteEntryModal'
 import { useRouter } from 'next/navigation'
 import { useTransientNotification } from '../context/TransientNotificationProvider'
-import { actionMutateEntry } from '../../app/server-actions/actions'
+import {
+  actionMutateEntry,
+  actionRevalidatePath,
+} from '../../app/server-actions/actions'
 import { isObjectType } from 'graphql/type'
 import { deepEqual } from '../lib/content-utils'
 import { commitEntry } from '../lib/commit'
@@ -118,9 +121,17 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     [originalEntryData],
   )
 
-  const commitSuccessHandler = (entryId: string): void => {
+  const entryListPagePath = routes.entriesOfTypeList(
+    editorContext.repositoryRefInfo.owner,
+    editorContext.repositoryRefInfo.repository,
+    editorContext.repositoryRefInfo.gitRef,
+    props.typeName,
+  )
+
+  const commitSuccessHandler = async (entryId: string): Promise<void> => {
     if (editorContext.isNewEntry) {
-      // TODO invalidate Next.js entry list page cache
+      await actionRevalidatePath(entryListPagePath)
+
       // use timeout to wait for `isContentModified` state to be updated so that navigation guard does not kick in
       setTimeout(() => {
         router.push(
@@ -141,8 +152,9 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     })
   }
 
-  function deleteSuccessHandler(): void {
-    // TODO invalidate Next.js entry list page cache
+  const deleteSuccessHandler = async (): Promise<void> => {
+    await actionRevalidatePath(entryListPagePath)
+
     // use timeout to wait for `isContentModified` state to be updated so that navigation guard does not kick in
     setTimeout(() => {
       router.push(

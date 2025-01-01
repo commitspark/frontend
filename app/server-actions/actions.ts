@@ -8,6 +8,7 @@ import { fetchAllByType } from '../../components/lib/git-functions'
 import { getAdapter } from '../../components/lib/getAdapter'
 import { getApiService } from '@commitspark/graphql-api'
 import { assertIsRecordOrNull } from '../../components/lib/assert'
+import { revalidatePath } from 'next/cache'
 
 export async function actionFetchUserInfo(
   sessionCookie: string,
@@ -61,4 +62,8 @@ export async function actionMutateEntry(
   assertIsRecordOrNull(response.data)
 
   return JSON.parse(JSON.stringify(response.data))
+}
+
+export async function actionRevalidatePath(path: string): Promise<void> {
+  revalidatePath(path)
 }
