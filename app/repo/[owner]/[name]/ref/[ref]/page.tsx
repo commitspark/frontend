@@ -2,25 +2,59 @@ import React from 'react'
 import PageHeading from '../../../../../../components/PageHeading'
 import EntryTypes from '../../../../../../components/EntryTypes'
 import Column from '../../../../../../components/shell/Column'
+import { RepositoryRefInfo } from '../../../../../../components/context/EditorProvider'
+import { getCookieSession } from '../../../../../../components/lib/session'
+import { fetchSchemaString } from '../../../../../../components/lib/git-functions'
+import { makeExecutableSchema } from '@graphql-tools/schema'
+import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
+import { GraphQLObjectType } from 'graphql/type'
 
-export interface ContentTypesOverviewPageParams {
+export interface EntryTypesOverviewPageParams {
   owner: string
   name: string
   ref: string
 }
 
-export default function ContentTypesOverviewPage({
+export const dynamic = 'force-dynamic'
+
+export default async function EntryTypesOverviewPage({
   params,
 }: {
-  params: ContentTypesOverviewPageParams
+  params: EntryTypesOverviewPageParams
 }) {
   const decodedRef = decodeURIComponent(params.ref)
 
-  const repositoryInfo = {
+  const repositoryInfo: RepositoryRefInfo = {
     owner: params.owner,
     repository: params.name,
     gitRef: decodedRef,
   }
+
+  const session = await getCookieSession()
+  const schemaString = await fetchSchemaString(
+    session,
+    repositoryInfo.owner,
+    repositoryInfo.repository,
+    repositoryInfo.gitRef,
+  )
+  const schema = makeExecutableSchema({
+    typeDefs: schemaString,
+  })
+
+  let entryTypeNames: string[] = []
+
+  // get all types annotated with @Entry directive
+  mapSchema(schema, {
+    [MapperKind.OBJECT_TYPE]: (
+      objectType: GraphQLObjectType,
+    ): GraphQLObjectType => {
+      const entryDirective = getDirective(schema, objectType, 'Entry')?.[0]
+      if (entryDirective) {
+        entryTypeNames.push(objectType.name)
+      }
+      return objectType
+    },
+  })
 
   return (
     <Column
@@ -34,6 +68,7 @@ export default function ContentTypesOverviewPage({
         owner={repositoryInfo.owner}
         repository={repositoryInfo.repository}
         gitRef={repositoryInfo.gitRef}
+        entryTypeNames={entryTypeNames}
       />
     </Column>
   )

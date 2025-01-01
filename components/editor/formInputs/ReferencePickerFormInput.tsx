@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { fetchAllByType } from '../../../app/server-actions/actions'
 import { getListVisibleFieldNames } from '../../lib/schema-utils'
 import Loading from '../../Loading'
 import { GraphQLObjectType } from 'graphql/type'
 import ListBoxInput from '../../styledInput/ListBoxInput'
 import { EditorContextValue, useEditor } from '../../context/EditorProvider'
 import { getCookieSession } from '../../lib/session'
+import { actionFetchAllByType } from '../../../app/server-actions/actions'
 
 interface ReferencePickerFormInputProps {
   objectType: GraphQLObjectType
@@ -40,8 +40,8 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
 
   useEffect(() => {
     const autoLoadReferences = async (): Promise<void> => {
-      const session = getCookieSession()
-      const loadedReferences = await fetchAllByType(
+      const session = await getCookieSession()
+      const loadedReferences = await actionFetchAllByType(
         session,
         editorContext.repositoryRefInfo.owner,
         editorContext.repositoryRefInfo.repository,
@@ -77,8 +77,8 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = (
   ])
 
   const fetchReferences = async (): Promise<void> => {
-    const session = getCookieSession()
-    let loadedReferences = await fetchAllByType(
+    const session = await getCookieSession()
+    let loadedReferences = await actionFetchAllByType(
       session,
       editorContext.repositoryRefInfo.owner,
       editorContext.repositoryRefInfo.repository,

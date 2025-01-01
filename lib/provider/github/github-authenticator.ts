@@ -8,7 +8,7 @@ import { routes } from '../../../components/lib/route-generator'
 import {
   readSessionJwt,
   createSessionJwt,
-} from '../../../app/server-actions/session'
+} from '../../../components/lib/session'
 
 export class GitHubAuthenticator implements Authenticator {
   getAuthenticationUrl(): string {

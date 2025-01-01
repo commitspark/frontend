@@ -1,19 +1,11 @@
 'use client'
 
-import React, {
-  createContext,
-  MutableRefObject,
-  PropsWithChildren,
-  useContext,
-  useRef,
-} from 'react'
+import React, { createContext, PropsWithChildren, useContext } from 'react'
 import { GraphQLSchema } from 'graphql/type'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 
 export interface EditorContextValue {
-  schema: MutableRefObject<GraphQLSchema>
-  setSchema: (schema: GraphQLSchema) => void
-  entryData: MutableRefObject<Record<string, any>>
-  setEntryData: (entryData: Record<string, any>) => void
+  schema: GraphQLSchema
   isNewEntry: boolean
   repositoryRefInfo: RepositoryRefInfo
 }
@@ -26,8 +18,8 @@ interface EditorProviderProps {
 }
 
 interface EntryProps {
-  entryId?: string
-  typeName?: string
+  schemaString: string
+  isNewEntry: boolean
 }
 
 export interface RepositoryRefInfo {
@@ -39,26 +31,16 @@ export interface RepositoryRefInfo {
 export const EditorProvider: React.FC<
   PropsWithChildren<EditorProviderProps>
 > = (props: PropsWithChildren<EditorProviderProps>) => {
-  const currentEntryData = useRef<Record<string, any>>()
-  const currentSchema = useRef<GraphQLSchema | undefined>(undefined)
-
-  const setEntryData = (newEntryData: Record<string, any>): void => {
-    currentEntryData.current = newEntryData
-  }
-
-  const setSchema = (schema: GraphQLSchema): void => {
-    currentSchema.current = schema
-  }
+  const schema = makeExecutableSchema({
+    typeDefs: props.entryProps.schemaString,
+  })
 
   return (
     <editorContext.Provider
       value={
         {
-          schema: currentSchema,
-          setSchema,
-          entryData: currentEntryData,
-          setEntryData,
-          isNewEntry: props.entryProps.entryId === undefined,
+          schema: schema,
+          isNewEntry: props.entryProps.isNewEntry,
           repositoryRefInfo: props.repositoryRefInfo,
         } as EditorContextValue
       }

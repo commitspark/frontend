@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { User } from '../../lib/provider/provider'
-import { fetchUserInfo } from '../../app/server-actions/actions'
+import { actionFetchUserInfo } from '../../app/server-actions/actions'
 import { getCookieSession } from '../lib/session'
 
 interface AvatarProps {}
@@ -14,8 +14,8 @@ const Avatar: React.FC<React.PropsWithChildren<AvatarProps>> = (
 
   useEffect(() => {
     const updateUserInfo = async (): Promise<void> => {
-      const session = getCookieSession()
-      const user = await fetchUserInfo(session)
+      const session = await getCookieSession()
+      const user = await actionFetchUserInfo(session)
       setUserInfo(user)
     }
 
