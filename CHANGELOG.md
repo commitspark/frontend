@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor data fetching to server-side page render instead of asynchronously upon client request
 - Upgrade dependencies
 - Retrieve up to 100 GitHub repositories of current user
+- Show entry ID in reference pickers when no entry field is marked as visible in list views in schema
 
 ### Removed
 

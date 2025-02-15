@@ -12,13 +12,8 @@ import {
   NonNullTypeNode,
   TypeDefinitionNode,
   TypeNode,
-  UnionTypeDefinitionNode,
 } from 'graphql/language/ast'
-import {
-  EnumTypeDefinitionNode,
-  Kind,
-  ObjectTypeDefinitionNode,
-} from 'graphql/language'
+import { Kind } from 'graphql/language'
 import { GraphQLField, GraphQLNamedType } from 'graphql/type/definition'
 
 export function getTypeDefinitionNodeFromSchema(
@@ -98,22 +93,24 @@ export function isEqualDirectiveArgumentBooleanValue(
 export function getListVisibleFieldNames(
   objectType: GraphQLObjectType,
 ): string[] {
-  return (
-    Object.keys(objectType.getFields()).filter((fieldName) => {
-      const uiDirective = getFieldDirectiveByName(
-        objectType.getFields()[fieldName],
-        'Ui',
-      )
-      if (!uiDirective) {
-        return false
-      }
-      return isEqualDirectiveArgumentBooleanValue(
-        uiDirective,
-        'visibleList',
-        true,
-      )
-    }) ?? []
-  )
+  const fields = objectType.getFields()
+  const namesMarkedVisibleFields = Object.keys(fields).filter((fieldName) => {
+    const uiDirective = getFieldDirectiveByName(fields[fieldName], 'Ui')
+    if (!uiDirective) {
+      return false
+    }
+    return isEqualDirectiveArgumentBooleanValue(
+      uiDirective,
+      'visibleList',
+      true,
+    )
+  })
+
+  if (namesMarkedVisibleFields.length === 0) {
+    return ['id']
+  }
+
+  return namesMarkedVisibleFields
 }
 
 export function isOneOfInputType(
