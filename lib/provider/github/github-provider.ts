@@ -21,7 +21,8 @@ export class GitHubProvider implements Provider {
 
   async getRepositories(authToken: string): Promise<Repository[]> {
     const octokit = new Octokit({ auth: authToken })
-    const response = await octokit.request('GET /user/repos')
+    // TODO this must be refactored to support pagination
+    const response = await octokit.request('GET /user/repos', { per_page: 100 })
     return response.data.map((repository) => {
       const [owner, repositoryName] = repository.full_name.split('/')
       return { owner: owner, name: repositoryName }
