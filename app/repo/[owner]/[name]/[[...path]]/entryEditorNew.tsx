@@ -1,33 +1,29 @@
-import React from 'react'
+import { ReactNode } from 'react'
 import {
   EditorProvider,
   RepositoryRefInfo,
-} from '../../../../../../../../../components/context/EditorProvider'
-import EntryEditor from '../../../../../../../../../components/editor/EntryEditor'
-import { getCookieSession } from '../../../../../../../../../components/lib/session'
-import { fetchSchemaString } from '../../../../../../../../../components/lib/git-functions'
+} from '@/components/context/EditorProvider'
+import EntryEditor from '@/components/editor/EntryEditor'
+import { getCookieSession } from '@/components/lib/session'
+import { fetchSchemaString } from '@/components/lib/git-functions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { isObjectType } from 'graphql/type'
-import { createDefaultData } from '../../../../../../../../../components/lib/default-data-generator'
-import { assertIsRecordOrNull } from '../../../../../../../../../components/lib/assert'
+import { getDirectiveByName } from '@/components/lib/schema-utils'
 import { notFound } from 'next/navigation'
-import { getDirectiveByName } from '../../../../../../../../../components/lib/schema-utils'
+import { createDefaultData } from '@/components/lib/default-data-generator'
+import { assertIsRecordOrNull } from '@/components/lib/assert'
 
-interface PageParams {
-  owner: string
-  name: string
-  ref: string
-  typeName: string
-}
-
-export const dynamic = 'force-dynamic'
-
-export default async function Page({ params }: { params: PageParams }) {
-  const decodedRef = decodeURIComponent(params.ref)
+export default async function renderEntryEditorNew(
+  owner: string,
+  name: string,
+  path: string[],
+): Promise<ReactNode> {
+  const decodedRef = decodeURIComponent(path[1])
+  const typeName = path[3]
 
   const repositoryInfo: RepositoryRefInfo = {
-    owner: params.owner,
-    repository: params.name,
+    owner: owner,
+    repository: name,
     gitRef: decodedRef,
   }
 
@@ -43,7 +39,7 @@ export default async function Page({ params }: { params: PageParams }) {
   const schema = makeExecutableSchema({
     typeDefs: schemaString,
   })
-  const type = schema.getType(params.typeName)
+  const type = schema.getType(typeName)
   if (!isObjectType(type) || !getDirectiveByName(type, 'Entry')) {
     notFound()
   }
@@ -64,7 +60,7 @@ export default async function Page({ params }: { params: PageParams }) {
     >
       <EntryEditor
         entryId={undefined}
-        typeName={params.typeName}
+        typeName={typeName}
         initialData={entryData}
       />
     </EditorProvider>
