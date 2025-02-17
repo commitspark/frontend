@@ -3,11 +3,12 @@ import Column from './Column'
 import PageHeading from '../PageHeading'
 import Branches from '../Branches'
 import { RepositoryInfoState } from '../context/RepositoryInfoProvider'
-import { Branch } from '../../lib/provider/provider'
+import { Branch } from '@/lib/provider/provider'
 
 export interface BranchSelectorColumnProps {
   repositoryInfo: RepositoryInfoState
   branches: Branch[]
+  currentBranch: string | null
 }
 
 const BranchSelectorColumn: React.FC<
@@ -29,6 +30,7 @@ const BranchSelectorColumn: React.FC<
         owner={props.repositoryInfo.owner}
         repository={props.repositoryInfo.repository}
         branches={props.branches}
+        currentBranch={props.currentBranch}
       />
     </Column>
   )

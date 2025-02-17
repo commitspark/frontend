@@ -1,32 +1,23 @@
-import React from 'react'
-import PageHeading from '../../../../../../components/PageHeading'
-import EntryTypes from '../../../../../../components/EntryTypes'
-import Column from '../../../../../../components/shell/Column'
-import { RepositoryRefInfo } from '../../../../../../components/context/EditorProvider'
-import { getCookieSession } from '../../../../../../components/lib/session'
-import { fetchSchemaString } from '../../../../../../components/lib/git-functions'
+import { ReactNode } from 'react'
+import { RepositoryRefInfo } from '@/components/context/EditorProvider'
+import { getCookieSession } from '@/components/lib/session'
+import { fetchSchemaString } from '@/components/lib/git-functions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
 import { GraphQLObjectType } from 'graphql/type'
+import Column from '@/components/shell/Column'
+import PageHeading from '@/components/PageHeading'
+import EntryTypes from '@/components/EntryTypes'
 
-export interface EntryTypesOverviewPageParams {
-  owner: string
-  name: string
-  ref: string
-}
-
-export const dynamic = 'force-dynamic'
-
-export default async function EntryTypesOverviewPage({
-  params,
-}: {
-  params: EntryTypesOverviewPageParams
-}) {
-  const decodedRef = decodeURIComponent(params.ref)
-
+export default async function renderEntryTypes(
+  owner: string,
+  name: string,
+  path: string[],
+): Promise<ReactNode> {
+  const decodedRef = decodeURIComponent(path[1])
   const repositoryInfo: RepositoryRefInfo = {
-    owner: params.owner,
-    repository: params.name,
+    owner: owner,
+    repository: name,
     gitRef: decodedRef,
   }
 

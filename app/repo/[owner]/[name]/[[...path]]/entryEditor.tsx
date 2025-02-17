@@ -1,36 +1,31 @@
-import EntryEditor from '../../../../../../../../components/editor/EntryEditor'
-import React from 'react'
+import { ReactNode } from 'react'
 import {
   EditorProvider,
   RepositoryRefInfo,
-} from '../../../../../../../../components/context/EditorProvider'
-import { getCookieSession } from '../../../../../../../../components/lib/session'
+} from '@/components/context/EditorProvider'
+import { getCookieSession } from '@/components/lib/session'
 import {
   fetchContent,
   fetchSchemaString,
   fetchTypeNameById,
-} from '../../../../../../../../components/lib/git-functions'
-import { assertIsString } from '../../../../../../../../components/lib/assert'
+} from '@/components/lib/git-functions'
+import { assertIsString } from '@/components/lib/assert'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { isObjectType } from 'graphql/type'
-import { createContentQueryFromNamedType } from '../../../../../../../../components/lib/query-factory'
+import { createContentQueryFromNamedType } from '@/components/lib/query-factory'
+import EntryEditor from '@/components/editor/EntryEditor'
 
-interface PageParams {
-  owner: string
-  name: string
-  ref: string
-  entryId: string
-}
-
-export const dynamic = 'force-dynamic'
-
-export default async function Page({ params }: { params: PageParams }) {
-  const decodedRef = decodeURIComponent(params.ref)
-  const decodedEntryId = decodeURIComponent(params.entryId)
+export default async function renderEntryEditor(
+  owner: string,
+  name: string,
+  path: string[],
+): Promise<ReactNode> {
+  const decodedRef = decodeURIComponent(path[1])
+  const decodedEntryId = decodeURIComponent(path[3])
 
   const repositoryInfo: RepositoryRefInfo = {
-    owner: params.owner,
-    repository: params.name,
+    owner: owner,
+    repository: name,
     gitRef: decodedRef,
   }
 
