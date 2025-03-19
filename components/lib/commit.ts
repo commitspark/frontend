@@ -50,8 +50,8 @@ export async function commitEntry(
 
   const mutation = {
     query:
-      `mutation ($entryId: ID!, $commitMessage: String!, $mutationData: ${typeName}Input!){\n` +
-      `data: ${mutationType}${typeName}(id:$entryId, message:$commitMessage, data:$mutationData) { id }\n` +
+      `mutation ($entryId: ID!, $commitMessage: String!, $mutationData: ${typeName}Input!) {\n` +
+      `data: ${mutationType}${typeName}(id: $entryId, commitMessage: $commitMessage, data: $mutationData) { id }\n` +
       '}',
     variables: {
       entryId: entryId,
@@ -87,11 +87,9 @@ function cleanDataByInputObjectType(
   if (data && isOneOfInputType(inputObjectTypeDefinitionNode)) {
     const concreteUnionTypeName = data['__typename'] // this is our internal UI helper field used for the same purpose
     assertIsString(concreteUnionTypeName)
-    const concreteUnionTypeFieldName =
-      concreteUnionTypeName.slice(0, 1).toLowerCase() +
-      concreteUnionTypeName.slice(1)
     const concreteUnionTypeField = inputObjectTypeDefinitionNode.fields?.find(
-      (field) => field.name.value === concreteUnionTypeFieldName,
+      // search for field of same name as union type name
+      (field) => field.name.value === concreteUnionTypeName,
     )
     if (!concreteUnionTypeField) {
       throw new Error(
@@ -100,7 +98,7 @@ function cleanDataByInputObjectType(
     }
 
     return {
-      [concreteUnionTypeFieldName]: cleanDataByTypeNode(
+      [concreteUnionTypeName]: cleanDataByTypeNode(
         schema,
         data,
         concreteUnionTypeField.type,

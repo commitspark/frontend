@@ -87,12 +87,12 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
 
     const mutation = {
       query:
-        `mutation ($id: ID!, $message: String!){\n` +
-        `data: delete${props.typeName}(id: $id, message: $message) { id }\n` +
+        `mutation ($id: ID!, $commitMessage: String!) {\n` +
+        `data: delete${props.typeName}(id: $id, commitMessage: $commitMessage)\n` +
         '}',
       variables: {
         id: props.entryId,
-        message: commitMessage,
+        commitMessage: commitMessage,
       },
     }
     await actionMutateEntry(
