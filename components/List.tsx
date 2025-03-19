@@ -11,9 +11,11 @@ const List: React.FC<ListProps> = (props: ListProps) => {
     const bValues = Object.values(b.linkContent)
 
     for (const [i, aValue] of aValues.entries()) {
-      const result = aValue
+      const aSafeValue = aValue ?? ''
+      const bSafeValue = bValues[i] ?? ''
+      const result = aSafeValue
         .toLowerCase()
-        .localeCompare(bValues[i].toLowerCase())
+        .localeCompare(bSafeValue.toLowerCase())
       if (result !== 0) {
         return result
       }

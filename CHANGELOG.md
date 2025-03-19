@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix stale page content when re-opening an entry after committing a change to this entry
+- Gracefully handle lists where fields marked with `visibleList:true` are null
 
 ### Changed
 

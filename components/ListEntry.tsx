@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 export interface ListEntryProps {
   linkTarget: Route
-  linkContent: Record<string, string>
+  linkContent: Record<string, string | null>
   isCurrent?: boolean
 }
 
