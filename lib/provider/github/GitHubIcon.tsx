@@ -1,11 +1,13 @@
 import React from 'react'
 
-interface GitHubIconProps extends React.HTMLAttributes<HTMLElement> {}
+export interface GitHubIconProps extends React.HTMLAttributes<HTMLElement> {}
 
-const GitHubIcon: React.FC<GitHubIconProps> = (props: GitHubIconProps) => {
+const GitHubIcon: React.FC<GitHubIconProps> = (
+  props: GitHubIconProps | undefined,
+) => {
   return (
     <svg
-      className={props.className}
+      className={props ? props.className : undefined}
       aria-hidden="true"
       fill="currentColor"
       viewBox="0 0 20 20"
