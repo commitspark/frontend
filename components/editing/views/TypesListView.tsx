@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import React, { use } from 'react'
 import { RepositoryRefInfo } from '@/components/context/EditorProvider'
 import { getCookieSession } from '@/components/lib/session'
 import { fetchSchemaString } from '@/components/lib/git-functions'
@@ -7,39 +7,51 @@ import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
 import { GraphQLObjectType } from 'graphql/type'
 import Column from '@/components/shell/Column'
 import PageHeading from '@/components/PageHeading'
-import EntryTypes from '@/components/EntryTypes'
+import EntryTypes from '@/components/editing/EntryTypes'
 
-export default async function renderEntryTypes(
-  owner: string,
-  name: string,
-  path: string[],
-): Promise<ReactNode> {
-  const decodedRef = decodeURIComponent(path[1])
+interface TypesListViewProps {
+  owner: string
+  name: string
+  path: string[]
+}
+
+const TypesListView: React.FC<TypesListViewProps> = (
+  props: TypesListViewProps,
+) => {
+  const decodedRef = decodeURIComponent(props.path[1])
   const repositoryInfo: RepositoryRefInfo = {
-    owner: owner,
-    repository: name,
+    owner: props.owner,
+    repository: props.name,
     gitRef: decodedRef,
   }
 
-  const session = await getCookieSession()
-  const schemaString = await fetchSchemaString(
-    session,
-    repositoryInfo.owner,
-    repositoryInfo.repository,
-    repositoryInfo.gitRef,
-  )
-  const schema = makeExecutableSchema({
-    typeDefs: schemaString,
-  })
+  const getData = async () => {
+    const session = await getCookieSession()
+    const schemaString = await fetchSchemaString(
+      session,
+      repositoryInfo.owner,
+      repositoryInfo.repository,
+      repositoryInfo.gitRef,
+    )
+    const schema = makeExecutableSchema({
+      typeDefs: schemaString,
+    })
+
+    return {
+      schema,
+    }
+  }
+
+  const data = use(getData())
 
   let entryTypeNames: string[] = []
 
   // get all types annotated with @Entry directive
-  mapSchema(schema, {
+  mapSchema(data.schema, {
     [MapperKind.OBJECT_TYPE]: (
       objectType: GraphQLObjectType,
     ): GraphQLObjectType => {
-      const entryDirective = getDirective(schema, objectType, 'Entry')?.[0]
+      const entryDirective = getDirective(data.schema, objectType, 'Entry')?.[0]
       if (entryDirective) {
         entryTypeNames.push(objectType.name)
       }
@@ -64,3 +76,5 @@ export default async function renderEntryTypes(
     </Column>
   )
 }
+
+export default TypesListView

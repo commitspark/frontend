@@ -8,18 +8,15 @@ import TwoColumnLayout from './TwoColumnLayout'
 import { ColumnProps } from './Column'
 import IconMenuLayout from './IconMenuLayout'
 import { BranchSelectorColumnProps } from './BranchSelectorColumn'
-import { ActivityProvider, ActivityState } from '../context/ActivityProvider'
-import { routes } from '../lib/route-generator'
-import { assertIsString } from '../lib/assert'
+import {
+  ActivitiesProvider,
+  ActivitiesState,
+} from '../context/ActivitiesProvider'
 import TransientNotificationsArea from './TransientNotificationsArea'
 
 export enum Layout {
   SingleArea,
   TwoColumn,
-}
-
-export enum Activity {
-  editing,
 }
 
 interface ApplicationProps {
@@ -29,7 +26,7 @@ interface ApplicationProps {
     | ReactElement<ColumnProps>
     | ReactElement<BranchSelectorColumnProps>
     | null
-  activity: Activity | null
+  activities: ActivitiesState
 }
 
 const Application: React.FC<React.PropsWithChildren<ApplicationProps>> = (
@@ -41,9 +38,6 @@ const Application: React.FC<React.PropsWithChildren<ApplicationProps>> = (
       currentScreen = props.children
       break
     case Layout.TwoColumn:
-      if (props.activity === null) {
-        throw new Error('Expected activity')
-      }
       currentScreen = (
         <>
           <IconMenuLayout>
@@ -56,32 +50,12 @@ const Application: React.FC<React.PropsWithChildren<ApplicationProps>> = (
       break
   }
 
-  let activityState: ActivityState | null = null
-  if (props.activity !== null) {
-    const owner = props.repositoryInfo.owner
-    const repository = props.repositoryInfo.repository
-    assertIsString(owner)
-    assertIsString(repository)
-
-    activityState = {
-      currentActivity: props.activity,
-      availableActivities: [
-        {
-          key: Activity.editing,
-          name: 'Edit',
-          iconName: 'PencilSquareIcon',
-          link: routes.editingStartScreen(owner, repository),
-        },
-      ],
-    }
-  }
-
   return (
     <>
       <RepositoryInfoProvider initialValue={props.repositoryInfo}>
-        <ActivityProvider initialValue={activityState}>
+        <ActivitiesProvider initialValue={props.activities}>
           <PageShell>{currentScreen}</PageShell>
-        </ActivityProvider>
+        </ActivitiesProvider>
       </RepositoryInfoProvider>
       <TransientNotificationsArea />
     </>

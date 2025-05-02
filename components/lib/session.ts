@@ -2,8 +2,8 @@
 
 import 'server-only'
 import { cookies } from 'next/headers'
-import { COOKIE_SESSION_NAME } from '../../lib/provider/authenticator'
-import { commitsparkConfig } from '../../commitspark.config'
+import { COOKIE_SESSION_NAME } from '@/lib/provider/authenticator'
+import { createAuthenticator } from '@/commitspark.authenticator'
 import { EncryptJWT, jwtDecrypt, JWTPayload } from 'jose'
 
 export interface SessionPayload {
@@ -42,5 +42,5 @@ export async function getCookieSession(): Promise<string> {
 
 export async function removeAuthentication(): Promise<void> {
   ;(await cookies()).delete(COOKIE_SESSION_NAME)
-  await commitsparkConfig.createAuthenticator().removeAuthentication()
+  await createAuthenticator().removeAuthentication()
 }

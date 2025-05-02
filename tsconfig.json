@@ -27,7 +27,10 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
+      "@commitspark-config": [
+        "./commitspark.config.ts"
+      ],
     }
   },
   "include": [

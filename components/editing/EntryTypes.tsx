@@ -1,7 +1,8 @@
 import React from 'react'
-import List from './List'
-import { ListEntryProps } from './ListEntry'
-import { routes } from './lib/route-generator'
+import List from '../List'
+import { ListEntryProps } from '../ListEntry'
+import { RouteIdEntriesOfTypeList } from '@/components/editing/types'
+import { activity } from '@/components/editing/activity'
 
 export interface EntryTypesProps {
   owner: string
@@ -11,15 +12,16 @@ export interface EntryTypesProps {
 }
 
 const EntryTypes: React.FC<EntryTypesProps> = (props: EntryTypesProps) => {
+  const editingActivity = activity
   const entryTypesListEntries = props.entryTypeNames.map(
     (entryType: string) =>
       ({
-        linkTarget: routes.entriesOfTypeList(
+        linkTarget: editingActivity.routeGenerator(RouteIdEntriesOfTypeList, [
           props.owner,
           props.repository,
           props.gitRef,
           entryType,
-        ),
+        ]),
         linkContent: { name: entryType },
       } as ListEntryProps),
   )

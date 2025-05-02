@@ -20,7 +20,6 @@ const RepositoryInfoStateContext = createContext<RepositoryInfoState | null>(
 )
 
 type RepositoryContextProviderProps = {
-  children: ReactNode
   initialValue?: RepositoryInfoState | null
 }
 

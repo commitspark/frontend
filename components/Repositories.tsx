@@ -2,8 +2,8 @@ import React from 'react'
 import List from './List'
 import { ListEntryProps } from './ListEntry'
 import { routes } from './lib/route-generator'
-import { Repository } from '../lib/provider/provider'
-import { commitsparkConfig } from '../commitspark.config'
+import { Repository } from '@/lib/provider/provider'
+import { commitsparkConfig } from '@commitspark-config'
 
 export interface RepositoriesProps {
   repositories: Repository[]
@@ -15,7 +15,7 @@ const Repositories: React.FC<RepositoriesProps> = (
   const repoListEntries = props.repositories.map((repository) => {
     const provider = commitsparkConfig.createProvider()
     return {
-      linkTarget: routes.editingStartScreen(repository.owner, repository.name),
+      linkTarget: routes.defaultActivity(repository.owner, repository.name),
       linkContent: { id: provider.toFullName(repository) },
     } as ListEntryProps
   })

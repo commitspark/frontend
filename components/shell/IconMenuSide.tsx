@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { classNames } from '../lib/styling'
-import { ActivityState, useActivity } from '../context/ActivityProvider'
+import { ActivitiesState, useActivities } from '../context/ActivitiesProvider'
 import Link from 'next/link'
 import DynamicIcon, { IconTheme } from '../DynamicIcon'
 
@@ -11,17 +11,18 @@ interface IconMenuSideProps {}
 const IconMenuSide: React.FC<IconMenuSideProps> = (
   props: IconMenuSideProps,
 ) => {
-  const activity = useActivity() as ActivityState
+  const activity = useActivities() as ActivitiesState
 
   return (
     <nav className="flex-none vertical-nav-width vertical-nav-background overflow-y-auto">
       <div className="p-3 flex flex-col gap-y-3">
         {activity.availableActivities.map((activityEntry) => (
+          // TODO relative path within activity
           <Link
-            href={activityEntry.link}
-            key={activityEntry.key}
+            href={activityEntry.initialRoute}
+            key={activityEntry.id}
             className={classNames(
-              activityEntry.key === activity.currentActivity
+              activityEntry.id === activity.idCurrentActivity
                 ? 'menu-item-dark-colors-selected'
                 : 'menu-item-dark-colors',
               'aspect-square rounded-md inline-flex items-center justify-center',

@@ -2,15 +2,15 @@ import Application, { Layout } from '../components/shell/Application'
 import PageHeading from '../components/PageHeading'
 import Repositories from '../components/Repositories'
 import React from 'react'
-import { getCookieSession } from '../components/lib/session'
-import { fetchRepositories } from '../components/lib/git-functions'
+import { getCookieSession } from '@/components/lib/session'
+import { fetchRepositories } from '@/components/lib/git-functions'
 
 export interface RepositoriesListPageParams {}
 
 export default async function RepositoriesListPage({
   params,
 }: {
-  params: RepositoriesListPageParams
+  params: Promise<RepositoriesListPageParams>
 }) {
   const session = await getCookieSession()
   const repositories = await fetchRepositories(session)
@@ -31,7 +31,10 @@ export default async function RepositoriesListPage({
   return (
     <Application
       layout={Layout.SingleArea}
-      activity={null}
+      activities={{
+        availableActivities: [],
+        idCurrentActivity: '',
+      }}
       repositoryInfo={{
         owner: null,
         repository: null,

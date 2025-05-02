@@ -1,7 +1,8 @@
-import List from './List'
-import { ListEntryProps } from './ListEntry'
-import { routes } from './lib/route-generator'
+import List from '../List'
+import { ListEntryProps } from '../ListEntry'
 import React from 'react'
+import { RouteIdEditEntry } from '@/components/editing/types'
+import { activity } from '@/components/editing/activity'
 
 export interface EntriesProps {
   owner: string
@@ -13,6 +14,7 @@ export interface EntriesProps {
 }
 
 const Entries: React.FC<EntriesProps> = (props: EntriesProps) => {
+  const editingActivity = activity
   const entryListEntries = props.entries.map((entry: any) => {
     let labelData: Record<string, any> = {}
     if (props.listVisibleFieldNames && props.listVisibleFieldNames.length > 0) {
@@ -23,12 +25,12 @@ const Entries: React.FC<EntriesProps> = (props: EntriesProps) => {
       labelData['id'] = entry.id
     }
     return {
-      linkTarget: routes.editEntry(
+      linkTarget: editingActivity.routeGenerator(RouteIdEditEntry, [
         props.owner,
         props.repository,
         props.gitRef,
         entry.id,
-      ),
+      ]),
       linkContent: labelData,
     } as ListEntryProps
   })
