@@ -10,6 +10,7 @@ import React, {
 export interface ActivityRouteDefinition {
   id: string
   iconName: string
+  name: string
   initialRoute: string
 }
 

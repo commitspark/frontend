@@ -1,13 +1,15 @@
 import React, { Suspense } from 'react'
-import { getCookieSession } from '@/components/lib/session'
-import { fetchBranches } from '@/components/lib/git-functions'
-import BranchSelectorColumn from '@/components/shell/BranchSelectorColumn'
-import Application, { Layout } from '@/components/shell/Application'
 import { notFound } from 'next/navigation'
 import { commitsparkConfig } from '@commitspark-config'
 import { ViewSwitcherProps } from '@/lib/types'
-import { ActivityRouteDefinition } from '@/components/context/ActivitiesProvider'
+import {
+  ActivitiesProvider,
+  ActivityRouteDefinition,
+} from '@/components/context/ActivitiesProvider'
 import Loading from '@/components/Loading'
+import Navbar from '@/components/shell/Navbar'
+import { RepositoryInfoProvider } from '@/components/context/RepositoryInfoProvider'
+import TransientNotificationsArea from '@/components/shell/TransientNotificationsArea'
 
 interface ApplicationPageParams {
   owner: string
@@ -29,25 +31,6 @@ export default async function ApplicationPage({
     repository: name,
   }
 
-  const session = await getCookieSession()
-  const branches = await fetchBranches(
-    session,
-    repositoryInfo.owner,
-    repositoryInfo.repository,
-  )
-  const currentBranch =
-    cleanedPath.length >= 2 && cleanedPath[0] === 'ref'
-      ? decodeURIComponent(cleanedPath[1])
-      : null
-
-  const branchSelectorColumn = (
-    <BranchSelectorColumn
-      repositoryInfo={repositoryInfo}
-      branches={branches}
-      currentBranch={currentBranch}
-    />
-  )
-
   let idCurrentActivity: string | null = null
   let ViewSwitcher: React.FC<ViewSwitcherProps> | null = null
   for (const configuredActivity of commitsparkConfig.activities) {
@@ -68,22 +51,30 @@ export default async function ApplicationPage({
     commitsparkConfig.activities.map((activity) => ({
       id: activity.id,
       iconName: activity.iconName,
+      name: activity.name,
       initialRoute: `/repo/${owner}/${name}/${activity.id}/`,
     }))
 
   return (
-    <Application
-      layout={Layout.TwoColumn}
-      activities={{
-        idCurrentActivity: idCurrentActivity,
-        availableActivities: activities,
-      }}
-      repositoryInfo={repositoryInfo}
-      asideColumn={branchSelectorColumn}
-    >
-      <Suspense fallback={<Loading />}>
-        <ViewSwitcher owner={owner} name={name} path={cleanedPath} />
-      </Suspense>
-    </Application>
+    <>
+      <RepositoryInfoProvider initialValue={repositoryInfo}>
+        <ActivitiesProvider
+          initialValue={{
+            idCurrentActivity: idCurrentActivity,
+            availableActivities: activities,
+          }}
+        >
+          <div className="h-full flex flex-col">
+            <Navbar />
+            <div className="flex-1 min-h-0 flex">
+              <Suspense fallback={<Loading />}>
+                <ViewSwitcher owner={owner} name={name} path={cleanedPath} />
+              </Suspense>
+            </div>
+          </div>
+        </ActivitiesProvider>
+      </RepositoryInfoProvider>
+      <TransientNotificationsArea />
+    </>
   )
 }
