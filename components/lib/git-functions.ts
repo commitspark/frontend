@@ -1,6 +1,8 @@
+'use server'
+
 import { readSessionJwt } from './session'
-import { commitsparkConfig } from '../../commitspark.config'
-import { Repository } from '../../lib/provider/provider'
+import { commitsparkConfig } from '@commitspark-config'
+import { Repository } from '@/lib/provider/provider'
 import { getApiService, GraphQLResponse } from '@commitspark/graphql-api'
 import { getAdapter } from './getAdapter'
 import { assertIsArrayOfRecordsOrNull, assertIsString } from './assert'
