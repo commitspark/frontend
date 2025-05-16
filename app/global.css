@@ -57,7 +57,7 @@
     }
 
     .menu-item-typography {
-        @apply text-sm font-medium;
+        @apply text-sm/6 font-medium;
     }
 
     .menu-item-dark-colors {

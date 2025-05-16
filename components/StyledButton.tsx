@@ -74,7 +74,7 @@ const StyledButton: ForwardRefRenderFunction<
         colorClasses,
         sizeClasses,
         edgeClasses,
-        props.className ?? '',
+        props.className,
       )}
     >
       {children}

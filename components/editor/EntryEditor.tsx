@@ -209,6 +209,13 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
       ),
   })
 
+  const backLink = editingActivity.routeGenerator(RouteIdEntriesOfTypeList, [
+    editorContext.repositoryRefInfo.owner,
+    editorContext.repositoryRefInfo.repository,
+    editorContext.repositoryRefInfo.gitRef,
+    props.typeName,
+  ])
+
   return (
     <>
       <CommitEntryModal
@@ -228,21 +235,23 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
       )}
       <Column
         pageHeading={
-          <div className={'flex-none pr-4 border-b app-border-color'}>
+          <div className="flex-none px-4 border-b app-border-color">
             <PageHeading
               title={props.entryId ?? 'New entry'}
               subTitle={props.typeName}
-              backLink={editingActivity.routeGenerator(
-                RouteIdEntriesOfTypeList,
-                [
-                  editorContext.repositoryRefInfo.owner,
-                  editorContext.repositoryRefInfo.repository,
-                  editorContext.repositoryRefInfo.gitRef,
-                  props.typeName,
-                ],
-              )}
             >
               <div className="flex flex-row gap-x-4 items-center">
+                <StyledButton
+                  actionType={Actions.neutral}
+                  size={Size.lg}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    router.push(backLink)
+                  }}
+                  aria-label="Cancel"
+                >
+                  Cancel
+                </StyledButton>
                 <StyledButton
                   actionType={Actions.primary}
                   disabled={!isContentModified}
