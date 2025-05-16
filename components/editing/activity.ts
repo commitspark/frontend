@@ -29,9 +29,11 @@ export const activity: ActivityDefinition = {
 
     throw new Error(`Cannot generate route for unknown route ID ${routeId}`)
   },
+  initialRouteGenerator: (repositoryOwner, repositoryName) =>
+    initialView(repositoryOwner, repositoryName),
 }
 
-function editingStartScreen(owner: string, repository: string): Route {
+function initialView(owner: string, repository: string): Route {
   assertIsString(owner)
   assertIsString(repository)
   return `/repo/${owner}/${repository}/${EditingActivityId}/` as Route

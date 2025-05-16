@@ -34,6 +34,10 @@ export interface ActivityDefinition {
   name: string
   viewSwitcher: ViewSwitcher
   routeGenerator: RouteGenerator
+  initialRouteGenerator: (
+    repositoryOwner: string,
+    repositoryName: string,
+  ) => string
 }
 
 export interface RouteGenerator {

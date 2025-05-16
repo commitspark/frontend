@@ -52,7 +52,7 @@ export default async function ApplicationPage({
       id: activity.id,
       iconName: activity.iconName,
       name: activity.name,
-      initialRoute: `/repo/${owner}/${name}/${activity.id}/`,
+      initialRoute: activity.initialRouteGenerator(owner, name),
     }))
 
   return (

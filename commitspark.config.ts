@@ -8,7 +8,6 @@ import { GitAdapter } from '@commitspark/git-adapter'
 import GitHubIcon, { GitHubIconProps } from './lib/provider/github/GitHubIcon'
 import { activity } from '@/components/editing/activity'
 import { buildConfig } from '@/lib/commitspark-config'
-import EditingViewSwitcher from '@/components/editing/EditingViewSwitcher'
 
 export const commitsparkConfig: CommitsparkConfig = buildConfig({
   getProviderLabel: () => 'GitHub',
@@ -23,4 +22,5 @@ export const commitsparkConfig: CommitsparkConfig = buildConfig({
     } as GitHubRepositoryOptions)
     return adapter
   },
-}
+  activities: [activity],
+})
