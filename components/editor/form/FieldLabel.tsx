@@ -1,5 +1,5 @@
 import React from 'react'
-import DropDown, { OpenDirection } from '../../DropDown'
+import DropDown from '../../DropDown'
 import { DropDownEntryProps } from '../../DropDownEntry'
 
 interface FieldLabelProps {
@@ -40,10 +40,7 @@ const FieldLabel: React.FC<React.PropsWithChildren<FieldLabelProps>> = (
           </label>
         </div>
         <div className="py-0.5">
-          <DropDown
-            menuEntries={dropDownEntries}
-            openDirection={OpenDirection.bottomRight}
-          />
+          <DropDown menuEntries={dropDownEntries} />
         </div>
       </div>
       {props.children}

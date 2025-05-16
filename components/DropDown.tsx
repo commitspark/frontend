@@ -10,14 +10,8 @@ import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 import { classNames } from './lib/styling'
 import DropDownEntry, { DropDownEntryProps } from './DropDownEntry'
 
-export enum OpenDirection {
-  bottomLeft,
-  bottomRight,
-}
-
 interface DropDownProps {
   menuEntries: DropDownEntryProps[]
-  openDirection?: OpenDirection
   customButton?: React.ReactElement
   customElement?: React.ReactElement
 }
@@ -65,14 +59,8 @@ const DropDown: React.FC<DropDownProps> = (props: DropDownProps) => {
         <MenuItems
           className={classNames(
             'absolute mt-1 w-52 bg-white rounded shadow-md ring-1 ring-gray-200 z-20',
-            props.openDirection === undefined ||
-              props.openDirection === OpenDirection.bottomLeft
-              ? 'right-0 origin-top-right'
-              : '',
-            props.openDirection === OpenDirection.bottomRight
-              ? 'left-0 origin-top-left'
-              : '',
           )}
+          anchor={'bottom start'}
         >
           <div className="py-0.5">
             {props.menuEntries.map((entryProps: DropDownEntryProps, index) => (
