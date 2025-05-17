@@ -2,7 +2,7 @@ import List from '../List'
 import { ListEntryProps } from '../ListEntry'
 import React from 'react'
 import { RouteIdEditEntry } from '@/components/editing/types'
-import { activity } from '@/components/editing/activity'
+import { editingActivity } from '@/components/editing/editingActivity'
 
 export interface EntriesProps {
   owner: string
@@ -14,7 +14,6 @@ export interface EntriesProps {
 }
 
 const Entries: React.FC<EntriesProps> = (props: EntriesProps) => {
-  const editingActivity = activity
   const entryListEntries = props.entries.map((entry: any) => {
     let labelData: Record<string, any> = {}
     if (props.listVisibleFieldNames && props.listVisibleFieldNames.length > 0) {

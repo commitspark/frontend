@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { commitsparkConfig } from '@commitspark-config'
-import { ViewSwitcherProps } from '@/lib/types'
+import { ActivityViewProps } from '@/lib/types'
 import {
   ActivitiesProvider,
   ActivityRouteDefinition,
@@ -32,18 +32,18 @@ export default async function ApplicationPage({
   }
 
   let idCurrentActivity: string | null = null
-  let ViewSwitcher: React.FC<ViewSwitcherProps> | null = null
+  let ActivityView: React.FC<ActivityViewProps> | null = null
   for (const configuredActivity of commitsparkConfig.activities) {
     if (
       configuredActivity.id === activity &&
-      (ViewSwitcher = configuredActivity.viewSwitcher) !== null
+      (ActivityView = configuredActivity.view) !== null
     ) {
       idCurrentActivity = configuredActivity.id
       break
     }
   }
 
-  if (idCurrentActivity === null || ViewSwitcher === null) {
+  if (idCurrentActivity === null || ActivityView === null) {
     notFound()
   }
 
@@ -66,9 +66,15 @@ export default async function ApplicationPage({
         >
           <div className="h-full flex flex-col">
             <Navbar />
-            <div className="flex-1 min-h-0 flex">
-              <Suspense fallback={<Loading />}>
-                <ViewSwitcher owner={owner} name={name} path={cleanedPath} />
+            <div className="flex-1 min-h-0 h-full flex">
+              <Suspense
+                fallback={
+                  <div className="flex-grow py-4">
+                    <Loading />
+                  </div>
+                }
+              >
+                <ActivityView owner={owner} name={name} path={cleanedPath} />
               </Suspense>
             </div>
           </div>

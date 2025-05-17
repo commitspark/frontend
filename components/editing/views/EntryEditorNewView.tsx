@@ -65,19 +65,21 @@ const EntryEditorNewView: React.FC<EntryEditorNewViewProps> = (
   const data = use(getData())
 
   return (
-    <EditorProvider
-      entryProps={{
-        schemaString: data.schemaString,
-        isNewEntry: true,
-      }}
-      repositoryRefInfo={data.repositoryInfo}
-    >
-      <EntryEditor
-        entryId={undefined}
-        typeName={typeName}
-        initialData={data.entryData}
-      />
-    </EditorProvider>
+    <div className="flex-grow mx-auto max-w-6xl">
+      <EditorProvider
+        entryProps={{
+          schemaString: data.schemaString,
+          isNewEntry: true,
+        }}
+        repositoryRefInfo={data.repositoryInfo}
+      >
+        <EntryEditor
+          entryId={undefined}
+          typeName={typeName}
+          initialData={data.entryData}
+        />
+      </EditorProvider>
+    </div>
   )
 }
 

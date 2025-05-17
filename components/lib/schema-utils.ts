@@ -15,6 +15,7 @@ import {
 } from 'graphql/language/ast'
 import { Kind } from 'graphql/language'
 import { GraphQLField, GraphQLNamedType } from 'graphql/type/definition'
+import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
 
 export function getTypeDefinitionNodeFromSchema(
   schema: GraphQLSchema,
@@ -136,4 +137,28 @@ export function getFieldDirectiveArgumentStringValue(
     return null
   }
   return editorValue.value
+}
+
+export function getNamesOfTypesAnnotatedWithDirective(
+  schema: GraphQLSchema,
+  directiveName: string,
+): string[] {
+  // get all types annotated with @Entry directive
+  const entryTypeNames: string[] = []
+  mapSchema(schema, {
+    [MapperKind.OBJECT_TYPE]: (
+      objectType: GraphQLObjectType,
+    ): GraphQLObjectType => {
+      const entryDirective = getDirective(
+        schema,
+        objectType,
+        directiveName,
+      )?.[0]
+      if (entryDirective) {
+        entryTypeNames.push(objectType.name)
+      }
+      return objectType
+    },
+  })
+  return entryTypeNames
 }

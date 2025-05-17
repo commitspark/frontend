@@ -6,7 +6,7 @@ import {
 } from '@commitspark/git-adapter-github'
 import { GitAdapter } from '@commitspark/git-adapter'
 import GitHubIcon, { GitHubIconProps } from './lib/provider/github/GitHubIcon'
-import { activity } from '@/components/editing/activity'
+import { editingActivity } from '@/components/editing/editingActivity'
 import { buildConfig } from '@/lib/commitspark-config'
 
 export const commitsparkConfig: CommitsparkConfig = buildConfig({
@@ -22,5 +22,5 @@ export const commitsparkConfig: CommitsparkConfig = buildConfig({
     } as GitHubRepositoryOptions)
     return adapter
   },
-  activities: [activity],
+  activities: [editingActivity],
 })

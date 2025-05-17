@@ -1,9 +1,16 @@
 import React from 'react'
 
-interface BranchIconProps {}
+export enum BranchIconWeight {
+  Normal,
+  Light,
+}
+
+interface BranchIconProps {
+  weight?: BranchIconWeight
+}
 
 const BranchIcon: React.FC<BranchIconProps> = (props: BranchIconProps) => {
-  // license applies to SVG below
+  // license applies to the content of SVG below
   /*
   MIT License
 
@@ -36,8 +43,8 @@ const BranchIcon: React.FC<BranchIconProps> = (props: BranchIconProps) => {
       stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth="1.5"
-      className="size-4 self-center"
+      strokeWidth={props.weight === BranchIconWeight.Light ? '1.0' : '1.5'}
+      className="icon-size self-center"
     >
       <circle cx="4.5" cy="3.5" r="1.75" />
       <circle cx="11.5" cy="3.5" r="1.75" />

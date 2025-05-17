@@ -8,13 +8,13 @@ import {
   RouteIdEntriesOfTypeList,
   RouteIdEntryTypesList,
 } from '@/components/editing/types'
-import EditingViewSwitcher from '@/components/editing/EditingViewSwitcher'
+import EditingView from '@/components/editing/EditingView'
 
-export const activity: ActivityDefinition = {
+export const editingActivity: ActivityDefinition = {
   id: EditingActivityId,
   iconName: 'PencilSquareIcon',
   name: 'Edit',
-  viewSwitcher: EditingViewSwitcher,
+  view: EditingView,
   routeGenerator: (routeId, args): string => {
     switch (routeId) {
       case RouteIdEntryTypesList:

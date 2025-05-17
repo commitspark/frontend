@@ -3,6 +3,7 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+    --color-cs-bg-layout: var(--color-gray-50);
     --color-cs-gray: var(--color-gray-800);
     --color-cs-gray-light: var(--color-gray-500);
 
@@ -41,11 +42,11 @@
     }
 
     .icon-size {
-        @apply w-4 h-4;
+        @apply size-4;
     }
 
     .icon-size-lg {
-        @apply w-6 h-6;
+        @apply size-6;
     }
 
     .menu-item-colors {

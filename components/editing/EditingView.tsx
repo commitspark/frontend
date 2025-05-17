@@ -1,30 +1,46 @@
 import React from 'react'
-import TypesListView from '@/components/editing/views/TypesListView'
 import EntryEditorView from '@/components/editing/views/EntryEditorView'
 import EntryListView from '@/components/editing/views/EntryListView'
 import EntryEditorNewView from '@/components/editing/views/EntryEditorNewView'
-import { ViewSwitcherProps } from '@/lib/types'
+import { ActivityViewProps } from '@/lib/types'
+import InitialActivityViewRedirector from '@/components/editing/views/InitialActivityViewRedirector'
+import Loading from '@/components/Loading'
+import { RepositoryRefInfo } from '@/components/context/EditorProvider'
+import InitialBranchViewRedirector from '@/components/editing/views/InitialBranchViewRedirector'
 
-const EditingViewSwitcher: React.FC<ViewSwitcherProps> = (
-  props: ViewSwitcherProps,
-) => {
+const EditingView: React.FC<ActivityViewProps> = (props: ActivityViewProps) => {
   if (!props.path) {
     return null
   }
 
+  let view = null
+
   if (props.path.length === 0) {
-    // TODO find a way to redirect to view of repo's default branch
-    return null
+    view = (
+      <div className="flex-grow py-4">
+        <Loading />
+        <InitialActivityViewRedirector />
+      </div>
+    )
   } else if (props.path.length === 2 && props.path[0] === 'ref') {
-    return (
-      <TypesListView path={props.path} owner={props.owner} name={props.name} />
+    const decodedRef = decodeURIComponent(props.path[1])
+    const repositoryInfo: RepositoryRefInfo = {
+      owner: props.owner,
+      repository: props.name,
+      gitRef: decodedRef,
+    }
+    view = (
+      <div className="flex-grow py-4">
+        <Loading />
+        <InitialBranchViewRedirector repositoryInfo={repositoryInfo} />
+      </div>
     )
   } else if (
     props.path.length === 4 &&
     props.path[0] === 'ref' &&
     props.path[2] === 'id'
   ) {
-    return (
+    view = (
       <EntryEditorView
         owner={props.owner}
         name={props.name}
@@ -36,7 +52,7 @@ const EditingViewSwitcher: React.FC<ViewSwitcherProps> = (
     props.path[0] === 'ref' &&
     props.path[2] === 'type'
   ) {
-    return (
+    view = (
       <EntryListView owner={props.owner} name={props.name} path={props.path} />
     )
   } else if (
@@ -45,7 +61,7 @@ const EditingViewSwitcher: React.FC<ViewSwitcherProps> = (
     props.path[2] === 'type' &&
     props.path[4] === 'create-entry'
   ) {
-    return (
+    view = (
       <EntryEditorNewView
         owner={props.owner}
         name={props.name}
@@ -54,7 +70,7 @@ const EditingViewSwitcher: React.FC<ViewSwitcherProps> = (
     )
   }
 
-  return null
+  return view
 }
 
-export default EditingViewSwitcher
+export default EditingView

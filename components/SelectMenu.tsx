@@ -21,11 +21,15 @@ const SelectMenu: React.FC<SelectMenuProps> = (props: SelectMenuProps) => {
 
   const menuButton = (
     <StyledButton actionType={Actions.neutral}>
-      <div className="flex flex-row">
-        <span className="flex-grow truncate pr-6 inline-flex gap-x-1.5 items-baseline">
-          {props.prefixIcon}
+      <div className="flex flex-row min-w-52">
+        {props.prefixIcon && (
+          <div className="pr-1.5 inline-flex items-baseline">
+            {props.prefixIcon}
+          </div>
+        )}
+        <div className="flex-grow truncate text-left">
           {selectedEntry.label}
-        </span>
+        </div>
         <ChevronDownIcon className="icon-size self-center" />
       </div>
     </StyledButton>

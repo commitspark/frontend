@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react'
 import ContentTypeForm from './form/ContentTypeForm'
 import { EditorContextValue, useEditor } from '../context/EditorProvider'
 import Column from '../shell/Column'
-import PageHeading from '../PageHeading'
+import EditorHeading from './EditorHeading'
 import { Actions, Size } from '../StyledButtonEnums'
 import CommitEntryModal from './CommitEntryModal'
 import DropDown from '../DropDown'
@@ -235,40 +235,39 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
       )}
       <Column
         pageHeading={
-          <div className="flex-none px-4 border-b app-border-color">
-            <PageHeading
-              title={props.entryId ?? 'New entry'}
-              subTitle={props.typeName}
-            >
-              <div className="flex flex-row gap-x-4 items-center">
-                <StyledButton
-                  actionType={Actions.neutral}
-                  size={Size.lg}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    router.push(backLink)
-                  }}
-                  aria-label="Cancel"
-                >
-                  Cancel
-                </StyledButton>
-                <StyledButton
-                  actionType={Actions.primary}
-                  disabled={!isContentModified}
-                  size={Size.lg}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    setIsCommitEntryModalOpen(true)
-                  }}
-                  aria-label="Commit entry"
-                >
-                  Commit
-                </StyledButton>
+          <EditorHeading
+            entryId={props.entryId ?? 'New entry'}
+            entryTypeName={props.typeName}
+            branchName={editorContext.repositoryRefInfo.gitRef}
+          >
+            <div className="flex flex-row gap-x-4 items-center">
+              <StyledButton
+                actionType={Actions.neutral}
+                size={Size.lg}
+                onClick={(event) => {
+                  event.preventDefault()
+                  router.push(backLink)
+                }}
+                aria-label="Cancel"
+              >
+                Cancel
+              </StyledButton>
+              <StyledButton
+                actionType={Actions.primary}
+                disabled={!isContentModified}
+                size={Size.lg}
+                onClick={(event) => {
+                  event.preventDefault()
+                  setIsCommitEntryModalOpen(true)
+                }}
+                aria-label="Commit entry"
+              >
+                Commit
+              </StyledButton>
 
-                <DropDown menuEntries={dropDownMenuEntries} />
-              </div>
-            </PageHeading>
-          </div>
+              <DropDown menuEntries={dropDownMenuEntries} />
+            </div>
+          </EditorHeading>
         }
       >
         <form>

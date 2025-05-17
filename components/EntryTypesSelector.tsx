@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { RepositoryRefInfo } from '@/components/context/EditorProvider'
 import { getCookieSession } from '@/components/lib/session'
 import { fetchSchemaString } from '@/components/lib/git-functions'
 import EntryTypesSelectorInner from '@/components/EntryTypesSelectorInner'
+import SelectMenuLoading from '@/components/SelectMenuLoading'
 
 interface EntryTypesSelectorProps {
   repositoryInfo: RepositoryRefInfo
+  currentTypeName: string
 }
 
 const EntryTypesSelector: React.FC<EntryTypesSelectorProps> = (
@@ -21,7 +23,15 @@ const EntryTypesSelector: React.FC<EntryTypesSelectorProps> = (
     )
   }
 
-  return <EntryTypesSelectorInner graphQLSchemaString={getData()} />
+  return (
+    <Suspense fallback={<SelectMenuLoading />}>
+      <EntryTypesSelectorInner
+        repositoryInfo={props.repositoryInfo}
+        graphQLSchemaString={getData()}
+        currentTypeName={props.currentTypeName}
+      />
+    </Suspense>
+  )
 }
 
 export default EntryTypesSelector

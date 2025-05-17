@@ -20,19 +20,19 @@ export interface RepositoryOptions {
   accessToken: string
 }
 
-export interface ViewSwitcherProps {
+export interface ActivityViewProps {
   owner: string
   name: string
   path: string[]
 }
 
-export type ViewSwitcher = React.FC<ViewSwitcherProps>
+export type ActivityView = React.FC<ActivityViewProps>
 
 export interface ActivityDefinition {
   id: ActivityID
   iconName: string
   name: string
-  viewSwitcher: ViewSwitcher
+  view: ActivityView
   routeGenerator: RouteGenerator
   initialRouteGenerator: (
     repositoryOwner: string,

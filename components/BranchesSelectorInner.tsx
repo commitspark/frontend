@@ -10,11 +10,10 @@ import {
 import SelectMenu from '@/components/SelectMenu'
 import { DropDownEntryProps } from '@/components/DropDownEntry'
 import BranchIcon from '@/components/editing/icons/BranchIcon'
+import { RepositoryRefInfo } from '@/components/context/EditorProvider'
 
 export interface BranchesSelectorProps {
-  owner: string
-  repository: string
-  currentBranch: string | null
+  repositoryInfo: RepositoryRefInfo
   branches: Promise<Branch[]>
 }
 
@@ -34,8 +33,8 @@ const BranchesSelector: React.FC<BranchesSelectorProps> = (
     (branch): DropDownEntryProps => ({
       label: branch.name,
       target: editingActivity.routeGenerator(RouteIdEntryTypesList, [
-        props.owner,
-        props.repository,
+        props.repositoryInfo.owner,
+        props.repositoryInfo.repository,
         branch.name,
       ]),
     }),
@@ -44,7 +43,7 @@ const BranchesSelector: React.FC<BranchesSelectorProps> = (
   return (
     <SelectMenu
       entries={menuEntries}
-      selectedId={props.currentBranch ?? ''}
+      selectedId={props.repositoryInfo.gitRef ?? ''}
       prefixIcon={<BranchIcon />}
     />
   )

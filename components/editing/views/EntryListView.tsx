@@ -12,7 +12,6 @@ import {
   getListVisibleFieldNames,
 } from '@/components/lib/schema-utils'
 import { notFound } from 'next/navigation'
-import PageHeading from '@/components/PageHeading'
 import Link from 'next/link'
 import StyledButton from '@/components/StyledButton'
 import { Actions, Size } from '@/components/StyledButtonEnums'
@@ -22,8 +21,10 @@ import { commitsparkConfig } from '@commitspark-config'
 import {
   EditingActivityId,
   RouteIdCreateEntry,
-  RouteIdEntryTypesList,
 } from '@/components/editing/types'
+import BranchesSelector from '@/components/BranchesSelector'
+import { ChevronRightIcon } from '@heroicons/react/24/solid'
+import EntryTypesSelector from '@/components/EntryTypesSelector'
 
 interface EntryListViewProps {
   owner: string
@@ -87,42 +88,42 @@ const EntryListView: React.FC<EntryListViewProps> = (
   }
 
   const pageHeading = (
-    <div className="border-b app-border-color pr-4">
-      <PageHeading
-        title={`Entries of type ${typeName}`}
-        backLink={editingActivity.routeGenerator(RouteIdEntryTypesList, [
+    <div className="flex flex-row gap-x-2">
+      <BranchesSelector repositoryInfo={repositoryInfo} />
+      <ChevronRightIcon className="icon-size self-center" />
+      <EntryTypesSelector
+        repositoryInfo={repositoryInfo}
+        currentTypeName={typeName}
+      />
+      <ChevronRightIcon className="icon-size self-center" />
+      <Link
+        href={editingActivity.routeGenerator(RouteIdCreateEntry, [
           props.owner,
           props.name,
           decodedRef,
+          typeName,
         ])}
       >
-        <Link
-          href={editingActivity.routeGenerator(RouteIdCreateEntry, [
-            props.owner,
-            props.name,
-            decodedRef,
-            typeName,
-          ])}
-        >
-          <StyledButton actionType={Actions.positive} size={Size.lg}>
-            Create new
-          </StyledButton>
-        </Link>
-      </PageHeading>
+        <StyledButton actionType={Actions.positive} size={Size.md}>
+          Create new
+        </StyledButton>
+      </Link>
     </div>
   )
 
   return (
-    <Column pageHeading={pageHeading}>
-      <Entries
-        owner={props.owner}
-        repository={props.name}
-        gitRef={decodedRef}
-        typeName={typeName}
-        entries={data.entries}
-        listVisibleFieldNames={data.listVisibleFieldNames}
-      />
-    </Column>
+    <div className="flex-grow mx-auto max-w-6xl">
+      <Column pageHeading={pageHeading}>
+        <Entries
+          owner={props.owner}
+          repository={props.name}
+          gitRef={decodedRef}
+          typeName={typeName}
+          entries={data.entries}
+          listVisibleFieldNames={data.listVisibleFieldNames}
+        />
+      </Column>
+    </div>
   )
 }
 

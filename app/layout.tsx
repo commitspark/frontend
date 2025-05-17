@@ -23,7 +23,7 @@ const ProviderLayout: React.FC<React.PropsWithChildren<ProviderLayoutProps>> = (
   props: PropsWithChildren<ProviderLayoutProps>,
 ) => {
   return (
-    <html lang="en" className={'h-full'}>
+    <html lang="en" className="h-full bg-cs-bg-layout">
       <body className={classNames(overpass.className, 'h-full')}>
         <NavigationGuardProvider>
           <TransientNotificationProvider>

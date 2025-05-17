@@ -1,4 +1,3 @@
-import PageHeading from '../components/PageHeading'
 import Repositories from '../components/Repositories'
 import React from 'react'
 import { getCookieSession } from '@/components/lib/session'
@@ -21,9 +20,7 @@ export default async function RepositoriesListPage({
       <main className={''}>
         <div className={'p-6 space-y-8'}>
           <div>
-            <div className={'border-b app-border-color'}>
-              <PageHeading title={'Repositories'} />
-            </div>
+            <h1 className="pb-2 font-semibold text-color">Repositories</h1>
             <Repositories repositories={repositories} />
           </div>
         </div>
