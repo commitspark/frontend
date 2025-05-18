@@ -30,21 +30,19 @@ const TextareaInput: React.FC<TextareaInputProps> = (
 ) => {
   return (
     <div
-      className={classNames(
-        'w-full form-input-cursor form-input-background',
-        !!props.hideRing ? '' : 'form-input-ring',
-      )}
+      className={classNames('w-full form-input-cursor form-input-background')}
     >
       <textarea
         name={props.name}
         rows={props.rows ?? 10}
         autoComplete="off"
         className={classNames(
-          'w-full border-0 bg-transparent form-input-padding focus:ring-0 form-input-text form-input-cursor',
+          'w-full border-0 bg-transparent form-input-padding form-input-text form-input-cursor',
           props.fontClassification === FontClassification.Monospace
             ? `${overpassMono.className} [fontVariantLigatures:none]`
             : '',
           !props.allowResize ? '[resize:none]' : '',
+          !!props.hideRing ? '' : 'form-input-ring',
         )}
         placeholder={props.placeholder}
         value={props.value ?? ''}

@@ -70,7 +70,7 @@ const StyledButton: ForwardRefRenderFunction<
       type={props.type ?? 'button'}
       ref={ref}
       className={classNames(
-        'font-medium shadow-sm',
+        'font-medium shadow-sm focus:outline-2 focus:outline-indigo-700',
         colorClasses,
         sizeClasses,
         edgeClasses,

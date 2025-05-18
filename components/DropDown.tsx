@@ -58,7 +58,7 @@ const DropDown: React.FC<DropDownProps> = (props: DropDownProps) => {
       >
         <MenuItems
           className={classNames(
-            'absolute mt-1 w-52 bg-white rounded shadow-md ring-1 ring-gray-200 z-20',
+            'absolute mt-1 w-52 bg-white rounded shadow-md ring-1 ring-gray-200 focus:outline-0 z-20',
           )}
           anchor={'bottom start'}
         >
