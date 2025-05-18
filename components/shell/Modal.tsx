@@ -1,7 +1,13 @@
 'use client'
 
 import React, { Fragment, useRef } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from '@headlessui/react'
 import StyledButton, { StyledButtonProps } from '../StyledButton'
 import { Actions, Size } from '../StyledButtonEnums'
 import { classNames } from '../lib/styling'
@@ -45,28 +51,28 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = (
 
   return (
     <>
-      <Transition.Root show={props.isOpen} as={Fragment}>
+      <Transition show={props.isOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-30"
           initialFocus={cancelButtonRef}
           onClose={props.onClose}
         >
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
-            enterTo="opacity-100"
+            enterTo="opacity-75"
             leave="ease-in duration-200"
-            leaveFrom="opacity-100"
+            leaveFrom="opacity-75"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-          </Transition.Child>
+            <div className="fixed inset-0 bg-gray-500 opacity-75 transition-opacity" />
+          </TransitionChild>
 
           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full justify-center p-0 items-center">
-              <Transition.Child
+              <TransitionChild
                 as={Fragment}
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -75,7 +81,7 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = (
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all w-full max-w-lg p-6">
+                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all w-full max-w-lg p-6">
                   <div className="flex gap-x-4">
                     <div
                       className={classNames(
@@ -93,12 +99,12 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = (
                       />
                     </div>
                     <div className="flex-grow">
-                      <Dialog.Title
+                      <DialogTitle
                         as="h2"
                         className="font-semibold text-gray-900"
                       >
                         {props.title}
-                      </Dialog.Title>
+                      </DialogTitle>
                       <div className="mt-4">{props.children}</div>
                     </div>
                   </div>
@@ -116,12 +122,12 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = (
                       </StyledButton>
                     </>
                   </div>
-                </Dialog.Panel>
-              </Transition.Child>
+                </DialogPanel>
+              </TransitionChild>
             </div>
           </div>
         </Dialog>
-      </Transition.Root>
+      </Transition>
     </>
   )
 }
