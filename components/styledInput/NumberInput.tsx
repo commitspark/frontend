@@ -25,9 +25,7 @@ const NumberInput: React.FC<React.PropsWithChildren<NumberInputProps>> = (
         name={props.name}
         type="number"
         autoComplete="off"
-        className={
-          'w-full form-input-padding form-input-text form-input-cursor form-input-background form-input-ring'
-        }
+        className="w-full form-input-padding form-input-text form-input-cursor form-input-background form-input-ring"
         step={props?.numberType === NumberType.Float ? 'any' : 1}
         value={props.value}
         onChange={(event) => {

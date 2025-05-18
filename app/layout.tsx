@@ -1,10 +1,10 @@
 import React, { PropsWithChildren } from 'react'
 import { Overpass } from 'next/font/google'
 
-import '../styles/tailwind.css'
-import { classNames } from '../components/lib/styling'
+import './global.css'
+import { classNames } from '@/components/lib/styling'
 import { Metadata } from 'next'
-import { TransientNotificationProvider } from '../components/context/TransientNotificationProvider'
+import { TransientNotificationProvider } from '@/components/context/TransientNotificationProvider'
 import { NavigationGuardProvider } from 'next-navigation-guard'
 
 const overpass = Overpass({
@@ -23,7 +23,7 @@ const ProviderLayout: React.FC<React.PropsWithChildren<ProviderLayoutProps>> = (
   props: PropsWithChildren<ProviderLayoutProps>,
 ) => {
   return (
-    <html lang="en" className={'h-full overflow-y-hidden'}>
+    <html lang="en" className="h-full bg-cs-bg-layout">
       <body className={classNames(overpass.className, 'h-full')}>
         <NavigationGuardProvider>
           <TransientNotificationProvider>

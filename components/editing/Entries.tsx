@@ -1,7 +1,8 @@
-import List from './List'
-import { ListEntryProps } from './ListEntry'
-import { routes } from './lib/route-generator'
+import List from '../List'
+import { ListEntryProps } from '../ListEntry'
 import React from 'react'
+import { RouteIdEditEntry } from '@/components/editing/types'
+import { editingActivity } from '@/components/editing/editingActivity'
 
 export interface EntriesProps {
   owner: string
@@ -23,12 +24,12 @@ const Entries: React.FC<EntriesProps> = (props: EntriesProps) => {
       labelData['id'] = entry.id
     }
     return {
-      linkTarget: routes.editEntry(
+      linkTarget: editingActivity.routeGenerator(RouteIdEditEntry, [
         props.owner,
         props.repository,
         props.gitRef,
         entry.id,
-      ),
+      ]),
       linkContent: labelData,
     } as ListEntryProps
   })

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { commitsparkConfig } from './commitspark.config'
+import { createAuthenticator } from '@/commitspark.authenticator'
 
 export default async function middleware(
   req: NextRequest,
@@ -9,7 +9,7 @@ export default async function middleware(
 
   if (
     !publicRoutes.exec(path) &&
-    !(await commitsparkConfig.createAuthenticator().isAuthenticated(req))
+    !(await createAuthenticator().isAuthenticated(req))
   ) {
     return NextResponse.redirect(new URL('/sign-in/', req.nextUrl))
   }

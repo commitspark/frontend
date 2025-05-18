@@ -3,7 +3,6 @@
 import React, {
   createContext,
   PropsWithChildren,
-  ReactNode,
   useContext,
   useState,
 } from 'react'
@@ -20,7 +19,6 @@ const RepositoryInfoStateContext = createContext<RepositoryInfoState | null>(
 )
 
 type RepositoryContextProviderProps = {
-  children: ReactNode
   initialValue?: RepositoryInfoState | null
 }
 

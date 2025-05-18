@@ -4,8 +4,7 @@ import React, { useCallback, useState } from 'react'
 import ContentTypeForm from './form/ContentTypeForm'
 import { EditorContextValue, useEditor } from '../context/EditorProvider'
 import Column from '../shell/Column'
-import PageHeading from '../PageHeading'
-import { routes } from '../lib/route-generator'
+import EditorHeading from './EditorHeading'
 import { Actions, Size } from '../StyledButtonEnums'
 import CommitEntryModal from './CommitEntryModal'
 import DropDown from '../DropDown'
@@ -17,12 +16,18 @@ import { useTransientNotification } from '../context/TransientNotificationProvid
 import {
   actionMutateEntry,
   actionRevalidatePath,
-} from '../../app/server-actions/actions'
+} from '@/app/server-actions/actions'
 import { isObjectType } from 'graphql/type'
 import { deepEqual } from '../lib/content-utils'
 import { commitEntry } from '../lib/commit'
 import { useNavigationGuard } from 'next-navigation-guard'
 import { getCookieSession } from '../lib/session'
+import { commitsparkConfig } from '@commitspark-config'
+import {
+  EditingActivityId,
+  RouteIdEditEntry,
+  RouteIdEntriesOfTypeList,
+} from '@/components/editing/types'
 
 interface EntryEditorProps {
   initialData: Record<string, any>
@@ -121,20 +126,30 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     [originalEntryData],
   )
 
-  const entryListPagePath = routes.entriesOfTypeList(
-    editorContext.repositoryRefInfo.owner,
-    editorContext.repositoryRefInfo.repository,
-    editorContext.repositoryRefInfo.gitRef,
-    props.typeName,
+  const editingActivity = commitsparkConfig.activities.find(
+    (activity) => activity.id === EditingActivityId,
+  )
+  if (!editingActivity) {
+    throw new Error('Cannot find editing activity')
+  }
+
+  const entryListPagePath = editingActivity.routeGenerator(
+    RouteIdEntriesOfTypeList,
+    [
+      editorContext.repositoryRefInfo.owner,
+      editorContext.repositoryRefInfo.repository,
+      editorContext.repositoryRefInfo.gitRef,
+      props.typeName,
+    ],
   )
 
   const commitSuccessHandler = async (entryId: string): Promise<void> => {
-    const entryPagePath = routes.editEntry(
+    const entryPagePath = editingActivity.routeGenerator(RouteIdEditEntry, [
       editorContext.repositoryRefInfo.owner,
       editorContext.repositoryRefInfo.repository,
       editorContext.repositoryRefInfo.gitRef,
       entryId,
-    )
+    ])
 
     if (editorContext.isNewEntry) {
       await actionRevalidatePath(entryListPagePath)
@@ -160,12 +175,12 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     // use timeout to wait for `isContentModified` state to be updated so that navigation guard does not kick in
     setTimeout(() => {
       router.push(
-        routes.entriesOfTypeList(
+        editingActivity.routeGenerator(RouteIdEntriesOfTypeList, [
           editorContext.repositoryRefInfo.owner,
           editorContext.repositoryRefInfo.repository,
           editorContext.repositoryRefInfo.gitRef,
           props.typeName,
-        ),
+        ]),
       )
     }, 0)
 
@@ -194,6 +209,13 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
       ),
   })
 
+  const backLink = editingActivity.routeGenerator(RouteIdEntriesOfTypeList, [
+    editorContext.repositoryRefInfo.owner,
+    editorContext.repositoryRefInfo.repository,
+    editorContext.repositoryRefInfo.gitRef,
+    props.typeName,
+  ])
+
   return (
     <>
       <CommitEntryModal
@@ -213,35 +235,39 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
       )}
       <Column
         pageHeading={
-          <div className={'flex-none pr-4 border-b app-border-color'}>
-            <PageHeading
-              title={props.entryId ?? 'New entry'}
-              subTitle={props.typeName}
-              backLink={routes.entriesOfTypeList(
-                editorContext.repositoryRefInfo.owner,
-                editorContext.repositoryRefInfo.repository,
-                editorContext.repositoryRefInfo.gitRef,
-                props.typeName,
-              )}
-            >
-              <div className="flex flex-row gap-x-4 items-center">
-                <StyledButton
-                  actionType={Actions.primary}
-                  disabled={!isContentModified}
-                  size={Size.lg}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    setIsCommitEntryModalOpen(true)
-                  }}
-                  aria-label="Commit entry"
-                >
-                  Commit
-                </StyledButton>
+          <EditorHeading
+            entryId={props.entryId ?? 'New entry'}
+            entryTypeName={props.typeName}
+            branchName={editorContext.repositoryRefInfo.gitRef}
+          >
+            <div className="flex flex-row gap-x-4 items-center">
+              <StyledButton
+                actionType={Actions.neutral}
+                size={Size.lg}
+                onClick={(event) => {
+                  event.preventDefault()
+                  router.push(backLink)
+                }}
+                aria-label="Cancel"
+              >
+                Cancel
+              </StyledButton>
+              <StyledButton
+                actionType={Actions.primary}
+                disabled={!isContentModified}
+                size={Size.lg}
+                onClick={(event) => {
+                  event.preventDefault()
+                  setIsCommitEntryModalOpen(true)
+                }}
+                aria-label="Commit entry"
+              >
+                Commit
+              </StyledButton>
 
-                <DropDown menuEntries={dropDownMenuEntries} />
-              </div>
-            </PageHeading>
-          </div>
+              <DropDown menuEntries={dropDownMenuEntries} />
+            </div>
+          </EditorHeading>
         }
       >
         <form>

@@ -6,11 +6,8 @@ import path from 'node:path'
  */
 const nextConfig = {
   trailingSlash: true,
-  optimizeFonts: true,
   output: 'standalone',
-  webpack: (
-    config,
-  ) => {
+  webpack: (config) => {
     config.resolve.alias.graphql$ = path.resolve(
       './node_modules/graphql/index.js',
     )

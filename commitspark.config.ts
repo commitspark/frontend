@@ -1,21 +1,19 @@
-import { CommitsparkConfig } from './lib/commitspark-config'
+import { CommitsparkConfig } from '@/lib/types'
 import { GitHubProvider } from './lib/provider/github/github-provider'
-import { GitHubAuthenticator } from './lib/provider/github/github-authenticator'
 import {
   createAdapter,
   GitHubRepositoryOptions,
 } from '@commitspark/git-adapter-github'
 import { GitAdapter } from '@commitspark/git-adapter'
 import GitHubIcon, { GitHubIconProps } from './lib/provider/github/GitHubIcon'
+import { editingActivity } from '@/components/editing/editingActivity'
+import { buildConfig } from '@/lib/commitspark-config'
 
-export const commitsparkConfig: CommitsparkConfig = {
+export const commitsparkConfig: CommitsparkConfig = buildConfig({
   getProviderLabel: () => 'GitHub',
   getProviderIcon: <P extends GitHubIconProps>(props: P) => GitHubIcon(props),
   createProvider: () => {
     return new GitHubProvider()
-  },
-  createAuthenticator: () => {
-    return new GitHubAuthenticator()
   },
   createGitAdapter: async (repositoryOptions): Promise<GitAdapter> => {
     const adapter = createAdapter()
@@ -24,4 +22,5 @@ export const commitsparkConfig: CommitsparkConfig = {
     } as GitHubRepositoryOptions)
     return adapter
   },
-}
+  activities: [editingActivity],
+})

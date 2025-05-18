@@ -70,8 +70,9 @@ enable your implementation through the frontend configuration file (see below).
 
 ### Configuration
 
-The frontend application is configured through configuration file [commitspark.config.ts](commitspark.config.ts)
-and further parametrized through environment variables or `.env` file.
+The frontend application is configured through configuration files [commitspark.config.ts](commitspark.config.ts) and
+[commitspark.authenticator.ts](commitspark.authenticator.ts), and further parametrized through environment variables or
+`.env` file.
 
 The following environment variables must be set independent of configuration:
 

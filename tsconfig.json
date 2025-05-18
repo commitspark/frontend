@@ -22,7 +22,16 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@commitspark-config": [
+        "./commitspark.config.ts"
+      ],
+    }
   },
   "include": [
     "next-env.d.ts",

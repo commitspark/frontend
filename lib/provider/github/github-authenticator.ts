@@ -4,11 +4,8 @@ import {
   COOKIE_SESSION_NAME,
 } from '../authenticator'
 import { NextRequest, NextResponse } from 'next/server'
-import { routes } from '../../../components/lib/route-generator'
-import {
-  readSessionJwt,
-  createSessionJwt,
-} from '../../../components/lib/session'
+import { authenticationSuccessRoute } from '@/commitspark.authenticator'
+import { readSessionJwt, createSessionJwt } from '@/components/lib/session'
 
 export class GitHubAuthenticator implements Authenticator {
   getAuthenticationUrl(): string {
@@ -83,7 +80,7 @@ export class GitHubAuthenticator implements Authenticator {
     )
 
     const response = NextResponse.redirect(
-      new URL(routes.repositoryList(), hostingUrl),
+      new URL(authenticationSuccessRoute(), hostingUrl),
       307,
     )
     response.cookies.set(COOKIE_SESSION_NAME, sessionJwt, {

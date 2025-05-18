@@ -1,17 +1,17 @@
 import React, { Fragment } from 'react'
-import { Menu, Transition } from '@headlessui/react'
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from '@headlessui/react'
 import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
 import { classNames } from './lib/styling'
 import DropDownEntry, { DropDownEntryProps } from './DropDownEntry'
 
-export enum OpenDirection {
-  bottomLeft,
-  bottomRight,
-}
-
 interface DropDownProps {
   menuEntries: DropDownEntryProps[]
-  openDirection?: OpenDirection
   customButton?: React.ReactElement
   customElement?: React.ReactElement
 }
@@ -40,10 +40,10 @@ const DropDown: React.FC<DropDownProps> = (props: DropDownProps) => {
     >
       <div>
         {props.customButton === undefined && (
-          <Menu.Button className={buttonClassName}>{buttonElement}</Menu.Button>
+          <MenuButton className={buttonClassName}>{buttonElement}</MenuButton>
         )}
         {props.customButton !== undefined && (
-          <Menu.Button as={React.Fragment}>{buttonElement}</Menu.Button>
+          <MenuButton as={React.Fragment}>{buttonElement}</MenuButton>
         )}
       </div>
 
@@ -56,21 +56,15 @@ const DropDown: React.FC<DropDownProps> = (props: DropDownProps) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items
+        <MenuItems
           className={classNames(
-            'absolute mt-1 w-52 bg-white rounded shadow-md ring-1 ring-gray-200 z-20',
-            props.openDirection === undefined ||
-              props.openDirection === OpenDirection.bottomLeft
-              ? 'right-0 origin-top-right'
-              : '',
-            props.openDirection === OpenDirection.bottomRight
-              ? 'left-0 origin-top-left'
-              : '',
+            'absolute mt-1 w-52 bg-white rounded shadow-md ring-1 ring-gray-200 focus:outline-0 z-20',
           )}
+          anchor={'bottom start'}
         >
           <div className="py-0.5">
             {props.menuEntries.map((entryProps: DropDownEntryProps, index) => (
-              <Menu.Item key={index}>
+              <MenuItem key={index}>
                 {({ close }) => {
                   const onClickHandler =
                     entryProps.onClickHandler !== undefined
@@ -87,10 +81,10 @@ const DropDown: React.FC<DropDownProps> = (props: DropDownProps) => {
                     />
                   )
                 }}
-              </Menu.Item>
+              </MenuItem>
             ))}
           </div>
-        </Menu.Items>
+        </MenuItems>
       </Transition>
     </Menu>
   )

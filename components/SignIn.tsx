@@ -5,7 +5,8 @@ import Link from 'next/link'
 import StyledButton from './StyledButton'
 import { Actions, Size } from './StyledButtonEnums'
 import { unstable_noStore as noStore } from 'next/cache'
-import { commitsparkConfig } from '../commitspark.config'
+import { commitsparkConfig } from '@commitspark-config'
+import { createAuthenticator } from '@/commitspark.authenticator'
 
 interface SignInProps {}
 
@@ -13,7 +14,7 @@ const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
   // ensure environment variables are set to server-side values at runtime
   noStore()
 
-  const authenticator = commitsparkConfig.createAuthenticator()
+  const authenticator = createAuthenticator()
   const providerIcon = commitsparkConfig.getProviderIcon({
     className: 'avatar-size',
   })
