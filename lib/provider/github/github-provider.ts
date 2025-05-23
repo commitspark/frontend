@@ -8,10 +8,12 @@ export class GitHubProvider implements Provider {
   ): Promise<Branch[]> {
     const octokit = new Octokit({ auth: authToken })
     const response = await octokit.request(
-      `GET /repos/${repository.owner}/${repository.name}/branches`,
+      'GET /repos/{owner}/{repo}/branches',
       {
+        owner: repository.owner,
+        repo: repository.name,
         request: {
-          // don't use cache for now to make sure branches are always up-to-date; see https://github.com/octokit/octokit.js/issues/890
+          // don't use cache for now to make sure branches are always up to date; see https://github.com/octokit/octokit.js/issues/890
           cache: 'reload',
         },
       },
