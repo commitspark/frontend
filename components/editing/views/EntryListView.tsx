@@ -17,11 +17,8 @@ import StyledButton from '@/components/StyledButton'
 import { Actions, Size } from '@/components/StyledButtonEnums'
 import Column from '@/components/shell/Column'
 import Entries from '@/components/editing/Entries'
-import { commitsparkConfig } from '@commitspark-config'
-import {
-  EditingActivityId,
-  RouteIdCreateEntry,
-} from '@/components/editing/types'
+import { editingActivity } from '@/components/editing/editingActivity'
+import { RouteIdCreateEntry } from '@/components/editing/types'
 import BranchesSelector from '@/components/BranchesSelector'
 import { ChevronRightIcon } from '@heroicons/react/24/solid'
 import EntryTypesSelector from '@/components/EntryTypesSelector'
@@ -79,13 +76,6 @@ const EntryListView: React.FC<EntryListViewProps> = (
   }
 
   const data = use(getData())
-
-  const editingActivity = commitsparkConfig.activities.find(
-    (activity) => activity.id === EditingActivityId,
-  )
-  if (!editingActivity) {
-    throw new Error('Cannot find editing activity')
-  }
 
   const pageHeading = (
     <div className="flex flex-row gap-x-2">
