@@ -3,6 +3,7 @@ import { RepositoryRefInfo } from '@/components/context/EditorProvider'
 import { getCookieSession } from '@/components/lib/session'
 import {
   fetchAllByType,
+  fetchBranches,
   fetchSchemaString,
 } from '@/components/lib/git-functions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
@@ -17,11 +18,15 @@ import StyledButton from '@/components/StyledButton'
 import { Actions, Size } from '@/components/StyledButtonEnums'
 import Column from '@/components/shell/Column'
 import Entries from '@/components/editing/Entries'
-import { editingActivity } from '@/components/editing/editingActivity'
-import { RouteIdCreateEntry } from '@/components/editing/types'
-import BranchesSelector from '@/components/BranchesSelector'
+import { commitsparkConfig } from '@commitspark-config'
+import {
+  EditingActivityId,
+  RouteIdCreateEntry,
+} from '@/components/editing/types'
+import BranchesSelector from '@/components/editing/BranchesSelector'
 import { ChevronRightIcon } from '@heroicons/react/24/solid'
-import EntryTypesSelector from '@/components/EntryTypesSelector'
+import EntryTypesSelector from '@/components/editing/EntryTypesSelector'
+import CreateBranchButton from '@/components/editing/CreateBranchButton'
 
 interface EntryListViewProps {
   owner: string
@@ -77,9 +82,34 @@ const EntryListView: React.FC<EntryListViewProps> = (
 
   const data = use(getData())
 
+  const getBranches = async () => {
+    const session = await getCookieSession()
+    return fetchBranches(
+      session,
+      repositoryInfo.owner,
+      repositoryInfo.repository,
+    )
+  }
+  const branchesPromise = getBranches()
+
+  const editingActivity = commitsparkConfig.activities.find(
+    (activity) => activity.id === EditingActivityId,
+  )
+  if (!editingActivity) {
+    throw new Error('Cannot find editing activity')
+  }
+
   const pageHeading = (
     <div className="flex flex-row gap-x-2">
-      <BranchesSelector repositoryInfo={repositoryInfo} />
+      <BranchesSelector
+        repositoryInfo={repositoryInfo}
+        branches={branchesPromise}
+      />
+      <CreateBranchButton
+        repositoryInfo={repositoryInfo}
+        currentBranchName={repositoryInfo.gitRef}
+        branches={branchesPromise}
+      />
       <ChevronRightIcon className="icon-size self-center" />
       <EntryTypesSelector
         repositoryInfo={repositoryInfo}

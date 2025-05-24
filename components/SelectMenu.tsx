@@ -9,6 +9,7 @@ interface SelectMenuProps {
   entries: DropDownEntryProps[]
   selectedId: string
   prefixIcon?: ReactElement
+  disabled?: boolean
 }
 
 const SelectMenu: React.FC<SelectMenuProps> = (props: SelectMenuProps) => {
@@ -20,7 +21,7 @@ const SelectMenu: React.FC<SelectMenuProps> = (props: SelectMenuProps) => {
   }
 
   const menuButton = (
-    <StyledButton actionType={Actions.neutral}>
+    <StyledButton actionType={Actions.neutral} disabled={props.disabled}>
       <div className="flex flex-row min-w-52">
         {props.prefixIcon && (
           <div className="pr-1.5 inline-flex items-baseline">

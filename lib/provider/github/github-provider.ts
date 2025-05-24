@@ -21,6 +21,41 @@ export class GitHubProvider implements Provider {
     return response.data
   }
 
+  async createBranch(
+    authToken: string,
+    repository: Repository,
+    sourceRef: string,
+    branchName: string,
+  ): Promise<Branch> {
+    const octokit = new Octokit({ auth: authToken })
+
+    // get the latest commit of existing branch
+    const refResponse = await octokit.request(
+      'GET /repos/{owner}/{repo}/git/ref/{ref}',
+      {
+        owner: repository.owner,
+        repo: repository.name,
+        ref: `heads/${sourceRef}`,
+      },
+    )
+
+    const response = await octokit.request(
+      'POST /repos/{owner}/{repo}/git/refs',
+      {
+        owner: repository.owner,
+        repo: repository.name,
+        sha: refResponse.data.object.sha,
+        ref: `refs/heads/${branchName}`,
+      },
+    )
+
+    return {
+      name: branchName,
+      commit: response.data.object,
+      protected: false, // TODO not necessarily the case
+    }
+  }
+
   async getRepositories(authToken: string): Promise<Repository[]> {
     const octokit = new Octokit({ auth: authToken })
     // TODO this must be refactored to support pagination
