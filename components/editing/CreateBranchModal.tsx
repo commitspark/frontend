@@ -32,7 +32,13 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = (
   )
   const [newBranchName, setNewBranchName] = useState<string>('')
   const [isCreating, setIsCreating] = useState(false)
+  const [isFormValid, setIsFormValid] = useState(false)
   const { addTransientNotification } = useTransientNotification()
+
+  const validateForm = (newBranchName: string): boolean => {
+    const validBranch = require('is-git-branch-name-valid')
+    return validBranch(newBranchName)
+  }
 
   const createButtonHandler = async (): Promise<void> => {
     setIsCreating(true)
@@ -71,7 +77,12 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = (
     (branch): DropDownEntryProps => {
       return {
         label: branch.name,
-        onClickHandler: () => setSourceBranchName(branch.name),
+        onClickHandler: () => {
+          setSourceBranchName(branch.name)
+          setIsFormValid(
+            validateForm(newBranchName) && branch.name !== newBranchName,
+          )
+        },
       }
     },
   )
@@ -80,7 +91,7 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = (
     <StyledButton
       actionType={Actions.primary}
       size={Size.lg}
-      disabled={isCreating}
+      disabled={isCreating || !isFormValid}
       onClick={createButtonHandler}
     >
       Create
@@ -91,7 +102,13 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = (
     <Modal
       isOpen={props.isOpen}
       isCancelButtonDisabled={isCreating}
-      onClose={() => !isCreating && props.closeModalHandler()}
+      onClose={() => {
+        if (!isCreating) {
+          props.closeModalHandler()
+          setNewBranchName('')
+          setIsFormValid(false)
+        }
+      }}
       title={'Create branch'}
       primaryButton={primaryButton}
       iconName="InformationCircleIcon"
@@ -109,7 +126,12 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = (
             name="branchName"
             placeholder={'feature/my-feature'}
             value={newBranchName}
-            handleDataChangeEvent={setNewBranchName}
+            handleDataChangeEvent={(newValue) => {
+              setNewBranchName(newValue)
+              setIsFormValid(
+                validateForm(newValue) && sourceBranchName !== newValue,
+              )
+            }}
             disabled={isCreating}
           />
         </div>
