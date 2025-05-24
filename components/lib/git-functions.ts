@@ -26,6 +26,26 @@ export async function fetchBranches(
   })
 }
 
+export async function createBranch(
+  sessionCookie: string,
+  owner: string,
+  repository: string,
+  sourceRef: string,
+  branchName: string,
+) {
+  const { accessToken } = await readSessionJwt(sessionCookie)
+  const provider = commitsparkConfig.createProvider()
+  return await provider.createBranch(
+    accessToken,
+    {
+      owner: owner,
+      name: repository,
+    },
+    sourceRef,
+    branchName,
+  )
+}
+
 export async function fetchRepositories(
   sessionCookie: string,
 ): Promise<Repository[]> {

@@ -34,7 +34,7 @@
     }
 
     .form-input-background {
-        @apply bg-white disabled:bg-gray-50;
+        @apply bg-white disabled:bg-gray-100;
     }
 
     .form-input-select-cursor {

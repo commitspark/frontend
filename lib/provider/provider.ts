@@ -2,6 +2,12 @@ export interface Provider {
   getUser: (authToken: string) => Promise<User>
   getRepositories: (authToken: string) => Promise<Repository[]>
   getBranches: (authToken: string, repository: Repository) => Promise<Branch[]>
+  createBranch: (
+    authToken: string,
+    repository: Repository,
+    sourceRef: string,
+    branchName: string,
+  ) => Promise<Branch>
   toFullName: (repository: Repository) => string
 }
 

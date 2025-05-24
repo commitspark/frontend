@@ -2,7 +2,7 @@ import React, { Suspense } from 'react'
 import { RepositoryRefInfo } from '@/components/context/EditorProvider'
 import { getCookieSession } from '@/components/lib/session'
 import { fetchSchemaString } from '@/components/lib/git-functions'
-import EntryTypesSelectorInner from '@/components/EntryTypesSelectorInner'
+import EntryTypesSelectorInner from '@/components/editing/EntryTypesSelectorInner'
 import SelectMenuLoading from '@/components/SelectMenuLoading'
 
 interface EntryTypesSelectorProps {

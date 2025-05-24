@@ -11,15 +11,13 @@ interface TextInputProps {
 
 const TextInput: React.FC<TextInputProps> = (props: TextInputProps) => {
   return (
-    <div className={'w-full form-input-background'}>
+    <div className="w-full">
       <input
         id={props.id}
         name={props.name}
         type="text"
         autoComplete="off"
-        className={
-          'w-full border-0 bg-transparent form-input-padding form-input-ring form-input-text form-input-cursor'
-        }
+        className="w-full border-0 form-input-background form-input-padding form-input-ring form-input-text form-input-cursor"
         value={props.value}
         onChange={(event) =>
           props.handleDataChangeEvent(event.currentTarget.value)

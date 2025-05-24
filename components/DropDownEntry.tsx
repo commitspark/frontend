@@ -20,7 +20,7 @@ const DropDownEntry: ForwardRefRenderFunction<
   DropDownEntryProps
 > = (props: DropDownEntryProps, ref) => {
   const elementClasses =
-    'w-full px-4 py-2 flex flex-row gap-4 items-center menu-item-colors group'
+    'w-full px-4 py-2.5 flex flex-row gap-4 items-center menu-item-colors group text-sm'
 
   if (props.target !== undefined) {
     return (

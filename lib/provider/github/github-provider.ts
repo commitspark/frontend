@@ -8,15 +8,52 @@ export class GitHubProvider implements Provider {
   ): Promise<Branch[]> {
     const octokit = new Octokit({ auth: authToken })
     const response = await octokit.request(
-      `GET /repos/${repository.owner}/${repository.name}/branches`,
+      'GET /repos/{owner}/{repo}/branches',
       {
+        owner: repository.owner,
+        repo: repository.name,
         request: {
-          // don't use cache for now to make sure branches are always up-to-date; see https://github.com/octokit/octokit.js/issues/890
+          // don't use cache for now to make sure branches are always up to date; see https://github.com/octokit/octokit.js/issues/890
           cache: 'reload',
         },
       },
     )
     return response.data
+  }
+
+  async createBranch(
+    authToken: string,
+    repository: Repository,
+    sourceRef: string,
+    branchName: string,
+  ): Promise<Branch> {
+    const octokit = new Octokit({ auth: authToken })
+
+    // get the latest commit of existing branch
+    const refResponse = await octokit.request(
+      'GET /repos/{owner}/{repo}/git/ref/{ref}',
+      {
+        owner: repository.owner,
+        repo: repository.name,
+        ref: `heads/${sourceRef}`,
+      },
+    )
+
+    const response = await octokit.request(
+      'POST /repos/{owner}/{repo}/git/refs',
+      {
+        owner: repository.owner,
+        repo: repository.name,
+        sha: refResponse.data.object.sha,
+        ref: `refs/heads/${branchName}`,
+      },
+    )
+
+    return {
+      name: branchName,
+      commit: response.data.object,
+      protected: false, // TODO not necessarily the case
+    }
   }
 
   async getRepositories(authToken: string): Promise<Repository[]> {
