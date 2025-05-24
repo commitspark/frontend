@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add UI to create new branches from within editing activity
 
+### Fixed
+
+- Fix rendering of single line field disabled state
+
 ### Changed
 
 - Streamline and declutter application UI
