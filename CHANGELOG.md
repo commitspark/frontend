@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Introduce configurable activities for UI extensibility
 - Upgrade to TailwindCSS 4
 - Upgrade dependencies
+- Upgrade Docker builds to Node.js 22
 
 ## [0.30.0] - 2025-03-19
 
