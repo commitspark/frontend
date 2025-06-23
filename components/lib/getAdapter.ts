@@ -1,13 +1,19 @@
-import { GitAdapter } from '@commitspark/git-adapter'
-import { commitsparkConfig } from '../../commitspark.config'
+'use server'
 
-let adapter: GitAdapter
+import { GitAdapter } from '@commitspark/git-adapter'
+import { commitsparkConfig } from '@commitspark-config'
+import { hasher } from 'node-object-hash'
+
+const adapters: Record<string, GitAdapter> = {}
+const hasherInstance = hasher({ coerce: false, sort: false, trim: false })
+
 export async function getAdapter(
   token: string,
   owner: string,
   name: string,
 ): Promise<GitAdapter> {
-  if (!adapter) {
+  const adapterHash = hasherInstance.hash({ token, owner, name })
+  if (!(adapterHash in adapters)) {
     const gitAdapter = await commitsparkConfig.createGitAdapter({
       repositoryOwner: owner,
       repositoryName: name,
@@ -20,8 +26,8 @@ export async function getAdapter(
     // })
     //
     // adapter = cacheAdapter
-    adapter = gitAdapter
+    adapters[adapterHash] = gitAdapter
   }
 
-  return adapter
+  return adapters[adapterHash]
 }
