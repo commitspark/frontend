@@ -39,26 +39,24 @@ const ContentTypeForm: React.FC<ContentTypeFormProps> =
       )
 
       return (
-        <div className={'flex flex-col gap-y-6'}>
-          {Object.keys(type.getFields()).map((fieldName, index) => {
-            return (
-              <div key={index}>
-                {/* div element above ensures CSS spacing is applied on entire field instances only */}
-                <Field
-                  fieldType={type.getFields()[fieldName].type}
-                  fieldName={fieldName}
-                  field={type.getFields()[fieldName]}
-                  isRequiredField={false}
-                  data={
-                    props.data
-                      ? props.data[type.getFields()[fieldName].name] ?? null
-                      : null
-                  }
-                  handleChildDataChangeRequest={handleChildDataChangeRequest}
-                />
-              </div>
-            )
-          })}
+        <div className="flex flex-col gap-y-6">
+          {Object.keys(type.getFields()).map((fieldName) => (
+            <div key={fieldName}>
+              {/* div element above ensures CSS spacing is applied on entire field instances only */}
+              <Field
+                fieldType={type.getFields()[fieldName].type}
+                fieldName={fieldName}
+                field={type.getFields()[fieldName]}
+                isRequiredField={false}
+                data={
+                  props.data
+                    ? props.data[type.getFields()[fieldName].name] ?? null
+                    : null
+                }
+                handleChildDataChangeRequest={handleChildDataChangeRequest}
+              />
+            </div>
+          ))}
         </div>
       )
     },
