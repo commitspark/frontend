@@ -25,6 +25,7 @@ const ContentTypeForm: React.FC<ContentTypeFormProps> =
         currentData.current = props.data
       }, [props.data])
 
+      const { onChildDataChangeRequestHandler, fieldName } = props
       // by using currentData we never need to re-instantiate this function no matter the data change that has occurred,
       // which means that this function won't be a cause for triggering child component re-renders
       const handleChildDataChangeRequest = useCallback(
@@ -33,9 +34,9 @@ const ContentTypeForm: React.FC<ContentTypeFormProps> =
             ...currentData.current,
             [childName]: childData,
           }
-          props.onChildDataChangeRequestHandler(props.fieldName, newData)
+          onChildDataChangeRequestHandler(fieldName, newData)
         },
-        [],
+        [onChildDataChangeRequestHandler, fieldName],
       )
 
       return (
