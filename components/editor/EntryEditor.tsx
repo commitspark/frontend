@@ -71,7 +71,6 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
       editorContext.repositoryRefInfo.repository,
       editorContext.repositoryRefInfo.gitRef,
       entryId,
-      editorContext.schema,
       editorContext.isNewEntry ? 'create' : 'update',
       entryData,
       props.typeName,
