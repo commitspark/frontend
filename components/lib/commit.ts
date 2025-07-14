@@ -18,6 +18,9 @@ import { assertIsRecordOrNull, assertIsString } from './assert'
 import { fetchSchemaString } from '@/components/lib/git-functions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLNamedType } from 'graphql/type/definition'
+import { MutationType } from '@/lib/types'
+import { readSessionJwt } from '@/components/lib/session'
+import { commitsparkHooks } from '@/commitspark.hooks'
 
 export async function commitEntry(
   session: string,
@@ -25,7 +28,7 @@ export async function commitEntry(
   repository: string,
   ref: string,
   entryId: string | null,
-  mutationType: 'create' | 'update',
+  mutationType: MutationType,
   entryData: Record<string, unknown> | null,
   typeName: string,
   commitMessage: string,
@@ -48,9 +51,28 @@ export async function commitEntry(
     )
   }
 
-  let cleanedData = entryData
-  if (cleanedData !== null) {
-    cleanedData = cleanDataByInputObjectType(schema, cleanedData, inputType)
+  let processedEntryData = entryData
+
+  if (commitsparkHooks.preCommit !== undefined) {
+    processedEntryData = await commitsparkHooks.preCommit(
+      await readSessionJwt(session),
+      owner,
+      repository,
+      ref,
+      entryId,
+      schema,
+      mutationType,
+      inputType,
+      processedEntryData,
+    )
+  }
+
+  if (processedEntryData !== null) {
+    processedEntryData = cleanDataByInputObjectType(
+      schema,
+      processedEntryData,
+      inputType,
+    )
   }
 
   const mutation = {
@@ -61,7 +83,7 @@ export async function commitEntry(
     variables: {
       entryId: entryId,
       commitMessage: commitMessage,
-      mutationData: cleanedData,
+      mutationData: processedEntryData,
     },
   }
 
