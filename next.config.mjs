@@ -6,6 +6,11 @@ import path from 'node:path'
  */
 const nextConfig = {
   trailingSlash: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '15mb',
+    },
+  },
   output: 'standalone',
   webpack: (config) => {
     config.resolve.alias.graphql$ = path.resolve(
