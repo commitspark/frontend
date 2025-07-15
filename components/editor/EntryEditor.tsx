@@ -29,7 +29,7 @@ import {
   RouteIdEntriesOfTypeList,
 } from '@/components/editing/types'
 import { EntryData } from '@commitspark/git-adapter'
-import { assertIsString, assertIsStringOrNull } from '@/components/lib/assert'
+import { assertIsString } from '@/components/lib/assert'
 
 interface EntryEditorProps {
   initialData: EntryData
@@ -63,15 +63,11 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     }
     const session = await getCookieSession()
 
-    const entryId = entryData.id
-    assertIsStringOrNull(entryId)
-
     const committedEntryData = await commitEntry(
       session,
       editorContext.repositoryRefInfo.owner,
       editorContext.repositoryRefInfo.repository,
       editorContext.repositoryRefInfo.gitRef,
-      entryId,
       editorContext.isNewEntry ? 'create' : 'update',
       entryData,
       props.typeName,

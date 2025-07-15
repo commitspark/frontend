@@ -28,7 +28,6 @@ export async function commitEntry(
   owner: string,
   repository: string,
   ref: string,
-  entryId: string | null,
   mutationType: MutationType,
   entryData: EntryData,
   typeName: string,
@@ -60,7 +59,6 @@ export async function commitEntry(
       owner,
       repository,
       ref,
-      entryId,
       schema,
       mutationType,
       inputType,
@@ -68,13 +66,14 @@ export async function commitEntry(
     )
   }
 
-  if (processedEntryData !== null) {
-    processedEntryData = cleanDataByInputObjectType(
-      schema,
-      processedEntryData,
-      inputType,
-    )
-  }
+  const entryId = processedEntryData?.id
+  assertIsString(entryId)
+
+  const cleanedEntryData = cleanDataByInputObjectType(
+    schema,
+    processedEntryData,
+    inputType,
+  )
 
   const mutation = {
     query:
@@ -84,19 +83,19 @@ export async function commitEntry(
     variables: {
       entryId: entryId,
       commitMessage: commitMessage,
-      mutationData: processedEntryData,
+      mutationData: cleanedEntryData,
     },
   }
 
   await actionMutateEntry(session, owner, repository, ref, mutation)
 
-  return processedEntryData
+  return { ...cleanedEntryData, id: entryId }
 }
 
 // returns `data` but recursively leaves out all fields that are either not defined in `inputObjectType` or are custom scalars
 function cleanDataByInputObjectType(
   schema: GraphQLSchema,
-  data: Record<string, unknown> | null,
+  data: EntryData,
   inputObjectType: GraphQLInputObjectType,
 ): Record<string, any> | null {
   if (data === null) {

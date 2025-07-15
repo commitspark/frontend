@@ -61,7 +61,6 @@ export interface CommitHook {
     repositoryOwner: string,
     repositoryName: string,
     ref: string,
-    entryId: string | null,
     schema: GraphQLSchema,
     mutationType: MutationType,
     inputType: GraphQLInputType,
