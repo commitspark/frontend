@@ -65,7 +65,7 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
 
     const entryId = entryData.id
 
-    await commitEntry(
+    const committedEntryData = await commitEntry(
       session,
       editorContext.repositoryRefInfo.owner,
       editorContext.repositoryRefInfo.repository,
@@ -78,7 +78,7 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     )
 
     setIsContentModified(false)
-    setOriginalEntryData(entryData)
+    setOriginalEntryData(committedEntryData)
 
     return entryId
   }

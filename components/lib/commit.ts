@@ -87,15 +87,9 @@ export async function commitEntry(
     },
   }
 
-  const mutationResponseData = await actionMutateEntry(
-    session,
-    owner,
-    repository,
-    ref,
-    mutation,
-  )
-  assertIsRecordOrNull(mutationResponseData?.data)
-  return mutationResponseData.data
+  await actionMutateEntry(session, owner, repository, ref, mutation)
+
+  return processedEntryData
 }
 
 // returns `data` but recursively leaves out all fields that are either not defined in `inputObjectType` or are custom scalars
