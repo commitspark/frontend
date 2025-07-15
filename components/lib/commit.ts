@@ -21,6 +21,7 @@ import { GraphQLNamedType } from 'graphql/type/definition'
 import { MutationType } from '@/lib/types'
 import { readSessionJwt } from '@/components/lib/session'
 import { commitsparkHooks } from '@/commitspark.hooks'
+import { EntryData } from '@commitspark/git-adapter'
 
 export async function commitEntry(
   session: string,
@@ -29,10 +30,10 @@ export async function commitEntry(
   ref: string,
   entryId: string | null,
   mutationType: MutationType,
-  entryData: Record<string, unknown> | null,
+  entryData: EntryData,
   typeName: string,
   commitMessage: string,
-): Promise<Record<string, unknown> | null> {
+): Promise<EntryData> {
   if (commitMessage.length === 0) {
     throw new Error('Commit message must not be empty')
   }
