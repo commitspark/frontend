@@ -5,26 +5,15 @@ technical knowledge to create, read, update, and
 delete [Commitspark-managed](https://github.com/commitspark/graphql-api) structured data stored in a Git repository
 hosted on a Git provider (e.g. GitHub, GitLab).
 
-## User authentication
+## User Authentication
 
-To obtain repository access, frontend users (i.e. data editors) must authenticate against a configurable
-authenticator. Typically, this authenticator utilizes user accounts of the Git provider where targeted Git repositories
-are hosted. The underlying idea is that data editors are then considered native users of the provider's platform and can
-use all the provider's collaboration features (e.g. commenting, approval).
+Frontend users (i.e. data editors) must authenticate themselves to obtain access to repositories.
 
-However, all authentication and repository access is solely executed on the server and any credentials (e.g. tokens)
-obtained by the server to access a Git provider's repositories are only sent to the client as payload of an encrypted
-session cookie. This allows decoupling frontend users from Git provider accounts, enabling such scenarios as giving
-editors access to Git repositories without needing to have a Git provider account of their own.
+The concrete authentication logic to be applied can be configured in `commitspark.authenticator.ts` and it is
+responsible
+for establishing a user session that contains a repository access token.
 
-## Supported Git providers
-
-* GitHub
-* User-defined custom Git provider
-
-Official support for GitLab is planned for a future release.
-
-### GitHub
+### Authentication with GitHub
 
 On GitHub, user authentication can be performed via GitHub App.
 
@@ -53,35 +42,39 @@ Once the App is created:
 * Install the App into your GitHub account or organization under `Install App -> Install` and select one or more
   of your designated data repositories that should be available to data editors
 
-Environment variables needed by the GitHub integration:
+### Authentication Using a Custom Provider
 
-| Variable                     | Description                                                                                                        |
-|------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| `GITHUB_OAUTH_CLIENT_ID`     | Client ID of GitHub App to be used for user authentication (see above),<br/>e.g. `Iv1.abcef12345678901`            |
-| `GITHUB_OAUTH_CLIENT_SECRET` | 40 character long hexadecimal client secret of the GitHub App,<br/>e.g. `0123456789abcdef01234567890abcdef0123456` |
+The interface found in [lib/provider/authenticator.ts](lib/provider/authenticator.ts) allows implementing a custom
+authentication provider.
 
-### Custom provider
-
-All Git provider functionality is abstracted away by interfaces defined in `lib/provider/provider.ts` and
-`lib/provider/authenticator.ts`. To use your own Git provider or authenticator, simply implement these interfaces and
-enable your implementation through the frontend configuration file (see below).
-
-## Running the Commitspark editing frontend
+## Running the Commitspark Data Editing Frontend
 
 ### Configuration
 
-The frontend application is configured through configuration files [commitspark.config.ts](commitspark.config.ts) and
-[commitspark.authenticator.ts](commitspark.authenticator.ts), and further parametrized through environment variables or
-`.env` file.
+The frontend application is configured through the following configuration files:
+
+| File                                                         | Description                                                              | Default                              |
+|--------------------------------------------------------------|--------------------------------------------------------------------------|--------------------------------------|
+| [commitspark.config.ts](commitspark.config.ts)               | Defines which Git provider to use and which activities to show in the UI | GitHub provider and Editing activity |
+| [commitspark.authenticator.ts](commitspark.authenticator.ts) | Defines which service to use for user authentication                     | Authentication against GitHub        | 
+| [commitspark.hooks.ts](commitspark.hooks.ts)                 | Defines any hooks to call during data processing                         | None called                          | 
+
+To change the default values, fork this repository and set your own configuration.
+
+### Runtime Variables
+
+Runtime variables are provided through environment variables or a `.env` file.
 
 The following environment variables must be set independent of configuration:
 
-| Variable             | Description                                                                                                                     |
-|----------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| `HOSTING_URL`        | Set to a public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com` |
-| `JWT_ENCRYPTION_KEY` | Set to a base64 encoded 32 byte secret that is used to encrypt JWTs,<br/>e.g. generate a string with `openssl rand -base64 32`  |
+| Variable                     | Description                                                                                                                     | Scope                                 |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
+| `HOSTING_URL`                | Set to a public URL where this frontend is going to be reachable,<br/>e.g. `http://localhost:3000` or `https://cms.example.com` | Always needed                         |
+| `JWT_ENCRYPTION_KEY`         | Set to a base64 encoded 32 byte secret that is used to encrypt JWTs,<br/>e.g. generate a string with `openssl rand -base64 32`  | Always needed                         |
+| `GITHUB_OAUTH_CLIENT_ID`     | Client ID of GitHub App to be used for user authentication (see above),<br/>e.g. `Iv1.abcef12345678901`                         | Only needed for GitHub authentication |
+| `GITHUB_OAUTH_CLIENT_SECRET` | 40 character long hexadecimal client secret of the GitHub App,<br/>e.g. `0123456789abcdef01234567890abcdef0123456`              | Only needed for GitHub authentication |
 
-### Running from source
+### Running from Source
 
 The frontend is implemented as a [Next.js](https://nextjs.org/) application, so the standard concepts of running and
 deploying Next.js applications apply.
@@ -97,8 +90,7 @@ Then open `http://localhost:3000` in your browser.
 
 ### Running from Docker
 
-Automated builds of branch `main` with GitHub configured as Git provider are published as a Docker image to GitHub
-packages:
+Automated builds of branch `main` are published as a Docker image to GitHub packages:
 
 ```
 ghcr.io/commitspark/frontend:latest
@@ -112,7 +104,7 @@ docker run -e "GITHUB_OAUTH_CLIENT_ID=..." -e "GITHUB_OAUTH_CLIENT_SECRET=..." -
 
 Then open `http://localhost:3000` in your browser.
 
-## Getting started with data editing
+## Getting Started with Data Editing
 
 To quickly see the Commitspark editing frontend in action, we offer a
 [public example data repository](https://github.com/commitspark/example-content-website) which you can

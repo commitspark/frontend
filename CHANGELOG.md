@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add UI to create new branches from within editing activity
+- Add support for configurable preCommit hook
+- Add support for file input
 
 ### Fixed
 
