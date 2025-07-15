@@ -44,11 +44,11 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
   const router = useRouter()
   const { addTransientNotification } = useTransientNotification()
 
-  const [entryData, setEntryData] = useState<Record<string, any> | null>(
+  const [entryData, setEntryData] = useState<Record<string, any>>(
     props.initialData,
   )
   const [originalEntryData, setOriginalEntryData] = useState<
-    Record<string, any> | undefined
+    Record<string, any>
   >(props.initialData)
   const [isContentModified, setIsContentModified] = useState<boolean>(false)
 
@@ -78,6 +78,7 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     )
 
     setIsContentModified(false)
+    setEntryData(committedEntryData)
     setOriginalEntryData(committedEntryData)
 
     return entryId
