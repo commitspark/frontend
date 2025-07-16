@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix rendering of single line field disabled state
 - Fix invalid use of stale cached Git adapter
+- Fix missing internal UI data after commit
 
 ### Changed
 

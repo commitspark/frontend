@@ -74,7 +74,6 @@ export async function commitEntry(
     processedEntryData,
     inputType,
   )
-
   const mutation = {
     query:
       `mutation ($entryId: ID!, $commitMessage: String!, $mutationData: ${typeName}Input!) {\n` +
@@ -86,10 +85,9 @@ export async function commitEntry(
       mutationData: cleanedEntryData,
     },
   }
-
   await actionMutateEntry(session, owner, repository, ref, mutation)
 
-  return { ...cleanedEntryData, id: entryId }
+  return processedEntryData
 }
 
 // returns `data` but recursively leaves out all fields that are either not defined in `inputObjectType` or are custom scalars
