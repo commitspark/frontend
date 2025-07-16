@@ -2,6 +2,7 @@ import React from 'react'
 import { getFieldDirectiveArgumentStringValue } from '../../lib/schema-utils'
 import {
   assertIsBooleanOrNull,
+  assertIsFileOrNull,
   assertIsFloatOrNull,
   assertIsNumberOrNull,
   assertIsStringOrNull,
@@ -15,6 +16,7 @@ import NumberFormInput from '../formInputs/NumberFormInput'
 import BooleanFormInput from '../formInputs/BooleanFormInput'
 import { NumberType } from '../../styledInput/NumberInput'
 import { EditorContextValue, useEditor } from '../../context/EditorProvider'
+import FileFormInput from '@/components/editor/formInputs/FileFormInput'
 
 interface ScalarTypeProps {
   fieldType: GraphQLScalarType
@@ -132,6 +134,17 @@ function getEditorByName(
     assertIsStringOrNull(data)
     return (
       <MarkdownFormInput
+        value={data}
+        handleChildDataChangeRequest={handleChildDataChangeRequest}
+        fieldName={fieldName}
+        fieldType={fieldType}
+      />
+    )
+  }
+  if (editorName === 'file') {
+    assertIsFileOrNull(data)
+    return (
+      <FileFormInput
         value={data}
         handleChildDataChangeRequest={handleChildDataChangeRequest}
         fieldName={fieldName}

@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react'
-import { GitAdapter } from '@commitspark/git-adapter'
+import { EntryData, GitAdapter } from '@commitspark/git-adapter'
 import { Provider } from '@/lib/provider/provider'
+import { GraphQLInputType, GraphQLSchema } from 'graphql/type'
+import { SessionPayload } from '@/components/lib/session'
 
 export interface CommitsparkConfig {
   getProviderLabel: () => string
@@ -46,3 +48,22 @@ export interface RouteGenerator {
 
 export type ActivityID = string
 export type RouteID = string
+
+export type MutationType = 'create' | 'update'
+
+export interface CommitsparkHooks {
+  preCommit?: CommitHook
+}
+
+export interface CommitHook {
+  (
+    sessionPayload: SessionPayload,
+    repositoryOwner: string,
+    repositoryName: string,
+    ref: string,
+    schema: GraphQLSchema,
+    mutationType: MutationType,
+    inputType: GraphQLInputType,
+    entryData: EntryData,
+  ): Promise<EntryData>
+}

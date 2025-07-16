@@ -1,13 +1,13 @@
 'use server'
 
 import 'server-only'
-import { commitsparkConfig } from '../../commitspark.config'
-import { User } from '../../lib/provider/provider'
-import { readSessionJwt } from '../../components/lib/session'
-import { fetchAllByType } from '../../components/lib/git-functions'
-import { getAdapter } from '../../components/lib/getAdapter'
+import { commitsparkConfig } from '@commitspark-config'
+import { User } from '@/lib/provider/provider'
+import { readSessionJwt } from '@/components/lib/session'
+import { fetchAllByType } from '@/components/lib/git-functions'
+import { getAdapter } from '@/components/lib/getAdapter'
 import { getApiService } from '@commitspark/graphql-api'
-import { assertIsRecordOrNull } from '../../components/lib/assert'
+import { assertIsRecordOrNull } from '@/components/lib/assert'
 import { revalidatePath } from 'next/cache'
 
 export async function actionFetchUserInfo(

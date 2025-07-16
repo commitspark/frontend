@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add UI to create new branches from within editing activity
+- Add support for configurable preCommit hook
+- Add support for file input
 
 ### Fixed
 
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade to TailwindCSS 4
 - Upgrade dependencies
 - Upgrade Docker builds to Node.js 22
+- Commit processing is moved to server-side
 
 ## [0.30.0] - 2025-03-19
 

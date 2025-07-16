@@ -1,36 +1,14 @@
 import {
+  GraphQLInputObjectType,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLWrappingType,
   isWrappingType,
 } from 'graphql/type'
-import {
-  ConstDirectiveNode,
-  InputObjectTypeDefinitionNode,
-  ListTypeNode,
-  NamedTypeNode,
-  NonNullTypeNode,
-  TypeDefinitionNode,
-  TypeNode,
-} from 'graphql/language/ast'
+import { ConstDirectiveNode } from 'graphql/language/ast'
 import { Kind } from 'graphql/language'
 import { GraphQLField, GraphQLNamedType } from 'graphql/type/definition'
 import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
-
-export function getTypeDefinitionNodeFromSchema(
-  schema: GraphQLSchema,
-  contentType: string,
-): TypeDefinitionNode {
-  const typeDeclaration = schema.getType(contentType)
-  const node: TypeDefinitionNode | undefined | null =
-    typeDeclaration?.toConfig().astNode
-  if (!node) {
-    throw new Error(
-      `Definition node of content type "${contentType}" not available`,
-    )
-  }
-  return node
-}
 
 // for non-null or list types, descend to child types until a named type is found and return the named type
 export function getNamedTypeFromWrappingType(
@@ -41,18 +19,6 @@ export function getNamedTypeFromWrappingType(
   } else {
     return fieldType.ofType
   }
-}
-
-export function isKindListTypeNode(node: TypeNode): node is ListTypeNode {
-  return node.kind === Kind.LIST_TYPE
-}
-
-export function isKindNonNullTypeNode(node: TypeNode): node is NonNullTypeNode {
-  return node.kind === Kind.NON_NULL_TYPE
-}
-
-export function isNamedTypeNode(node: TypeNode): node is NamedTypeNode {
-  return node.kind === Kind.NAMED_TYPE
 }
 
 export function getFieldDirectiveByName(
@@ -114,11 +80,9 @@ export function getListVisibleFieldNames(
   return namesMarkedVisibleFields
 }
 
-export function isOneOfInputType(
-  typeNode: InputObjectTypeDefinitionNode,
-): boolean {
+export function isOneOfInputType(type: GraphQLInputObjectType): boolean {
   return (
-    typeNode.directives?.find(
+    type.astNode?.directives?.find(
       (directive) => directive.name.value === 'oneOf',
     ) !== undefined
   )

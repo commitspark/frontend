@@ -67,3 +67,9 @@ export function assertIsArrayOfRecordsOrNull(
     assertIsRecordOrNull(item)
   }
 }
+
+export function assertIsFileOrNull(data: unknown): asserts data is File | null {
+  if (data !== null && !(data instanceof File)) {
+    throw new Error('Expected File or null')
+  }
+}

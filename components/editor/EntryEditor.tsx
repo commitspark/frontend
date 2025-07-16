@@ -28,9 +28,11 @@ import {
   RouteIdEditEntry,
   RouteIdEntriesOfTypeList,
 } from '@/components/editing/types'
+import { EntryData } from '@commitspark/git-adapter'
+import { assertIsString } from '@/components/lib/assert'
 
 interface EntryEditorProps {
-  initialData: Record<string, any>
+  initialData: EntryData
   entryId?: string
   typeName: string
 }
@@ -44,12 +46,10 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
   const router = useRouter()
   const { addTransientNotification } = useTransientNotification()
 
-  const [entryData, setEntryData] = useState<Record<string, any> | null>(
+  const [entryData, setEntryData] = useState<EntryData>(props.initialData)
+  const [originalEntryData, setOriginalEntryData] = useState<EntryData>(
     props.initialData,
   )
-  const [originalEntryData, setOriginalEntryData] = useState<
-    Record<string, any> | undefined
-  >(props.initialData)
   const [isContentModified, setIsContentModified] = useState<boolean>(false)
 
   const entryType = editorContext.schema.getType(props.typeName)
@@ -63,15 +63,11 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     }
     const session = await getCookieSession()
 
-    const entryId = entryData.id
-
-    await commitEntry(
+    const committedEntryData = await commitEntry(
       session,
       editorContext.repositoryRefInfo.owner,
       editorContext.repositoryRefInfo.repository,
       editorContext.repositoryRefInfo.gitRef,
-      entryId,
-      editorContext.schema,
       editorContext.isNewEntry ? 'create' : 'update',
       entryData,
       props.typeName,
@@ -79,9 +75,13 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     )
 
     setIsContentModified(false)
-    setOriginalEntryData(entryData)
+    setEntryData(committedEntryData)
+    setOriginalEntryData(committedEntryData)
 
-    return entryId
+    const committedEntryId = committedEntryData?.id
+    assertIsString(committedEntryId)
+
+    return committedEntryId
   }
 
   const doDelete = async (commitMessage: string): Promise<void> => {
@@ -112,14 +112,14 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
   }
 
   const updateIsContentModified = (
-    originalEntryData: Record<string, any> | undefined,
-    newData: Record<string, any>,
+    originalEntryData: EntryData,
+    newData: EntryData,
   ): void => {
     setIsContentModified(!deepEqual(originalEntryData, newData))
   }
 
   const childDataChangeRequestHandler = useCallback(
-    (_childName: string, childData: Record<string, any>): void => {
+    (_childName: string, childData: EntryData): void => {
       setEntryData(childData)
       updateIsContentModified(originalEntryData, childData)
     },
@@ -152,6 +152,7 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     ])
 
     if (editorContext.isNewEntry) {
+      // TODO or if entry ID has changed (e.g. due to preCommit hook)
       await actionRevalidatePath(entryListPagePath)
 
       // use timeout to wait for `isContentModified` state to be updated so that navigation guard does not kick in

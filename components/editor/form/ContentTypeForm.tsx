@@ -25,6 +25,7 @@ const ContentTypeForm: React.FC<ContentTypeFormProps> =
         currentData.current = props.data
       }, [props.data])
 
+      const { onChildDataChangeRequestHandler, fieldName } = props
       // by using currentData we never need to re-instantiate this function no matter the data change that has occurred,
       // which means that this function won't be a cause for triggering child component re-renders
       const handleChildDataChangeRequest = useCallback(
@@ -33,32 +34,30 @@ const ContentTypeForm: React.FC<ContentTypeFormProps> =
             ...currentData.current,
             [childName]: childData,
           }
-          props.onChildDataChangeRequestHandler(props.fieldName, newData)
+          onChildDataChangeRequestHandler(fieldName, newData)
         },
-        [],
+        [onChildDataChangeRequestHandler, fieldName],
       )
 
       return (
-        <div className={'flex flex-col gap-y-6'}>
-          {Object.keys(type.getFields()).map((fieldName, index) => {
-            return (
-              <div key={index}>
-                {/* div element above ensures CSS spacing is applied on entire field instances only */}
-                <Field
-                  fieldType={type.getFields()[fieldName].type}
-                  fieldName={fieldName}
-                  field={type.getFields()[fieldName]}
-                  isRequiredField={false}
-                  data={
-                    props.data
-                      ? props.data[type.getFields()[fieldName].name] ?? null
-                      : null
-                  }
-                  handleChildDataChangeRequest={handleChildDataChangeRequest}
-                />
-              </div>
-            )
-          })}
+        <div className="flex flex-col gap-y-6">
+          {Object.keys(type.getFields()).map((fieldName) => (
+            <div key={fieldName}>
+              {/* div element above ensures CSS spacing is applied on entire field instances only */}
+              <Field
+                fieldType={type.getFields()[fieldName].type}
+                fieldName={fieldName}
+                field={type.getFields()[fieldName]}
+                isRequiredField={false}
+                data={
+                  props.data
+                    ? props.data[type.getFields()[fieldName].name] ?? null
+                    : null
+                }
+                handleChildDataChangeRequest={handleChildDataChangeRequest}
+              />
+            </div>
+          ))}
         </div>
       )
     },

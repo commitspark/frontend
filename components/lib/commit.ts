@@ -1,52 +1,79 @@
-import { actionMutateEntry } from '../../app/server-actions/actions'
-import { GraphQLSchema } from 'graphql/type'
+'use server'
+
+import 'server-only'
+import { actionMutateEntry } from '@/app/server-actions/actions'
 import {
-  getTypeDefinitionNodeFromSchema,
-  isKindListTypeNode,
-  isKindNonNullTypeNode,
-  isNamedTypeNode,
-  isOneOfInputType,
-} from './schema-utils'
-import { Kind } from 'graphql/language'
-import {
-  InputObjectTypeDefinitionNode,
-  NamedTypeNode,
-  TypeNode,
-} from 'graphql/language/ast'
+  GraphQLInputObjectType,
+  GraphQLInputType,
+  GraphQLSchema,
+  isEnumType,
+  isInputObjectType,
+  isListType,
+  isNamedType,
+  isNonNullType,
+  isScalarType,
+} from 'graphql/type'
+import { isOneOfInputType } from './schema-utils'
 import { assertIsRecordOrNull, assertIsString } from './assert'
+import { fetchSchemaString } from '@/components/lib/git-functions'
+import { makeExecutableSchema } from '@graphql-tools/schema'
+import { GraphQLNamedType } from 'graphql/type/definition'
+import { MutationType } from '@/lib/types'
+import { readSessionJwt } from '@/components/lib/session'
+import { commitsparkHooks } from '@/commitspark.hooks'
+import { EntryData } from '@commitspark/git-adapter'
 
 export async function commitEntry(
   session: string,
   owner: string,
   repository: string,
   ref: string,
-  entryId: string | null,
-  schema: GraphQLSchema,
-  mutationType: 'create' | 'update',
-  entryData: Record<string, unknown> | null,
+  mutationType: MutationType,
+  entryData: EntryData,
   typeName: string,
   commitMessage: string,
-): Promise<Record<string, unknown> | null> {
+): Promise<EntryData> {
   if (commitMessage.length === 0) {
     throw new Error('Commit message must not be empty')
   }
 
-  const typeDefinitionNode = getTypeDefinitionNodeFromSchema(
-    schema,
-    `${typeName}Input`,
-  )
-  if (typeDefinitionNode.kind !== Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-    throw new Error('Expected input object type definition')
-  }
+  const schemaString = await fetchSchemaString(session, owner, repository, ref)
 
-  let cleanedData = entryData
-  if (cleanedData !== null) {
-    cleanedData = cleanDataByInputObjectType(
-      schema,
-      cleanedData,
-      typeDefinitionNode,
+  const schema = makeExecutableSchema({
+    typeDefs: schemaString,
+  })
+  const inputTypeName = `${typeName}Input`
+  const inputType = schema.getType(inputTypeName)
+
+  if (!isInputObjectType(inputType)) {
+    throw new Error(
+      `Expected GraphQLInputObjectType for type "${inputTypeName}".`,
     )
   }
+
+  let processedEntryData = entryData
+
+  if (commitsparkHooks.preCommit !== undefined) {
+    processedEntryData = await commitsparkHooks.preCommit(
+      await readSessionJwt(session),
+      owner,
+      repository,
+      ref,
+      schema,
+      mutationType,
+      inputType,
+      processedEntryData,
+    )
+  }
+
+  const entryId = processedEntryData?.id
+  assertIsString(entryId)
+
+  const cleanedEntryData = cleanDataByInputObjectType(
+    schema,
+    processedEntryData,
+    inputType,
+  )
 
   const mutation = {
     query:
@@ -56,49 +83,42 @@ export async function commitEntry(
     variables: {
       entryId: entryId,
       commitMessage: commitMessage,
-      mutationData: cleanedData,
+      mutationData: cleanedEntryData,
     },
   }
 
-  const mutationResponseData = await actionMutateEntry(
-    session,
-    owner,
-    repository,
-    ref,
-    mutation,
-  )
-  assertIsRecordOrNull(mutationResponseData?.data)
-  return mutationResponseData.data
+  await actionMutateEntry(session, owner, repository, ref, mutation)
+
+  return { ...cleanedEntryData, id: entryId }
 }
 
-// returns `data` but recursively leaves out all fields that are not defined in `inputObjectTypeDefinitionNode`
+// returns `data` but recursively leaves out all fields that are either not defined in `inputObjectType` or are custom scalars
 function cleanDataByInputObjectType(
   schema: GraphQLSchema,
-  data: Record<string, unknown> | null,
-  inputObjectTypeDefinitionNode: InputObjectTypeDefinitionNode,
+  data: EntryData,
+  inputObjectType: GraphQLInputObjectType,
 ): Record<string, any> | null {
-  if (data === null || !inputObjectTypeDefinitionNode.fields) {
+  if (data === null) {
     return null
   }
 
   // if we want to write a union that is not using @Entry-based concrete types, we use an intermediary field based
   // on the '@oneOf' directive to provide the concrete type to the backend
   // (see https://github.com/graphql/graphql-spec/pull/825)
-  if (data && isOneOfInputType(inputObjectTypeDefinitionNode)) {
+  if (data && isOneOfInputType(inputObjectType)) {
     const concreteUnionTypeName = data['__typename'] // this is our internal UI helper field used for the same purpose
     assertIsString(concreteUnionTypeName)
-    const concreteUnionTypeField = inputObjectTypeDefinitionNode.fields?.find(
-      // search for field of same name as union type name
-      (field) => field.name.value === concreteUnionTypeName,
-    )
+    // search for field of same name as union type name
+    const concreteUnionTypeField =
+      inputObjectType.getFields()[concreteUnionTypeName]
     if (!concreteUnionTypeField) {
       throw new Error(
-        `Expected input field for type "${concreteUnionTypeName}" in "@oneOf" input type "${inputObjectTypeDefinitionNode.name.value}"`,
+        `Expected input field for type "${concreteUnionTypeName}" in "@oneOf" input type "${inputObjectType.name}"`,
       )
     }
 
     return {
-      [concreteUnionTypeName]: cleanDataByTypeNode(
+      [concreteUnionTypeName]: cleanDataByInputType(
         schema,
         data,
         concreteUnionTypeField.type,
@@ -107,69 +127,68 @@ function cleanDataByInputObjectType(
   }
 
   let cleanedData: Record<string, unknown> = {}
-  for (const inputValueDefinition of inputObjectTypeDefinitionNode.fields) {
-    if (!(inputValueDefinition.name.value in data)) {
+  for (const inputFieldName in inputObjectType.getFields()) {
+    if (!(inputFieldName in data)) {
       // could be a case of missing input data; we assume we know what we are doing in the UI and don't act on it
       continue
     }
-    cleanedData[inputValueDefinition.name.value] = cleanDataByTypeNode(
+
+    // skip over fields where data is not or no longer defined
+    if (data[inputFieldName] === undefined) {
+      continue
+    }
+
+    const inputField = inputObjectType.getFields()[inputFieldName]
+    cleanedData[inputFieldName] = cleanDataByInputType(
       schema,
-      data[inputValueDefinition.name.value],
-      inputValueDefinition.type,
+      data[inputFieldName],
+      inputField.type,
     )
   }
 
   return cleanedData
 }
 
-function cleanDataByTypeNode(
+function cleanDataByInputType(
   schema: GraphQLSchema,
   data: Record<string, unknown> | unknown,
-  typeNode: TypeNode,
+  inputType: GraphQLInputType,
 ): any {
-  if (isKindListTypeNode(typeNode)) {
+  if (isListType(inputType)) {
     if (data === null) {
       return data
     }
     if (!Array.isArray(data)) {
-      throw new Error(`Expected array for ListTypeNode`)
+      throw new Error('Expected array for ListType')
     }
     return data.map((datum: any) =>
-      cleanDataByTypeNode(schema, datum, typeNode.type),
+      cleanDataByInputType(schema, datum, inputType.ofType),
     )
-  } else if (isKindNonNullTypeNode(typeNode)) {
-    return cleanDataByTypeNode(schema, data, typeNode.type)
-  } else if (isNamedTypeNode(typeNode)) {
-    return cleanDataByNamedTypeNode(schema, data, typeNode)
+  } else if (isNonNullType(inputType)) {
+    return cleanDataByInputType(schema, data, inputType.ofType)
+  } else if (isNamedType(inputType)) {
+    return cleanDataByNamed(schema, data, inputType)
   }
   throw new Error(`Unknown typeNode kind`)
 }
 
-function cleanDataByNamedTypeNode(
+function cleanDataByNamed(
   schema: GraphQLSchema,
   data: Record<string, unknown> | unknown,
-  typeNode: NamedTypeNode,
+  namedType: GraphQLNamedType,
 ): any {
-  const name = typeNode.name.value
-  if (
-    name === 'String' ||
-    name === 'ID' ||
-    name === 'Int' ||
-    name === 'Float' ||
-    name === 'Boolean'
-  ) {
+  if (isScalarType(namedType)) {
     return data
-  } else {
-    const typeDefinitionNode = getTypeDefinitionNodeFromSchema(schema, name)
-    if (typeDefinitionNode.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-      assertIsRecordOrNull(data)
-      return cleanDataByInputObjectType(schema, data, typeDefinitionNode)
-    } else if (typeDefinitionNode.kind === Kind.ENUM_TYPE_DEFINITION) {
-      return data
-    } else {
-      throw new Error(
-        `Unexpected typeDefinitionNode kind "${typeDefinitionNode.kind}"`,
-      )
-    }
   }
+
+  if (isInputObjectType(namedType)) {
+    assertIsRecordOrNull(data)
+    return cleanDataByInputObjectType(schema, data, namedType)
+  }
+
+  if (isEnumType(namedType)) {
+    return data
+  }
+
+  throw new Error(`Unexpected namedType "${namedType.name}"`)
 }
