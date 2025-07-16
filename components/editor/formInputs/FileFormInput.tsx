@@ -2,7 +2,7 @@ import React from 'react'
 import { GraphQLScalarType } from 'graphql/type'
 import FileInput from '@/components/styledInput/FileInput'
 
-interface SingleLineTextFormInputProps {
+interface FileFormInputProps {
   fieldName: string
   fieldType: GraphQLScalarType
   handleChildDataChangeRequest: (fieldName: string, newFieldValue: any) => void
@@ -10,8 +10,8 @@ interface SingleLineTextFormInputProps {
   readOnly?: boolean
 }
 
-const SingleLineTextFormInput: React.FC<SingleLineTextFormInputProps> = (
-  props: SingleLineTextFormInputProps,
+const FileFormInput: React.FC<FileFormInputProps> = (
+  props: FileFormInputProps,
 ) => {
   return (
     <FileInput
@@ -26,4 +26,4 @@ const SingleLineTextFormInput: React.FC<SingleLineTextFormInputProps> = (
   )
 }
 
-export default SingleLineTextFormInput
+export default FileFormInput
