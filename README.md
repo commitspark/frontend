@@ -10,8 +10,7 @@ hosted on a Git provider (e.g. GitHub, GitLab).
 Frontend users (i.e. data editors) must authenticate themselves to obtain access to repositories.
 
 The concrete authentication logic to be applied can be configured in `commitspark.authenticator.ts` and it is
-responsible
-for establishing a user session that contains a repository access token.
+responsible for establishing a user session that contains a repository access token.
 
 ### Authentication with GitHub
 
