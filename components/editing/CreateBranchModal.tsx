@@ -10,6 +10,8 @@ import { Branch } from '@/lib/provider/provider'
 import { DropDownEntryProps } from '@/components/DropDownEntry'
 import SelectMenu from '@/components/SelectMenu'
 import BranchIcon from '@/components/editing/icons/BranchIcon'
+// @ts-expect-error Missing type declaration
+import { default as validBranch } from 'is-git-branch-name-valid'
 
 interface CreateBranchModalProps {
   isOpen: boolean
@@ -36,7 +38,6 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = (
   const { addTransientNotification } = useTransientNotification()
 
   const validateForm = (newBranchName: string): boolean => {
-    const validBranch = require('is-git-branch-name-valid')
     return validBranch(newBranchName)
   }
 

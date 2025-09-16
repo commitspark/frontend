@@ -24,15 +24,15 @@ const DynamicIcon: React.FC<DynamicIconProps> = ({
   let Icon: JSX.Element
   if (iconTheme === IconTheme.SolidIcons20) {
     const { ...icons } = SolidIcons20
-    // @ts-ignore
+    // @ts-expect-error TODO
     Icon = icons[iconName]
   } else if (iconTheme === IconTheme.OutlineIcons24) {
     const { ...icons } = OutlineIcons24
-    // @ts-ignore
+    // @ts-expect-error TODO
     Icon = icons[iconName]
   } else if (iconTheme === IconTheme.SolidIcons24) {
     const { ...icons } = SolidIcons24
-    // @ts-ignore
+    // @ts-expect-error TODO
     Icon = icons[iconName]
   } else {
     throw new Error('Unexpected iconTheme')
@@ -40,7 +40,7 @@ const DynamicIcon: React.FC<DynamicIconProps> = ({
 
   return (
     <>
-      {/* @ts-ignore */}
+      {/* @ts-expect-error TODO */}
       <Icon {...props} />
     </>
   )

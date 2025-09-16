@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade dependencies
 - Upgrade Docker builds to Node.js 22
 - Commit processing is moved to server-side
+- Upgrade to Next.js 15.4
+- Upgrade to ESLint 9
 
 ## [0.30.0] - 2025-03-19
 
