@@ -16,7 +16,6 @@ import NamedType from './NamedType'
 import ListType from './ListType'
 import FieldLabel from './FieldLabel'
 import { getNamedTypeFromWrappingType } from '../../lib/schema-utils'
-import { deepEqual } from '../../lib/content-utils'
 
 interface FieldProps {
   fieldType: GraphQLType
@@ -102,7 +101,10 @@ const Field: React.FC<FieldProps> = memo<FieldProps>(
       </FieldLabel>
     )
   },
-  (prevProps, nextProps) => deepEqual(prevProps.data, nextProps.data),
+  (prevProps, nextProps) =>
+    prevProps.data === nextProps.data &&
+    prevProps.fieldName === nextProps.fieldName &&
+    prevProps.isRequiredField === nextProps.isRequiredField,
 )
 
 Field.displayName = 'Field'

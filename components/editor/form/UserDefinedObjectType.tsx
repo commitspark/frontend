@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { GraphQLObjectType } from 'graphql/type'
 import AddNamedTypeListEntryButton from './AddNamedTypeListEntryButton'
 import { createDefaultData } from '../../lib/default-data-generator'
@@ -16,34 +16,37 @@ interface UserDefinedObjectTypeProps {
   ) => void
 }
 
-const UserDefinedObjectType: React.FC<UserDefinedObjectTypeProps> = (
-  props: UserDefinedObjectTypeProps,
-) => {
-  if (props.data === null) {
-    return (
-      <AddNamedTypeListEntryButton
-        typeNameLabel={props.fieldType.name}
-        handleAddButtonEvent={() => {
-          const defaultData = createDefaultData(props.fieldType, 1)
-          assertIsRecordOrNull(defaultData)
-          props.handleChildDataChangeRequest(props.fieldName, defaultData)
-        }}
-      />
-    )
-  }
-
-  return (
-    <div className="px-4 py-6 shadow-sm form-input-ring border-gray-500/10 bg-gray-200/20">
-      <fieldset className={'flex flex-col gap-y-6'}>
-        <ContentTypeForm
-          objectType={props.fieldType}
-          fieldName={props.fieldName}
-          data={props.data}
-          onChildDataChangeRequestHandler={props.handleChildDataChangeRequest}
+const UserDefinedObjectType: React.FC<UserDefinedObjectTypeProps> = memo(
+  (props: UserDefinedObjectTypeProps) => {
+    if (props.data === null) {
+      return (
+        <AddNamedTypeListEntryButton
+          typeNameLabel={props.fieldType.name}
+          handleAddButtonEvent={() => {
+            const defaultData = createDefaultData(props.fieldType, 1)
+            assertIsRecordOrNull(defaultData)
+            props.handleChildDataChangeRequest(props.fieldName, defaultData)
+          }}
         />
-      </fieldset>
-    </div>
-  )
-}
+      )
+    }
+
+    return (
+      <div className="px-4 py-6 shadow-sm form-input-ring border-gray-500/10 bg-gray-200/20">
+        <fieldset className={'flex flex-col gap-y-6'}>
+          <ContentTypeForm
+            objectType={props.fieldType}
+            fieldName={props.fieldName}
+            data={props.data}
+            onChildDataChangeRequestHandler={props.handleChildDataChangeRequest}
+          />
+        </fieldset>
+      </div>
+    )
+  },
+  (prev, next) => prev.data === next.data,
+)
 
 export default UserDefinedObjectType
+
+UserDefinedObjectType.displayName = 'UserDefinedObjectType'

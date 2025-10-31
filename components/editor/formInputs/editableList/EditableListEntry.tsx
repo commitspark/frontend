@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import DragHandle from './DragHandle'
 import { GraphQLField, GraphQLNamedType } from 'graphql/type/definition'
 import Field from '../../form/Field'
@@ -33,70 +33,83 @@ interface DragItemProps {
 }
 
 /** Visualizes an entry in data of an array content type field */
-const EditableListEntry: React.FC<EditableListEntryProps> = (
-  props: EditableListEntryProps,
-) => {
-  const [isDndHandlePointerDown, setIsDndHandlePointerDown] =
-    useState<boolean>(false)
-  const [isDragging, setIsDragging] = useState<boolean>(false)
+const EditableListEntry: React.FC<EditableListEntryProps> = memo(
+  (props: EditableListEntryProps) => {
+    const [isDndHandlePointerDown, setIsDndHandlePointerDown] =
+      useState<boolean>(false)
+    const [isDragging, setIsDragging] = useState<boolean>(false)
 
-  return (
-    <div
-      className={classNames('flex', isDragging ? 'invisible' : '')}
-      draggable={isDndHandlePointerDown}
-      onDragStart={(event) => {
-        event.stopPropagation()
-        setIsDragging(true)
-        props.onDragStartHandler(props.id)
-      }}
-      onDragOver={(event) => {
-        props.onDragOverHandler(props.id)
-      }}
-      onDragEnd={(event) => {
-        event.stopPropagation()
-        setIsDndHandlePointerDown(false)
-        setIsDragging(false)
-        props.onDragEndHandler()
-      }}
-    >
-      {props.showDragHandles && (
-        <DragHandle pointerDownChangedHandler={setIsDndHandlePointerDown} />
-      )}
-      {!props.showDragHandles && (
-        <ReorderHandle
-          id={props.id}
-          moveUpHandler={props.moveUpHandler}
-          moveDownHandler={props.moveDownHandler}
-        />
-      )}
+    return (
+      <div
+        className={classNames('flex', isDragging ? 'invisible' : '')}
+        draggable={isDndHandlePointerDown}
+        onDragStart={(event) => {
+          event.stopPropagation()
+          setIsDragging(true)
+          props.onDragStartHandler(props.id)
+        }}
+        onDragOver={(event) => {
+          props.onDragOverHandler(props.id)
+        }}
+        onDragEnd={(event) => {
+          event.stopPropagation()
+          setIsDndHandlePointerDown(false)
+          setIsDragging(false)
+          props.onDragEndHandler()
+        }}
+      >
+        {props.showDragHandles && (
+          <DragHandle pointerDownChangedHandler={setIsDndHandlePointerDown} />
+        )}
+        {!props.showDragHandles && (
+          <ReorderHandle
+            id={props.id}
+            moveUpHandler={props.moveUpHandler}
+            moveDownHandler={props.moveDownHandler}
+          />
+        )}
 
-      {/* grid is required to provide proper width constraints to extra-wide child elements */}
-      <div className={'flex-grow grid grid-cols-1'}>
-        <LineCenteredElement>
-          <IconButton
-            iconName={'XMarkIcon'}
-            actionType={Actions.neutral}
-            className={'text-red-500'} // TODO maybe add a button outline style instead and then use Actions.negative?
-            size={Size.sm}
-            onClick={(event) => {
-              props.removeButtonEventHandler(event, props.listIndex)
+        {/* grid is required to provide proper width constraints to extra-wide child elements */}
+        <div className={'flex-grow grid grid-cols-1'}>
+          <LineCenteredElement>
+            <IconButton
+              iconName={'XMarkIcon'}
+              actionType={Actions.neutral}
+              className={'text-red-500'} // TODO maybe add a button outline style instead and then use Actions.negative?
+              size={Size.sm}
+              onClick={(event) => {
+                props.removeButtonEventHandler(event, props.listIndex)
+              }}
+            />
+          </LineCenteredElement>
+
+          <Field
+            fieldType={props.fieldType}
+            fieldName={props.fieldName}
+            field={props.field}
+            isRequiredField={props.isRequired}
+            data={props.data}
+            handleChildDataChangeRequest={(
+              childName: string,
+              childData: unknown,
+            ) => {
+              props.handleChildDataChangeRequest(props.id, childData)
             }}
           />
-        </LineCenteredElement>
-
-        <Field
-          fieldType={props.fieldType}
-          fieldName={props.fieldName}
-          field={props.field}
-          isRequiredField={props.isRequired}
-          data={props.data}
-          handleChildDataChangeRequest={(childName: string, childData: any) => {
-            props.handleChildDataChangeRequest(props.id, childData)
-          }}
-        />
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  },
+  (prev, next) =>
+    prev.id === next.id &&
+    prev.listIndex === next.listIndex &&
+    prev.data === next.data &&
+    prev.isRequired === next.isRequired &&
+    prev.fieldName === next.fieldName &&
+    prev.field === next.field &&
+    prev.fieldType === next.fieldType,
+)
 
 export default EditableListEntry
+
+EditableListEntry.displayName = 'EditableListEntry'

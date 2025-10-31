@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import EditableListEntry from './editableList/EditableListEntry'
 import {
   GraphQLObjectType,
@@ -20,72 +20,94 @@ import { Size } from '../../StyledButtonEnums'
 interface EditableListFormInputProps {
   fieldType: GraphQLList<GraphQLType>
   fieldName: string
-  field: GraphQLField<any, any>
+  field: GraphQLField<unknown, unknown>
   data: unknown[] | null
-  handleChildDataChangeRequest: (childName: string, childData: any) => void
+  handleChildDataChangeRequest: (childName: string, childData: unknown) => void
 }
 
 interface ListEntryWithId {
   id: number
-  value: any
+  value: unknown
 }
 
 const EditableListFormInput: React.FC<EditableListFormInputProps> = (
   props: EditableListFormInputProps,
 ) => {
-  const internalData: ListEntryWithId[] = generateListEntriesWithId(props.data)
-  const currentInternalData = useRef<ListEntryWithId[]>(internalData)
-  useEffect(() => {
-    currentInternalData.current = generateListEntriesWithId(props.data)
-  }, [props.data])
+  const currentInternalData = useRef<ListEntryWithId[]>([])
+  const nextIdRef = useRef<number>(0)
+  const { fieldName, handleChildDataChangeRequest } = props
+
+  const syncFromProps = useCallback((data: unknown[] | null | undefined) => {
+    const existingEntries = currentInternalData.current
+    const newList: ListEntryWithId[] = []
+    const usedIds = new Set<number>()
+
+    if (Array.isArray(data)) {
+      for (let i = 0; i < data.length; i++) {
+        const dataAtIndex = data[i]
+        const existingEntryAtIndex = existingEntries[i]
+        if (
+          existingEntryAtIndex &&
+          existingEntryAtIndex.value === dataAtIndex &&
+          !usedIds.has(existingEntryAtIndex.id)
+        ) {
+          // unchanged at the same index -> keep id
+          newList.push({ id: existingEntryAtIndex.id, value: dataAtIndex })
+          usedIds.add(existingEntryAtIndex.id)
+          continue
+        }
+        const found = existingEntries.find(
+          (e) => e.value === dataAtIndex && !usedIds.has(e.id),
+        )
+        if (found) {
+          // element was reordered -> preserve its id
+          newList.push({ id: found.id, value: dataAtIndex })
+          usedIds.add(found.id)
+        } else {
+          // new element
+          newList.push({ id: nextIdRef.current++, value: dataAtIndex })
+        }
+      }
+    }
+    currentInternalData.current = newList
+  }, [])
+
+  // derive a stable list for rendering; recompute only when props.data identity changes
+  const internalData: ListEntryWithId[] = useMemo(() => {
+    syncFromProps(props.data as unknown[] | null)
+    return currentInternalData.current
+  }, [props.data, syncFromProps])
 
   // lets us check during drag events if the event is coming from an entry in this list
   const [idDraggedEntry, setIdDraggedEntry] = useState<number | null>(null)
   const childNamedType = getNamedTypeFromWrappingType(props.fieldType)
 
-  // React needs a stable key for rendering lists, but we don't have a key, so we need to generate it
-  function generateListEntriesWithId(data: any): ListEntryWithId[] {
-    let idCounter = 0
-    return (
-      data?.map((element: any): ListEntryWithId => {
-        const id = idCounter++
-        return {
-          id: id,
-          value: element,
-        }
-      }) ?? []
-    )
-  }
-
-  function getGreatestId(listData: ListEntryWithId[]): number {
-    let greatestId = 0
-    for (const listDatum of listData) {
-      if (listDatum.id > greatestId) {
-        greatestId = listDatum.id
+  const onDragOverHandler = useCallback(
+    (idHoveredEntry: number): void => {
+      // if the event comes from an entry in another (e.g. nested) list, ignore it
+      if (idDraggedEntry === null) {
+        return
       }
-    }
-    return greatestId
-  }
 
-  const onDragOverHandler = useCallback((idHoveredEntry: number): void => {
-    // if the event comes from an entry in another (e.g. nested) list, ignore it
-    if (idDraggedEntry === null) {
-      return
-    }
-
-    const indexDraggedEntry = currentInternalData.current.findIndex(
-      (listDatum) => listDatum.id === idDraggedEntry,
-    )
-    const indexHoveredEntry = currentInternalData.current.findIndex(
-      (listDatum) => listDatum.id === idHoveredEntry,
-    )
-    currentInternalData.current = update(currentInternalData.current, {
-      $splice: [
-        [indexDraggedEntry, 1],
-        [indexHoveredEntry, 0, currentInternalData.current[indexDraggedEntry]],
-      ],
-    })
-  }, [])
+      const indexDraggedEntry = currentInternalData.current.findIndex(
+        (listDatum) => listDatum.id === idDraggedEntry,
+      )
+      const indexHoveredEntry = currentInternalData.current.findIndex(
+        (listDatum) => listDatum.id === idHoveredEntry,
+      )
+      currentInternalData.current = update(currentInternalData.current, {
+        $splice: [
+          [indexDraggedEntry, 1],
+          [
+            indexHoveredEntry,
+            0,
+            currentInternalData.current[indexDraggedEntry],
+          ],
+        ],
+      })
+    },
+    [idDraggedEntry],
+  )
 
   const dragStartHandler = useCallback((idDraggedEntry: number): void => {
     setIdDraggedEntry(idDraggedEntry)
@@ -93,25 +115,25 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = (
 
   const dragEndHandler = useCallback((): void => {
     setIdDraggedEntry(null)
-    props.handleChildDataChangeRequest(
-      props.fieldName,
+    handleChildDataChangeRequest(
+      fieldName,
       currentInternalData.current.map((listDatum) => listDatum.value),
     )
-  }, [props.fieldName])
+  }, [fieldName, handleChildDataChangeRequest])
 
-  const handleChildDataChangeRequest = useCallback(
-    (id: number, childData: any): void => {
+  const childDataChangeRequestHandler = useCallback(
+    (id: number, childData: unknown): void => {
       const newData = [...currentInternalData.current]
       const indexChangedEntry = newData.findIndex(
         (listDatum) => listDatum.id === id,
       )
       newData[indexChangedEntry].value = childData
-      props.handleChildDataChangeRequest(
-        props.fieldName,
+      handleChildDataChangeRequest(
+        fieldName,
         newData.map((listDatum) => listDatum.value),
       )
     },
-    [props.fieldName],
+    [fieldName, handleChildDataChangeRequest],
   )
 
   function handleAddNamedTypeButtonEvent(): void {
@@ -122,15 +144,7 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = (
       newEntry = createDefaultData(props.fieldType.ofType, 1)
     }
     extendedList.push(newEntry)
-    const nextId = getGreatestId(currentInternalData.current) + 1
-    currentInternalData.current = [
-      ...currentInternalData.current,
-      {
-        id: nextId,
-        value: newEntry,
-      },
-    ]
-    props.handleChildDataChangeRequest(props.fieldName, extendedList)
+    handleChildDataChangeRequest(fieldName, extendedList)
   }
 
   function handleAddUnionTypeButtonEvent(fieldType: GraphQLObjectType): void {
@@ -146,15 +160,7 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = (
     }
     extendedList.push(newEntry)
 
-    const nextId = getGreatestId(currentInternalData.current) + 1
-    currentInternalData.current = [
-      ...currentInternalData.current,
-      {
-        id: nextId,
-        value: newEntry,
-      },
-    ]
-    props.handleChildDataChangeRequest(props.fieldName, extendedList)
+    handleChildDataChangeRequest(fieldName, extendedList)
   }
 
   const handleRemoveButtonEvent = useCallback(
@@ -164,10 +170,9 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = (
       )
       const publicData = newListData.map((keyedEntry) => keyedEntry.value)
 
-      currentInternalData.current = newListData
-      props.handleChildDataChangeRequest(props.fieldName, publicData)
+      handleChildDataChangeRequest(fieldName, publicData)
     },
-    [props.fieldName],
+    [fieldName, handleChildDataChangeRequest],
   )
 
   let adderWidget: React.ReactNode
@@ -204,31 +209,40 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = (
     )
   }
 
-  function moveEntry(internalIdEntryToMove: number, direction: number): void {
-    const indexEntryToMove = currentInternalData.current.findIndex(
-      (listDatum) => listDatum.id === internalIdEntryToMove,
-    )
-    // constrain target to valid array range
-    const indexTarget = Math.min(
-      currentInternalData.current.length - 1,
-      Math.max(0, indexEntryToMove + direction),
-    )
-    const updatedEntries = update(currentInternalData.current, {
-      $splice: [
-        [indexEntryToMove, 1],
-        [indexTarget, 0, currentInternalData.current[indexEntryToMove]],
-      ],
-    })
-    currentInternalData.current = updatedEntries
+  const moveEntry = useCallback(
+    (internalIdEntryToMove: number, direction: number): void => {
+      const indexEntryToMove = currentInternalData.current.findIndex(
+        (listDatum) => listDatum.id === internalIdEntryToMove,
+      )
+      // constrain target to valid array range
+      const indexTarget = Math.min(
+        currentInternalData.current.length - 1,
+        Math.max(0, indexEntryToMove + direction),
+      )
+      const updatedEntries = update(currentInternalData.current, {
+        $splice: [
+          [indexEntryToMove, 1],
+          [indexTarget, 0, currentInternalData.current[indexEntryToMove]],
+        ],
+      })
+      currentInternalData.current = updatedEntries
 
-    props.handleChildDataChangeRequest(
-      props.fieldName,
-      updatedEntries.map((listDatum) => listDatum.value),
-    )
-  }
+      handleChildDataChangeRequest(
+        fieldName,
+        updatedEntries.map((listDatum) => listDatum.value),
+      )
+    },
+    [fieldName, handleChildDataChangeRequest],
+  )
 
-  const moveUpHandler = useCallback((id: number) => moveEntry(id, -1), [])
-  const moveDownHandler = useCallback((id: number) => moveEntry(id, +1), [])
+  const moveUpHandler = useCallback(
+    (id: number) => moveEntry(id, -1),
+    [moveEntry],
+  )
+  const moveDownHandler = useCallback(
+    (id: number) => moveEntry(id, +1),
+    [moveEntry],
+  )
 
   return (
     <div className="p-4 form-input-ring">
@@ -243,7 +257,7 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = (
             key={listDatum.id}
             id={listDatum.id}
             listIndex={listDatum.id}
-            handleChildDataChangeRequest={handleChildDataChangeRequest}
+            handleChildDataChangeRequest={childDataChangeRequestHandler}
             onDragStartHandler={dragStartHandler}
             onDragOverHandler={onDragOverHandler}
             onDragEndHandler={dragEndHandler}
