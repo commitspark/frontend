@@ -7,7 +7,7 @@ import { GraphQLObjectType } from 'graphql/type'
 import ListBoxInput from '../../styledInput/ListBoxInput'
 import { EditorContextValue, useEditor } from '../../context/EditorProvider'
 import { getCookieSession } from '../../lib/session'
-import { actionFetchAllByType } from '../../../app/server-actions/actions'
+import { fetchAllByType } from '@/components/lib/git-functions'
 
 interface ReferencePickerFormInputProps {
   objectType: GraphQLObjectType
@@ -46,7 +46,7 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = memo(
     useEffect(() => {
       const autoLoadReferences = async (): Promise<void> => {
         const session = await getCookieSession()
-        const loadedReferences = await actionFetchAllByType(
+        const loadedReferences = await fetchAllByType(
           session,
           editorContext.repositoryRefInfo.owner,
           editorContext.repositoryRefInfo.repository,
@@ -83,7 +83,7 @@ const ReferencePickerFormInput: React.FC<ReferencePickerFormInputProps> = memo(
 
     const fetchReferences = async (): Promise<void> => {
       const session = await getCookieSession()
-      let loadedReferences = await actionFetchAllByType(
+      let loadedReferences = await fetchAllByType(
         session,
         editorContext.repositoryRefInfo.owner,
         editorContext.repositoryRefInfo.repository,

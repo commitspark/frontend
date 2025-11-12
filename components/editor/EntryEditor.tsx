@@ -13,10 +13,7 @@ import StyledButton from '../StyledButton'
 import DeleteEntryModal from './DeleteEntryModal'
 import { useRouter } from 'next/navigation'
 import { useTransientNotification } from '../context/TransientNotificationProvider'
-import {
-  actionMutateEntry,
-  actionRevalidatePath,
-} from '@/app/server-actions/actions'
+import { actionRevalidatePath } from '@/app/server-actions/actions'
 import { isObjectType } from 'graphql/type'
 import { deepEqual } from '../lib/content-utils'
 import { commitEntry } from '../lib/commit'
@@ -30,6 +27,7 @@ import {
 } from '@/components/editing/types'
 import { EntryData } from '@commitspark/git-adapter'
 import { assertIsString } from '@/components/lib/assert'
+import { mutateEntry } from '@/components/lib/git-functions'
 
 interface EntryEditorProps {
   initialData: EntryData
@@ -100,7 +98,7 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
         commitMessage: commitMessage,
       },
     }
-    await actionMutateEntry(
+    await mutateEntry(
       session,
       editorContext.repositoryRefInfo.owner,
       editorContext.repositoryRefInfo.repository,

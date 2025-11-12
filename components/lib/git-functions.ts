@@ -3,14 +3,18 @@
 import { readSessionJwt } from './session'
 import { commitsparkConfig } from '@commitspark-config'
 import { Repository } from '@/lib/provider/provider'
-import { getApiService, GraphQLResponse } from '@commitspark/graphql-api'
-import { getAdapter } from './getAdapter'
-import { assertIsArrayOfRecordsOrNull, assertIsString } from './assert'
+import { GraphQLResponse } from '@commitspark/graphql-api'
+import { createClient } from './commitspark-client-factory'
+import {
+  assertIsArrayOfRecordsOrNull,
+  assertIsRecordOrNull,
+  assertIsString,
+} from './assert'
 import { notFound } from 'next/navigation'
 
 interface GraphQLQuery {
   query: string
-  variables?: Record<string, any>
+  variables?: Record<string, unknown>
 }
 
 export async function fetchBranches(
@@ -62,9 +66,8 @@ export async function fetchTypeNameById(
   entryId: string,
 ): Promise<string> {
   const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
-  const response = await apiService.postGraphQL(adapter, ref, {
+  const client = await createClient(accessToken, owner, name)
+  const response = await client.postGraphQL(ref, {
     query: `query { data: _typeName(id:"${entryId}") }`,
   })
 
@@ -81,12 +84,11 @@ export async function fetchSchemaString(
   ref: string,
 ): Promise<string> {
   const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
+  const client = await createClient(accessToken, owner, name)
 
   let response
   try {
-    response = await apiService.getSchema(adapter, ref)
+    response = await client.getSchema(ref)
   } catch (e) {
     // TODO replace with case-specific handling once API library exposes the necessary details
     throw e
@@ -103,10 +105,8 @@ export async function fetchContent(
   query: GraphQLQuery,
 ): Promise<Record<string, any>> {
   const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
-
-  const response = await apiService.postGraphQL(adapter, ref, query)
+  const client = await createClient(accessToken, owner, name)
+  const response = await client.postGraphQL(ref, query)
 
   handleRequestErrors(response)
 
@@ -122,10 +122,9 @@ export async function fetchAllByType(
   additionalFields?: string[],
 ): Promise<Record<string, any>[]> {
   const { accessToken } = await readSessionJwt(sessionCookie)
-  const apiService = await getApiService()
-  const adapter = await getAdapter(accessToken, owner, name)
-  const response = await apiService.postGraphQL(adapter, ref, {
-    query: `query { data: all${typeName}s {
+  const client = await createClient(accessToken, owner, name)
+  const response = await client.postGraphQL(ref, {
+    query: `query { data: every${typeName} {
     id
     ${additionalFields?.join('\n') ?? ''}
     } }`,
@@ -135,6 +134,33 @@ export async function fetchAllByType(
 
   assertIsArrayOfRecordsOrNull(response.data?.data)
   return JSON.parse(JSON.stringify(response.data.data)) ?? []
+}
+
+export async function mutateEntry(
+  sessionCookie: string,
+  owner: string,
+  repository: string,
+  ref: string,
+  mutation: { query: string; variables?: Record<string, unknown> | undefined },
+): Promise<Record<string, unknown> | null> {
+  const { accessToken } = await readSessionJwt(sessionCookie)
+  const client = await createClient(accessToken, owner, repository)
+  const response = await client.postGraphQL<Record<string, unknown>>(
+    ref,
+    mutation,
+  )
+
+  if (response.errors) {
+    throw new Error(
+      `GraphQL call failed with error "${JSON.stringify(response.errors)}"`,
+    )
+  }
+
+  handleRequestErrors(response)
+
+  assertIsRecordOrNull(response.data)
+
+  return JSON.parse(JSON.stringify(response.data))
 }
 
 const handleRequestErrors = (

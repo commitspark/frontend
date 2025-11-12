@@ -1,24 +1,28 @@
 'use server'
 
-import { GitAdapter } from '@commitspark/git-adapter'
 import { commitsparkConfig } from '@commitspark-config'
 import { hasher } from 'node-object-hash'
+import {
+  Client,
+  createClient as apiCreateClient,
+} from '@commitspark/graphql-api'
 
-const adapters: Record<string, GitAdapter> = {}
+const clients: Record<string, Client> = {}
 const hasherInstance = hasher({ coerce: false, sort: false, trim: false })
 
-export async function getAdapter(
+export async function createClient(
   token: string,
   owner: string,
   name: string,
-): Promise<GitAdapter> {
-  const adapterHash = hasherInstance.hash({ token, owner, name })
-  if (!(adapterHash in adapters)) {
-    const gitAdapter = await commitsparkConfig.createGitAdapter({
+): Promise<Client> {
+  const parametersHash = hasherInstance.hash({ token, owner, name })
+  if (!(parametersHash in clients)) {
+    const adapter = await commitsparkConfig.createGitAdapter({
       repositoryOwner: owner,
       repositoryName: name,
       accessToken: token,
     })
+    const client = await apiCreateClient(adapter)
 
     // const cacheAdapter = createCacheAdapter()
     // await cacheAdapter.setRepositoryOptions({
@@ -26,8 +30,8 @@ export async function getAdapter(
     // })
     //
     // adapter = cacheAdapter
-    adapters[adapterHash] = gitAdapter
+    clients[parametersHash] = client
   }
 
-  return adapters[adapterHash]
+  return clients[parametersHash]
 }

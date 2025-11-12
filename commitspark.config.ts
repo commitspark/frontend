@@ -16,11 +16,7 @@ export const commitsparkConfig: CommitsparkConfig = buildConfig({
     return new GitHubProvider()
   },
   createGitAdapter: async (repositoryOptions): Promise<GitAdapter> => {
-    const adapter = createAdapter()
-    await adapter.setRepositoryOptions({
-      ...repositoryOptions,
-    } as GitHubRepositoryOptions)
-    return adapter
+    return createAdapter(repositoryOptions as GitHubRepositoryOptions)
   },
   activities: [editingActivity],
 })

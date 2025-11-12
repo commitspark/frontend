@@ -1,7 +1,6 @@
 'use server'
 
 import 'server-only'
-import { actionMutateEntry } from '@/app/server-actions/actions'
 import {
   GraphQLInputObjectType,
   GraphQLInputType,
@@ -15,7 +14,7 @@ import {
 } from 'graphql/type'
 import { isOneOfInputType } from './schema-utils'
 import { assertIsRecordOrNull, assertIsString } from './assert'
-import { fetchSchemaString } from '@/components/lib/git-functions'
+import { fetchSchemaString, mutateEntry } from '@/components/lib/git-functions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import { GraphQLNamedType } from 'graphql/type/definition'
 import { MutationType } from '@/lib/types'
@@ -85,7 +84,7 @@ export async function commitEntry(
       mutationData: cleanedEntryData,
     },
   }
-  await actionMutateEntry(session, owner, repository, ref, mutation)
+  await mutateEntry(session, owner, repository, ref, mutation)
 
   return processedEntryData
 }
