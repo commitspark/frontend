@@ -13,7 +13,7 @@
   "dependencies": {
     "@commitspark/git-adapter-cache-memory": "^0.10.0",
     "@commitspark/git-adapter-github": "^0.21.0",
-    "@commitspark/graphql-api": "^1.0.0-beta.4",
+    "@commitspark/graphql-api": "^1.0.0-beta.5",
     "@graphql-tools/schema": "^9.0.16",
     "@headlessui/react": "^2.0.0",
     "@heroicons/react": "^2.0.16",
