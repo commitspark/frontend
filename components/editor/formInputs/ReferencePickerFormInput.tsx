@@ -3,7 +3,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { getListVisibleFieldNames } from '../../lib/schema-utils'
 import Loading from '../../Loading'
-import { GraphQLObjectType } from 'graphql/type'
+import { GraphQLObjectType } from 'graphql'
 import ListBoxInput from '../../styledInput/ListBoxInput'
 import { EditorContextValue, useEditor } from '../../context/EditorProvider'
 import { getCookieSession } from '../../lib/session'

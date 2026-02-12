@@ -4,6 +4,7 @@ import 'server-only'
 import {
   GraphQLInputObjectType,
   GraphQLInputType,
+  GraphQLNamedType,
   GraphQLSchema,
   isEnumType,
   isInputObjectType,
@@ -11,12 +12,11 @@ import {
   isNamedType,
   isNonNullType,
   isScalarType,
-} from 'graphql/type'
+} from 'graphql'
 import { isOneOfInputType } from './schema-utils'
 import { assertIsRecordOrNull, assertIsString } from './assert'
 import { fetchSchemaString, mutateEntry } from '@/components/lib/git-functions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
-import { GraphQLNamedType } from 'graphql/type/definition'
 import { MutationType } from '@/lib/types'
 import { readSessionJwt } from '@/components/lib/session'
 import { commitsparkHooks } from '@/commitspark.hooks'

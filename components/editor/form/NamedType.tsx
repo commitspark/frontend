@@ -1,11 +1,12 @@
 import React from 'react'
-import { GraphQLField, GraphQLNamedType } from 'graphql/type/definition'
 import {
+  GraphQLField,
+  GraphQLNamedType,
   isEnumType,
   isObjectType,
   isScalarType,
   isUnionType,
-} from 'graphql/type'
+} from 'graphql'
 import { getDirectiveByName } from '../../lib/schema-utils'
 import { assertIsRecordOrNull, assertIsStringOrNull } from '../../lib/assert'
 import ScalarType from './ScalarType'

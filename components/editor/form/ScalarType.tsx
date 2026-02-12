@@ -7,8 +7,7 @@ import {
   assertIsNumberOrNull,
   assertIsStringOrNull,
 } from '../../lib/assert'
-import { GraphQLField } from 'graphql/type/definition'
-import { GraphQLScalarType } from 'graphql/type'
+import { GraphQLField, GraphQLScalarType } from 'graphql'
 import MultiLineTextFormInput from '../formInputs/MultiLineTextFormInput'
 import MarkdownFormInput from '../formInputs/MarkdownFormInput'
 import SingleLineTextFormInput from '../formInputs/SingleLineTextFormInput'

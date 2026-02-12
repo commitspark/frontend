@@ -1,13 +1,14 @@
 import {
+  ConstDirectiveNode,
+  GraphQLField,
   GraphQLInputObjectType,
+  GraphQLNamedType,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLWrappingType,
   isWrappingType,
-} from 'graphql/type'
-import { ConstDirectiveNode } from 'graphql/language/ast'
-import { Kind } from 'graphql/language'
-import { GraphQLField, GraphQLNamedType } from 'graphql/type/definition'
+  Kind,
+} from 'graphql'
 import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
 
 // for non-null or list types, descend to child types until a named type is found and return the named type

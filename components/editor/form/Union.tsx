@@ -1,7 +1,6 @@
 import React from 'react'
-import { GraphQLField, GraphQLUnionType } from 'graphql/type/definition'
+import { GraphQLField, GraphQLObjectType, GraphQLUnionType } from 'graphql'
 import AddUnionTypeListEntryDropdown from './AddUnionTypeListEntryDropdown'
-import { GraphQLObjectType } from 'graphql/type'
 import { createDefaultData } from '../../lib/default-data-generator'
 import { assertIsRecordOrNull, assertIsString } from '../../lib/assert'
 import NamedType from './NamedType'

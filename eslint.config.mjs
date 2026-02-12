@@ -24,6 +24,21 @@ const eslintConfig = [
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       'prefer-const': 'warn',
+
+      // Disallow deep imports like `graphql/type` or `graphql/type/definition`.
+      // Always import from the top-level `graphql` entrypoint instead.
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['graphql/*'],
+              message:
+                'Do not use deep imports from "graphql/*" (can cause multiple realms at runtime when bundled). Import from "graphql" instead.',
+            },
+          ],
+        },
+      ],
     },
   },
 ]

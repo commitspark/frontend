@@ -1,6 +1,5 @@
 import React from 'react'
-import { GraphQLUnionType } from 'graphql/type/definition'
-import { GraphQLObjectType } from 'graphql/type'
+import { GraphQLObjectType, GraphQLUnionType } from 'graphql'
 import LineCenteredElement from '../../LineCenteredElement'
 import DropDown from '../../DropDown'
 import { Actions } from '../../StyledButtonEnums'

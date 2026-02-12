@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import { EntryData, GitAdapter } from '@commitspark/git-adapter'
 import { Provider } from '@/lib/provider/provider'
-import { GraphQLInputType, GraphQLSchema } from 'graphql/type'
+import { GraphQLInputType, GraphQLSchema } from 'graphql'
 import { SessionPayload } from '@/components/lib/session'
 
 export interface CommitsparkConfig {

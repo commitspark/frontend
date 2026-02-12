@@ -1,5 +1,5 @@
 import React from 'react'
-import { GraphQLEnumType } from 'graphql/type/definition'
+import { GraphQLEnumType } from 'graphql'
 import AddNamedTypeListEntryButton from './AddNamedTypeListEntryButton'
 import SelectFormInput from '../formInputs/SelectFormInput'
 import { createDefaultData } from '../../lib/default-data-generator'

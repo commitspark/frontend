@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react'
-import { GraphQLObjectType } from 'graphql/type'
+import { GraphQLObjectType } from 'graphql'
 import Field from './Field'
 
 interface ContentTypeFormProps {

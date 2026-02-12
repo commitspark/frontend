@@ -1,7 +1,7 @@
 import React from 'react'
 import AddNamedTypeListEntryButton from '../form/AddNamedTypeListEntryButton'
 import { createDefaultData } from '../../lib/default-data-generator'
-import { GraphQLScalarType } from 'graphql/type'
+import { GraphQLScalarType } from 'graphql'
 import MarkdownInput from '../../styledInput/MarkdownInput'
 import Tabs from '../../Tabs'
 import TextareaInput, {
