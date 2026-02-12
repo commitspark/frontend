@@ -1,17 +1,18 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import EditableListEntry from './editableList/EditableListEntry'
 import {
+  GraphQLField,
+  GraphQLList,
   GraphQLObjectType,
   GraphQLType,
   isNonNullType,
   isScalarType,
   isUnionType,
-} from 'graphql/type'
+} from 'graphql'
 import AddNamedTypeListEntryButton from '../form/AddNamedTypeListEntryButton'
 import { getNamedTypeFromWrappingType } from '../../lib/schema-utils'
 import AddUnionTypeListEntryDropdown from '../form/AddUnionTypeListEntryDropdown'
 import update from 'immutability-helper'
-import { GraphQLField, GraphQLList } from 'graphql/type/definition'
 import { createDefaultData } from '../../lib/default-data-generator'
 import { assertIsRecordOrNull } from '../../lib/assert'
 import LineCenteredElement from '../../LineCenteredElement'

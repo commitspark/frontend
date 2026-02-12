@@ -1,5 +1,5 @@
 import React from 'react'
-import { GraphQLScalarType } from 'graphql/type'
+import { GraphQLScalarType } from 'graphql'
 import FileInput from '@/components/styledInput/FileInput'
 
 interface FileFormInputProps {

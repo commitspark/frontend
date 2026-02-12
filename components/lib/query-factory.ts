@@ -1,13 +1,14 @@
 import {
+  GraphQLNamedType,
+  GraphQLOutputType,
   isEnumType,
   isNamedType,
   isObjectType,
   isScalarType,
   isUnionType,
   isWrappingType,
-} from 'graphql/type'
+} from 'graphql'
 import { getDirectiveByName, getListVisibleFieldNames } from './schema-utils'
-import { GraphQLNamedType, GraphQLOutputType } from 'graphql/type/definition'
 
 export const MAXIMUM_RECURSION_DEPTH: number = 20
 

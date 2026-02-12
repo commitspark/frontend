@@ -11,7 +11,7 @@ import {
 } from '@/components/lib/git-functions'
 import { assertIsString } from '@/components/lib/assert'
 import { makeExecutableSchema } from '@graphql-tools/schema'
-import { isObjectType } from 'graphql/type'
+import { isObjectType } from 'graphql'
 import { createContentQueryFromNamedType } from '@/components/lib/query-factory'
 import EntryEditor from '@/components/editor/EntryEditor'
 

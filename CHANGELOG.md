@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix invalid use of stale cached Git adapter
 - Fix missing internal UI data after commit
 - Improve performance of large editing forms
+- Fix GraphQL bundling issues caused by inconsistent imports
 
 ### Changed
 

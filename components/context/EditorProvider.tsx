@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, PropsWithChildren, useContext } from 'react'
-import { GraphQLSchema } from 'graphql/type'
+import { GraphQLSchema } from 'graphql'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 
 export interface EditorContextValue {

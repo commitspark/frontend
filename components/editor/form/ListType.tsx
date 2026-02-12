@@ -1,6 +1,5 @@
 import React from 'react'
-import { GraphQLField, GraphQLList } from 'graphql/type/definition'
-import { GraphQLType } from 'graphql/type'
+import { GraphQLField, GraphQLList, GraphQLType } from 'graphql'
 import { getNamedTypeFromWrappingType } from '../../lib/schema-utils'
 import AddNamedTypeListEntryButton from './AddNamedTypeListEntryButton'
 import { createDefaultData } from '../../lib/default-data-generator'

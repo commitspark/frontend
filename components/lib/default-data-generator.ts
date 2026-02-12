@@ -6,7 +6,7 @@ import {
   isObjectType,
   isScalarType,
   isUnionType,
-} from 'graphql/type'
+} from 'graphql'
 import { MAXIMUM_RECURSION_DEPTH } from './query-factory'
 import { getDirectiveByName } from './schema-utils'
 

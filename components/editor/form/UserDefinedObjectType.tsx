@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { GraphQLObjectType } from 'graphql/type'
+import { GraphQLObjectType } from 'graphql'
 import AddNamedTypeListEntryButton from './AddNamedTypeListEntryButton'
 import { createDefaultData } from '../../lib/default-data-generator'
 import { assertIsRecordOrNull } from '../../lib/assert'

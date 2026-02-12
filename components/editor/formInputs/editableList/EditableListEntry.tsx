@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react'
 import DragHandle from './DragHandle'
-import { GraphQLField, GraphQLNamedType } from 'graphql/type/definition'
+import { GraphQLField, GraphQLNamedType } from 'graphql'
 import Field from '../../form/Field'
 import ReorderHandle from './ReorderHandle'
 import LineCenteredElement from '../../../LineCenteredElement'

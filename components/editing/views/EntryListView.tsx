@@ -7,7 +7,7 @@ import {
   fetchSchemaString,
 } from '@/components/lib/git-functions'
 import { makeExecutableSchema } from '@graphql-tools/schema'
-import { isObjectType } from 'graphql/type'
+import { isObjectType } from 'graphql'
 import {
   getDirectiveByName,
   getListVisibleFieldNames,

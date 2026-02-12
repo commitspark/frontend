@@ -1,12 +1,12 @@
 import React, { memo } from 'react'
 import {
+  GraphQLField,
   GraphQLType,
   isListType,
   isNamedType,
   isNonNullType,
   isUnionType,
-} from 'graphql/type'
-import { GraphQLField } from 'graphql/type/definition'
+} from 'graphql'
 import {
   assertIsArrayOrNull,
   assertIsRecordOrNull,
