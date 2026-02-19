@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAuthenticator } from '@/commitspark.authenticator'
 
-export default async function middleware(
-  req: NextRequest,
-): Promise<NextResponse> {
+export default async function proxy(req: NextRequest): Promise<NextResponse> {
   const path = req.nextUrl.pathname
   const publicRoutes = /^\/(sign-in\/).*$/
 

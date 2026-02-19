@@ -53,7 +53,6 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = (
     } catch (error) {
       // TODO add error details to notification
       addTransientNotification({
-        id: Date.now().toString(),
         type: Actions.negative,
         title: 'Create failed',
         body: 'See browser console for details',
