@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, memo } from 'react'
+import React, { memo, useCallback, useMemo, useState } from 'react'
 import EditableListEntry from './editableList/EditableListEntry'
 import {
   GraphQLField,
@@ -78,6 +78,37 @@ function reconcile(
   return result
 }
 
+/**
+ * Reconcile that preserves keys positionally: when a child's *content* changed
+ * (new object reference) but the array *structure* didn't (same length, same
+ * positions), we keep existing ids and just update values. This prevents
+ * unmount/remount (and therefore input focus loss) of entries whose nested
+ * data was edited in-place.
+ */
+function reconcilePreservingKeys(
+  incoming: unknown[],
+  existing: EntryWithId[],
+): EntryWithId[] {
+  if (incoming.length !== existing.length) {
+    // structural change (add/remove) – fall back to full reconcile
+    return reconcile(incoming, existing)
+  }
+
+  let changed = false
+  const result: EntryWithId[] = new Array(incoming.length)
+
+  for (let i = 0; i < incoming.length; i++) {
+    if (existing[i].value === incoming[i]) {
+      result[i] = existing[i]
+    } else {
+      changed = true
+      result[i] = { id: existing[i].id, value: incoming[i] }
+    }
+  }
+
+  return changed ? result : existing
+}
+
 const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
   (props: EditableListFormInputProps) => {
     const { fieldType, fieldName, field, data, handleChildDataChangeRequest } =
@@ -88,14 +119,32 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
     )
     const [previousData, setPreviousData] = useState(data)
 
+    // Allow tracking the last array we propagated upward so we can recognize
+    // our own changes echoing back from the parent
+    const [lastPropagated, setLastPropagated] = useState<unknown[] | null>(null)
+
     if (data !== previousData) {
       setPreviousData(data)
-      setListItems((current) => reconcile(data, current))
+      setListItems((current) => {
+        if (data === lastPropagated) {
+          return reconcilePreservingKeys(data ?? [], current)
+        }
+        return reconcile(data, current)
+      })
     }
 
     const [idDraggedEntry, setIdDraggedEntry] = useState<number | null>(null)
 
     const childNamedType = getNamedTypeFromWrappingType(fieldType)
+
+    const propagate = useCallback(
+      (newItems: EntryWithId[]) => {
+        const plainArray = newItems.map((e) => e.value)
+        setLastPropagated(plainArray)
+        handleChildDataChangeRequest(fieldName, plainArray)
+      },
+      [fieldName, handleChildDataChangeRequest],
+    )
 
     const childDataChangeRequestHandler = useCallback(
       (id: number, childData: unknown): void => {
@@ -106,18 +155,11 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
           }
           const updated = [...current]
           updated[idx] = { ...updated[idx], value: childData }
-          // We must propagate *after* computing the new list.
-          // Using queueMicrotask avoids setState-during-render issues.
-          queueMicrotask(() =>
-            handleChildDataChangeRequest(
-              fieldName,
-              updated.map((e) => e.value),
-            ),
-          )
+          queueMicrotask(() => propagate(updated))
           return updated
         })
       },
-      [fieldName, handleChildDataChangeRequest],
+      [propagate],
     )
 
     const moveEntry = useCallback(
@@ -134,16 +176,11 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
           const updated = [...current]
           const [moved] = updated.splice(from, 1)
           updated.splice(to, 0, moved)
-          queueMicrotask(() =>
-            handleChildDataChangeRequest(
-              fieldName,
-              updated.map((e) => e.value),
-            ),
-          )
+          queueMicrotask(() => propagate(updated))
           return updated
         })
       },
-      [fieldName, handleChildDataChangeRequest],
+      [propagate],
     )
 
     const moveUpHandler = useCallback(
@@ -182,17 +219,11 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
 
     const dragEndHandler = useCallback((): void => {
       setIdDraggedEntry(null)
-      // On drag end, propagate the final order to the parent
       setListItems((current) => {
-        queueMicrotask(() =>
-          handleChildDataChangeRequest(
-            fieldName,
-            current.map((e) => e.value),
-          ),
-        )
+        queueMicrotask(() => propagate(current))
         return current
       })
-    }, [fieldName, handleChildDataChangeRequest])
+    }, [propagate])
 
     const handleAddNamedTypeButtonEvent = useCallback((): void => {
       const extendedList = [...(data ?? [])]
@@ -201,6 +232,7 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
         newEntry = createDefaultData(fieldType.ofType, 1)
       }
       extendedList.push(newEntry)
+      setLastPropagated(extendedList)
       handleChildDataChangeRequest(fieldName, extendedList)
     }, [data, fieldType, fieldName, handleChildDataChangeRequest])
 
@@ -214,6 +246,7 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
           newEntry = { ...defaultData, __typename: unionFieldType.name }
         }
         extendedList.push(newEntry)
+        setLastPropagated(extendedList)
         handleChildDataChangeRequest(fieldName, extendedList)
       },
       [data, fieldType, fieldName, handleChildDataChangeRequest],
@@ -223,16 +256,11 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
       (_: React.MouseEvent<HTMLButtonElement>, listIndex: number): void => {
         setListItems((current) => {
           const updated = current.filter((entry) => entry.id !== listIndex)
-          queueMicrotask(() =>
-            handleChildDataChangeRequest(
-              fieldName,
-              updated.map((e) => e.value),
-            ),
-          )
+          queueMicrotask(() => propagate(updated))
           return updated
         })
       },
-      [fieldName, handleChildDataChangeRequest],
+      [propagate],
     )
 
     const adderWidget = useMemo(() => {
