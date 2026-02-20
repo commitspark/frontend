@@ -162,7 +162,6 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     }
 
     addTransientNotification({
-      id: Date.now().toString(),
       type: Actions.positive,
       title: 'Commit succeeded',
     })
@@ -184,7 +183,6 @@ const EntryEditor: React.FC<EntryEditorProps> = (props) => {
     }, 0)
 
     addTransientNotification({
-      id: Date.now().toString(),
       type: Actions.positive,
       title: 'Entry deleted',
     })

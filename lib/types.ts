@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React, { ReactNode } from 'react'
 import { EntryData, GitAdapter } from '@commitspark/git-adapter'
 import { Provider } from '@/lib/provider/provider'
 import { GraphQLInputType, GraphQLSchema } from 'graphql'
@@ -8,7 +8,7 @@ export interface CommitsparkConfig {
   getProviderLabel: () => string
   getProviderIcon: <P extends React.HTMLAttributes<HTMLElement>>(
     props: P,
-  ) => ReactElement<P> | null
+  ) => ReactNode | null
   createProvider: () => Provider
   createGitAdapter: (
     repositoryOptions: RepositoryOptions,

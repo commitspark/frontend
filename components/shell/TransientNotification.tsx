@@ -3,7 +3,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Transition } from '@headlessui/react'
 import {
-  TransientNotification,
+  TransientNotification as TransientNotificationData,
   visibilityDuration,
 } from '../context/TransientNotificationProvider'
 import { Actions } from '../StyledButtonEnums'
@@ -11,7 +11,7 @@ import { classNames } from '../lib/styling'
 import DynamicIcon, { IconTheme } from '../DynamicIcon'
 
 export interface TransientNotificationProps {
-  notification: TransientNotification
+  notification: TransientNotificationData
 }
 
 const TransientNotification: React.FC<

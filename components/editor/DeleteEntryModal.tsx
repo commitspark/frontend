@@ -31,7 +31,6 @@ const DeleteEntryModal: React.FC<
     } catch (error) {
       // TODO add error details to notification
       addTransientNotification({
-        id: Date.now().toString(),
         type: Actions.negative,
         title: 'Deletion failed',
         body: 'See browser console for details',

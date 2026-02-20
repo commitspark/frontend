@@ -9,17 +9,21 @@ import React, {
 import { Actions } from '../StyledButtonEnums'
 
 export interface TransientNotification {
-  id: string
   type: Actions
   title: string
   body?: string
+}
+
+export interface InternalTransientNotificationData
+  extends TransientNotification {
+  id: number
 }
 
 interface TransientNotificationContextValue {
   addTransientNotification: (
     transientNotification: TransientNotification,
   ) => void
-  transientNotifications: TransientNotification[]
+  transientNotifications: InternalTransientNotificationData[]
 }
 
 const transientNotificationContext =
@@ -37,7 +41,7 @@ export const TransientNotificationProvider: React.FC<
   PropsWithChildren<TransientNotificationProviderProps>
 > = (props: PropsWithChildren<TransientNotificationProviderProps>) => {
   const [transientNotifications, setTransientNotifications] = useState<
-    TransientNotification[]
+    InternalTransientNotificationData[]
   >([])
 
   const lifecycleDuration = visibilityDuration + deleteInvisibleAfter
@@ -45,16 +49,17 @@ export const TransientNotificationProvider: React.FC<
   const addTransientNotification = (
     transientNotification: TransientNotification,
   ): void => {
+    const nextId = transientNotifications.length
     setTransientNotifications((prevState) => [
       ...prevState,
-      transientNotification,
+      { ...transientNotification, id: nextId },
     ])
     setTimeout(() => {
-      removeTransientNotification(transientNotification.id)
+      removeTransientNotification(nextId)
     }, lifecycleDuration)
   }
 
-  const removeTransientNotification = (id: string): void => {
+  const removeTransientNotification = (id: number): void => {
     setTransientNotifications((prevState) =>
       prevState.filter((notification) => id !== notification.id),
     )
