@@ -109,187 +109,172 @@ function reconcilePreservingKeys(
   return changed ? result : existing
 }
 
-const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
-  (props: EditableListFormInputProps) => {
-    const { fieldType, fieldName, field, data, handleChildDataChangeRequest } =
-      props
+const EditableListFormInput: React.FC<EditableListFormInputProps> = (
+  props: EditableListFormInputProps,
+) => {
+  const { fieldType, fieldName, field, data, handleChildDataChangeRequest } =
+    props
 
-    const [listItems, setListItems] = useState<EntryWithId[]>(() =>
-      reconcile(data, []),
-    )
-    const [previousData, setPreviousData] = useState(data)
+  const [listItems, setListItems] = useState<EntryWithId[]>(() =>
+    reconcile(data, []),
+  )
+  const [previousData, setPreviousData] = useState(data)
 
-    // Allow tracking the last array we propagated upward so we can recognize
-    // our own changes echoing back from the parent
-    const [lastPropagated, setLastPropagated] = useState<unknown[] | null>(null)
+  // Allow tracking the last array we propagated upward so we can recognize
+  // our own changes echoing back from the parent
+  const [lastPropagated, setLastPropagated] = useState<unknown[] | null>(null)
 
-    if (data !== previousData) {
-      setPreviousData(data)
+  if (data !== previousData) {
+    setPreviousData(data)
+    setListItems((current) => {
+      if (data === lastPropagated) {
+        return reconcilePreservingKeys(data ?? [], current)
+      }
+      return reconcile(data, current)
+    })
+  }
+
+  const [idDraggedEntry, setIdDraggedEntry] = useState<number | null>(null)
+
+  const childNamedType = getNamedTypeFromWrappingType(fieldType)
+
+  const propagate = useCallback(
+    (newItems: EntryWithId[]) => {
+      const plainArray = newItems.map((e) => e.value)
+      setLastPropagated(plainArray)
+      handleChildDataChangeRequest(fieldName, plainArray)
+    },
+    [fieldName, handleChildDataChangeRequest],
+  )
+
+  const childDataChangeRequestHandler = useCallback(
+    (id: number, childData: unknown): void => {
       setListItems((current) => {
-        if (data === lastPropagated) {
-          return reconcilePreservingKeys(data ?? [], current)
+        const idx = current.findIndex((e) => e.id === id)
+        if (idx === -1 || current[idx].value === childData) {
+          return current
         }
-        return reconcile(data, current)
+        const updated = [...current]
+        updated[idx] = { ...updated[idx], value: childData }
+        queueMicrotask(() => propagate(updated))
+        return updated
       })
+    },
+    [propagate],
+  )
+
+  const moveEntry = useCallback(
+    (id: number, direction: number): void => {
+      setListItems((current) => {
+        const from = current.findIndex((e) => e.id === id)
+        if (from === -1) {
+          return current
+        }
+        const to = Math.min(current.length - 1, Math.max(0, from + direction))
+        if (from === to) {
+          return current
+        }
+        const updated = [...current]
+        const [moved] = updated.splice(from, 1)
+        updated.splice(to, 0, moved)
+        queueMicrotask(() => propagate(updated))
+        return updated
+      })
+    },
+    [propagate],
+  )
+
+  const moveUpHandler = useCallback(
+    (id: number) => moveEntry(id, -1),
+    [moveEntry],
+  )
+  const moveDownHandler = useCallback(
+    (id: number) => moveEntry(id, +1),
+    [moveEntry],
+  )
+
+  const dragStartHandler = useCallback((id: number): void => {
+    setIdDraggedEntry(id)
+  }, [])
+
+  const onDragOverHandler = useCallback(
+    (idHoveredEntry: number): void => {
+      if (idDraggedEntry === null) {
+        return
+      }
+
+      setListItems((current) => {
+        const fromIdx = current.findIndex((e) => e.id === idDraggedEntry)
+        const toIdx = current.findIndex((e) => e.id === idHoveredEntry)
+        if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) {
+          return current
+        }
+        const updated = [...current]
+        const [moved] = updated.splice(fromIdx, 1)
+        updated.splice(toIdx, 0, moved)
+        return updated
+      })
+    },
+    [idDraggedEntry],
+  )
+
+  const dragEndHandler = useCallback((): void => {
+    setIdDraggedEntry(null)
+    setListItems((current) => {
+      queueMicrotask(() => propagate(current))
+      return current
+    })
+  }, [propagate])
+
+  const handleAddNamedTypeButtonEvent = useCallback((): void => {
+    const extendedList = [...(data ?? [])]
+    let newEntry = null
+    if (isNonNullType(fieldType.ofType)) {
+      newEntry = createDefaultData(fieldType.ofType, 1)
     }
+    extendedList.push(newEntry)
+    setLastPropagated(extendedList)
+    handleChildDataChangeRequest(fieldName, extendedList)
+  }, [data, fieldType, fieldName, handleChildDataChangeRequest])
 
-    const [idDraggedEntry, setIdDraggedEntry] = useState<number | null>(null)
-
-    const childNamedType = getNamedTypeFromWrappingType(fieldType)
-
-    const propagate = useCallback(
-      (newItems: EntryWithId[]) => {
-        const plainArray = newItems.map((e) => e.value)
-        setLastPropagated(plainArray)
-        handleChildDataChangeRequest(fieldName, plainArray)
-      },
-      [fieldName, handleChildDataChangeRequest],
-    )
-
-    const childDataChangeRequestHandler = useCallback(
-      (id: number, childData: unknown): void => {
-        setListItems((current) => {
-          const idx = current.findIndex((e) => e.id === id)
-          if (idx === -1 || current[idx].value === childData) {
-            return current
-          }
-          const updated = [...current]
-          updated[idx] = { ...updated[idx], value: childData }
-          queueMicrotask(() => propagate(updated))
-          return updated
-        })
-      },
-      [propagate],
-    )
-
-    const moveEntry = useCallback(
-      (id: number, direction: number): void => {
-        setListItems((current) => {
-          const from = current.findIndex((e) => e.id === id)
-          if (from === -1) {
-            return current
-          }
-          const to = Math.min(current.length - 1, Math.max(0, from + direction))
-          if (from === to) {
-            return current
-          }
-          const updated = [...current]
-          const [moved] = updated.splice(from, 1)
-          updated.splice(to, 0, moved)
-          queueMicrotask(() => propagate(updated))
-          return updated
-        })
-      },
-      [propagate],
-    )
-
-    const moveUpHandler = useCallback(
-      (id: number) => moveEntry(id, -1),
-      [moveEntry],
-    )
-    const moveDownHandler = useCallback(
-      (id: number) => moveEntry(id, +1),
-      [moveEntry],
-    )
-
-    const dragStartHandler = useCallback((id: number): void => {
-      setIdDraggedEntry(id)
-    }, [])
-
-    const onDragOverHandler = useCallback(
-      (idHoveredEntry: number): void => {
-        if (idDraggedEntry === null) {
-          return
-        }
-
-        setListItems((current) => {
-          const fromIdx = current.findIndex((e) => e.id === idDraggedEntry)
-          const toIdx = current.findIndex((e) => e.id === idHoveredEntry)
-          if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) {
-            return current
-          }
-          const updated = [...current]
-          const [moved] = updated.splice(fromIdx, 1)
-          updated.splice(toIdx, 0, moved)
-          return updated
-        })
-      },
-      [idDraggedEntry],
-    )
-
-    const dragEndHandler = useCallback((): void => {
-      setIdDraggedEntry(null)
-      setListItems((current) => {
-        queueMicrotask(() => propagate(current))
-        return current
-      })
-    }, [propagate])
-
-    const handleAddNamedTypeButtonEvent = useCallback((): void => {
+  const handleAddUnionTypeButtonEvent = useCallback(
+    (unionFieldType: GraphQLObjectType): void => {
       const extendedList = [...(data ?? [])]
       let newEntry = null
       if (isNonNullType(fieldType.ofType)) {
-        newEntry = createDefaultData(fieldType.ofType, 1)
+        const defaultData = createDefaultData(unionFieldType, 1)
+        assertIsRecordOrNull(defaultData)
+        newEntry = { ...defaultData, __typename: unionFieldType.name }
       }
       extendedList.push(newEntry)
       setLastPropagated(extendedList)
       handleChildDataChangeRequest(fieldName, extendedList)
-    }, [data, fieldType, fieldName, handleChildDataChangeRequest])
+    },
+    [data, fieldType, fieldName, handleChildDataChangeRequest],
+  )
 
-    const handleAddUnionTypeButtonEvent = useCallback(
-      (unionFieldType: GraphQLObjectType): void => {
-        const extendedList = [...(data ?? [])]
-        let newEntry = null
-        if (isNonNullType(fieldType.ofType)) {
-          const defaultData = createDefaultData(unionFieldType, 1)
-          assertIsRecordOrNull(defaultData)
-          newEntry = { ...defaultData, __typename: unionFieldType.name }
-        }
-        extendedList.push(newEntry)
-        setLastPropagated(extendedList)
-        handleChildDataChangeRequest(fieldName, extendedList)
-      },
-      [data, fieldType, fieldName, handleChildDataChangeRequest],
-    )
+  const handleRemoveButtonEvent = useCallback(
+    (_: React.MouseEvent<HTMLButtonElement>, listIndex: number): void => {
+      setListItems((current) => {
+        const updated = current.filter((entry) => entry.id !== listIndex)
+        queueMicrotask(() => propagate(updated))
+        return updated
+      })
+    },
+    [propagate],
+  )
 
-    const handleRemoveButtonEvent = useCallback(
-      (_: React.MouseEvent<HTMLButtonElement>, listIndex: number): void => {
-        setListItems((current) => {
-          const updated = current.filter((entry) => entry.id !== listIndex)
-          queueMicrotask(() => propagate(updated))
-          return updated
-        })
-      },
-      [propagate],
-    )
-
-    const adderWidget = useMemo(() => {
-      if (!isNonNullType(fieldType.ofType)) {
-        return (
-          <AddNamedTypeListEntryButton
-            typeNameLabel={'list entry'}
-            handleAddButtonEvent={handleAddNamedTypeButtonEvent}
-            size={Size.md}
-          />
-        )
-      }
-      if (isScalarType(childNamedType)) {
-        return (
-          <AddNamedTypeListEntryButton
-            typeNameLabel={childNamedType.name}
-            handleAddButtonEvent={handleAddNamedTypeButtonEvent}
-            size={Size.md}
-          />
-        )
-      }
-      if (isUnionType(childNamedType)) {
-        return (
-          <AddUnionTypeListEntryDropdown
-            unionType={childNamedType}
-            handleAddButtonEvent={handleAddUnionTypeButtonEvent}
-          />
-        )
-      }
+  const adderWidget = useMemo(() => {
+    if (!isNonNullType(fieldType.ofType)) {
+      return (
+        <AddNamedTypeListEntryButton
+          typeNameLabel={'list entry'}
+          handleAddButtonEvent={handleAddNamedTypeButtonEvent}
+          size={Size.md}
+        />
+      )
+    }
+    if (isScalarType(childNamedType)) {
       return (
         <AddNamedTypeListEntryButton
           typeNameLabel={childNamedType.name}
@@ -297,43 +282,56 @@ const EditableListFormInput: React.FC<EditableListFormInputProps> = memo(
           size={Size.md}
         />
       )
-    }, [
-      fieldType,
-      childNamedType,
-      handleAddNamedTypeButtonEvent,
-      handleAddUnionTypeButtonEvent,
-    ])
-
+    }
+    if (isUnionType(childNamedType)) {
+      return (
+        <AddUnionTypeListEntryDropdown
+          unionType={childNamedType}
+          handleAddButtonEvent={handleAddUnionTypeButtonEvent}
+        />
+      )
+    }
     return (
-      <div className="p-4 form-input-ring">
-        <div className="flex flex-col gap-y-8">
-          {listItems.map((listDatum, index) => (
-            <EditableListEntry
-              fieldType={childNamedType}
-              fieldName={index.toString()}
-              field={field}
-              isRequired={isNonNullType(fieldType.ofType)}
-              data={listDatum.value}
-              key={listDatum.id}
-              id={listDatum.id}
-              listIndex={listDatum.id}
-              handleChildDataChangeRequest={childDataChangeRequestHandler}
-              onDragStartHandler={dragStartHandler}
-              onDragOverHandler={onDragOverHandler}
-              onDragEndHandler={dragEndHandler}
-              removeButtonEventHandler={handleRemoveButtonEvent}
-              showDragHandles={false} // TODO turned off until drag & drop UX is improved
-              moveUpHandler={moveUpHandler}
-              moveDownHandler={moveDownHandler}
-            />
-          ))}
-          <LineCenteredElement>{adderWidget}</LineCenteredElement>
-        </div>
-      </div>
+      <AddNamedTypeListEntryButton
+        typeNameLabel={childNamedType.name}
+        handleAddButtonEvent={handleAddNamedTypeButtonEvent}
+        size={Size.md}
+      />
     )
-  },
-)
+  }, [
+    fieldType,
+    childNamedType,
+    handleAddNamedTypeButtonEvent,
+    handleAddUnionTypeButtonEvent,
+  ])
 
-EditableListFormInput.displayName = 'EditableListFormInput'
+  return (
+    <div className="p-4 form-input-ring">
+      <div className="flex flex-col gap-y-8">
+        {listItems.map((listDatum, index) => (
+          <EditableListEntry
+            fieldType={childNamedType}
+            fieldName={index.toString()}
+            field={field}
+            isRequired={isNonNullType(fieldType.ofType)}
+            data={listDatum.value}
+            key={listDatum.id}
+            id={listDatum.id}
+            listIndex={listDatum.id}
+            handleChildDataChangeRequest={childDataChangeRequestHandler}
+            onDragStartHandler={dragStartHandler}
+            onDragOverHandler={onDragOverHandler}
+            onDragEndHandler={dragEndHandler}
+            removeButtonEventHandler={handleRemoveButtonEvent}
+            showDragHandles={false} // TODO turned off until drag & drop UX is improved
+            moveUpHandler={moveUpHandler}
+            moveDownHandler={moveDownHandler}
+          />
+        ))}
+        <LineCenteredElement>{adderWidget}</LineCenteredElement>
+      </div>
+    </div>
+  )
+}
 
 export default EditableListFormInput
