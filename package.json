@@ -19,6 +19,7 @@
     "@heroicons/react": "^2.0.16",
     "@lexical/markdown": "^0.10.0",
     "@lexical/react": "^0.10.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "encoding": "^0.1.13",
     "is-git-branch-name-valid": "1.0.1",
     "isomorphic-fetch": "^3.0.0",
