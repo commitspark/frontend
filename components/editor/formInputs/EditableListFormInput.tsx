@@ -30,11 +30,6 @@ interface EntryWithId {
   value: unknown
 }
 
-let globalNextId = 0
-function nextId(): number {
-  return globalNextId++
-}
-
 function reconcile(
   incoming: unknown[] | null,
   existing: EntryWithId[],
@@ -45,6 +40,10 @@ function reconcile(
 
   const result: EntryWithId[] = []
   const usedIds = new Set<number>()
+  let nextId =
+    existing.length > 0
+      ? existing.sort((a, b) => a.id - b.id)[existing.length - 1].id + 1
+      : 0
 
   for (let i = 0; i < incoming.length; i++) {
     const newValue = incoming[i]
@@ -72,7 +71,8 @@ function reconcile(
     }
 
     // new entry
-    result.push({ id: nextId(), value: newValue })
+    result.push({ id: nextId, value: newValue })
+    nextId++
   }
 
   return result
