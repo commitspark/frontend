@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import EditableListEntry from './editableList/EditableListEntry'
 import {
   GraphQLField,
