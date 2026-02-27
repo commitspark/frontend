@@ -22,15 +22,7 @@ export async function createClient(
       repositoryName: name,
       accessToken: token,
     })
-    const client = await apiCreateClient(adapter)
-
-    // const cacheAdapter = createCacheAdapter()
-    // await cacheAdapter.setRepositoryOptions({
-    //   childAdapter: gitAdapter,
-    // })
-    //
-    // adapter = cacheAdapter
-    clients[parametersHash] = client
+    clients[parametersHash] = await apiCreateClient(adapter)
   }
 
   return clients[parametersHash]
