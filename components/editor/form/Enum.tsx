@@ -13,13 +13,10 @@ interface EnumProps {
 }
 
 const Enum: React.FC<EnumProps> = (props: EnumProps) => {
-  let selectedValue = null
-  const values = props.fieldType.getValues().map((value) => {
-    if (props.data === value.name) {
-      selectedValue = value.name
-    }
-    return value.name
-  })
+  const typeValues = props.fieldType.getValues()
+  const selectedValue =
+    typeValues.find((value) => props.data === value.name)?.name ?? null
+  const values = typeValues.map((value) => value.name)
 
   if (props.data === null) {
     return (

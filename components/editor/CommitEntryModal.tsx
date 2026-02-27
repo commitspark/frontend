@@ -31,7 +31,6 @@ const CommitEntryModal: React.FC<CommitEntryModalProps> = (
     } catch (error) {
       // TODO add error details to notification
       addTransientNotification({
-        id: Date.now().toString(),
         type: Actions.negative,
         title: 'Commit failed',
         body: 'See browser console for details',
