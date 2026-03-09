@@ -113,3 +113,8 @@ your own data repository.
 After cloning, ensure your GitHub App grants access to this new repository
 (`GitHub -> Settings -> GitHub Apps -> Configure -> Repository access`), then go to your Commitspark frontend,
 sign in with your authentication provider and start editing in the repository.
+
+## Customization
+
+Details on how to customize the editing frontend can be found in the [Customization](/docs/customization.md)
+documentation.
